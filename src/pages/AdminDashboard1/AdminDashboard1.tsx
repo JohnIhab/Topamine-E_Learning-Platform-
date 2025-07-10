@@ -75,7 +75,7 @@ export default function PrimarySearchAppBar() {
             <Box
               onClick={() => {
                 setSelectedItem("Dashboard");
-                navigate("/AdminDashboard1");
+                navigate("/admin");
               }}
               sx={{
                 display: "flex",

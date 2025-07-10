@@ -97,7 +97,7 @@ export default function TeachersPage() {
             <Box
               onClick={() => {
                 setSelectedItem("Dashboard");
-                navigate("/");
+                navigate("/admin");
               }}
               sx={{
                 display: "flex",
