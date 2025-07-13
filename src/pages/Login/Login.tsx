@@ -1,9 +1,9 @@
 import { Box, TextField, Button, Checkbox, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
-import loginPhoto from '../../assets/images/login.jpg'
+import loginPhoto from '../../assets/images/login.jpg';
 import GoogleIcon from '@mui/icons-material/Google';
 import { Link } from 'react-router-dom';
-import * as Yup from "yup"
+import * as Yup from "yup";
 import { useFormik } from 'formik';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
@@ -21,7 +21,6 @@ const CustomBox = styled(Box)({
 const LoginContainer = styled(Box)({
     display: 'flex',
     width: '800px',
-    //   height: '400px',
     backgroundColor: '#fff',
     padding: '10',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -41,9 +40,7 @@ const RightPanel = styled(Box)({
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     position: 'relative',
-
 });
-
 
 const SubTitle = styled(Typography)({
     fontSize: '1rem',
@@ -57,35 +54,62 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
-
     function validationSchema() {
         return Yup.object({
             email: Yup.string()
-                .email('Email is invalid')
-                .required('Email is required'),
-
+                .email('البريد الإلكتروني غير صالح')
+                .required('البريد الإلكتروني مطلوب'),
             password: Yup.string()
-                .min(6, 'Password must be at least 6 characters')
-                .matches(/[A-Z]/, 'Must contain an uppercase letter')
-                .matches(/[a-z]/, 'Must contain a lowercase letter')
-                .matches(/[0-9]/, 'Must contain a number')
-                .matches(/[@$!%*?&#]/, 'Must contain a special character')
-                .required('Password is required'),
+                .min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل')
+                .matches(/[A-Z]/, 'يجب أن تحتوي على حرف كبير')
+                .matches(/[a-z]/, 'يجب أن تحتوي على حرف صغير')
+                .matches(/[0-9]/, 'يجب أن تحتوي على رقم')
+                .matches(/[@$!%*?&#]/, 'يجب أن تحتوي على رمز خاص')
+                .required('كلمة المرور مطلوبة'),
         });
     }
 
-
-    let login = useFormik({
+    const login = useFormik({
         initialValues: {
             email: '',
             password: '',
         },
         validationSchema,
-        onSubmit: (values) => {
-            const { rePassword, ...cleanedValues } = values;
-            // sendData(cleanedValues)
+        onSubmit: async (values) => {
+            setLoading(true);
+            console.log('Sending login request with payload:', values);
+            try {
+                const response = await fetch('https://topamun-backend.vercel.app/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
+                });
+
+                const data = await response.json();
+                console.log('Server response:', data);
+
+                if (!response.ok) {
+                    const errorMessage = data.msgError === 'Un-activated Account, please confirm your email'
+                        ? 'بيانات تسجيل الدخول غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور أو سجل حسابًا جديدًا.'
+                        : data.msgError || 'فشل تسجيل الدخول: خطأ في الخادم';
+                    throw new Error(errorMessage);
+                }
+
+                toast.success('تسجيل الدخول ناجح!');
+                // Handle successful login (e.g., store token, redirect)
+                // localStorage.setItem('token', data.token);
+                // navigate('/dashboard');
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                toast.error(error.msgError || 'حدث خطأ أثناء تسجيل الدخول');
+            } finally {
+                setLoading(false);
+            }
         }
-    })
+    });
 
     return (
         <CustomBox>
@@ -110,7 +134,6 @@ const Login = () => {
                             onChange={login.handleChange}
                             error={Boolean(login.errors.email && login.touched.email)}
                             helperText={login.errors.email && login.touched.email ? login.errors.email : ''}
-
                         />
                         <TextField
                             label="كلمة المرور"
@@ -134,7 +157,6 @@ const Login = () => {
                                 ),
                             }}
                         />
-
                         <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
                             <Box display="flex" alignItems="center">
                                 <Checkbox />
@@ -153,8 +175,6 @@ const Login = () => {
                             disabled={!login.dirty || !login.isValid || loading}
                         >
                             {loading ? <CircularProgress size={24} color="inherit" /> : 'تسجيل الدخول'}
-
-
                         </Button>
                         <Button
                             variant="outlined"
@@ -164,7 +184,6 @@ const Login = () => {
                         >
                             تسجيل الدخول باستخدام جوجل
                         </Button>
-
                         <Typography align="center" mt={2}>
                             ليس لديك حساب؟{' '}
                             <Link to="/register" style={{ textDecoration: 'none', color: '#1976d2' }}>
