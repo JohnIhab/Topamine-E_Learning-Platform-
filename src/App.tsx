@@ -16,11 +16,12 @@ import Teachers from "./pages/Teachers/Teachers";
 import Students from "./pages/Students/Students";
 import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 import { SnackbarProvider } from "notistack";
+import NotFound from "./pages/NotFound/NotFound";
 
 
 function App() {
   const location = useLocation();
-  const hiddenRoutes = ["/login", "/register", "/ForgetPassword"];
+  const hiddenRoutes = ["/login", "/register", "/ForgetPassword", "/admin"];
   const hideNavAndFooter = hiddenRoutes.includes(location.pathname);
 
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/Teachers" element={<Teachers />} />
           <Route path="/Students" element={<Students />} />
           <Route path="/profileTeacher/courseDetails" element={<CourseDetalis />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
