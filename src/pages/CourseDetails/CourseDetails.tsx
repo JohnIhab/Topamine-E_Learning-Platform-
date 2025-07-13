@@ -1,7 +1,14 @@
 import React from 'react'
+import CourseDel from '../../components/CourseDel/CourseDel';
 
-export default function CourseDetails() {
-    return (
-        <div>CourseDetails</div>
-    )
+
+const CourseDetails: React.FC = () => {
+  return (
+    <div>
+        <CourseDel/>
+      
+    </div>
+  )
 }
+
+export default CourseDetails; 
