@@ -15,7 +15,6 @@ import Courses from "./pages/Courses/Courses";
 import Teachers from "./pages/Teachers/Teachers";
 import Students from "./pages/Students/Students";
 import CourseDetalis from "./pages/CourseDetails/CourseDetails";
-
 import { SnackbarProvider } from "notistack";
 
 
@@ -38,7 +37,7 @@ function App() {
           <Route path="/profileTeacher" element={<ProfileTeacher />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          <Route path="/productDetail/payment" element={<Payment />} />
+          <Route path="/profileTeacher/courseDetails/payment" element={<Payment />} />
           <Route path="/admin" element={<AdminDashboard1 />} />
           <Route path="/Courses" element={<Courses />} />
           <Route path="/Teachers" element={<Teachers />} />

@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import axios from 'axios';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
+import { googleProvider, auth, db } from '../../firebase';
+import { getDoc, doc, setDoc } from 'firebase/firestore';
+import GoogleIcon from "@mui/icons-material/Google";
 import {
     Grid,
     Tabs,
@@ -69,6 +73,7 @@ const ScrollableFormBox = styled(Box)({
     paddingLeft: '8px',
 });
 
+
 const Register: React.FC = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const [showPassword, setShowPassword] = useState(false);
@@ -109,66 +114,121 @@ const Register: React.FC = () => {
         };
     }, [imagePreview]);
 
-const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-        firstName: '',
-        lastName: '',
-        phone: '',
-        province: 'الشرقية',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        grade: 'الصف الأول الثانوى',
-        subject: 'لغة عربية',
-        isTeacher: tabIndex === 1,
-    },
-    validationSchema: Yup.object({
-        firstName: Yup.string().required('الاسم الأول مطلوب'),
-        lastName: Yup.string().required('اسم العائلة مطلوب'),
-        phone: Yup.string()
-            .matches(/^01[0125][0-9]{8}$/, 'رقم الهاتف غير صالح')
-            .required('رقم الهاتف مطلوب'),
-        province: Yup.string().required('المحافظة مطلوبة'),
-        email: Yup.string().email('البريد الإلكتروني غير صالح').required('البريد الإلكتروني مطلوب'),
-        password: Yup.string()
-            .min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل')
-            .matches(/[A-Z]/, 'يجب أن تحتوي على حرف كبير')
-            .matches(/[a-z]/, 'يجب أن تحتوي على حرف صغير')
-            .matches(/[0-9]/, 'يجب أن تحتوي على رقم')
-            .matches(/[@$!%*?&#]/, 'يجب أن تحتوي على رمز خاص')
-            .required('كلمة المرور مطلوبة'),
-        confirmPassword: Yup.string()
-            .oneOf([Yup.ref('password')], 'كلمة المرور غير متطابقة')
-            .required('تأكيد كلمة المرور مطلوب'),
-        isTeacher: Yup.boolean(),
-        grade: Yup.string().when('isTeacher', {
-            is: false,
-            then: (schema) => schema.required('المرحلة الدراسية مطلوبة'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        subject: Yup.string().when('isTeacher', {
-            is: true,
-            then: (schema) => schema.required('المادة مطلوبة'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-    }),
-    onSubmit: async (values, { setSubmitting, setErrors }) => {
-        try {
-            await formik.validateForm(values);
-            await sendDataToApi(values);
-        } catch (error) {
-            console.error('Validation or submission error:', error);
-            setErrors({ submit: 'حدث خطأ أثناء التحقق من البيانات' });
-            setSubmitting(false);
-        }
-    },
-});
-    useEffect(() => {
-    console.log('isTeacher:', tabIndex === 1);
-    formik.setFieldValue('isTeacher', tabIndex === 1);
-}, [tabIndex]);
 
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            firstName: '',
+            lastName: '',
+            phone: '',
+            province: 'الشرقية',
+            email: '',
+            password: '',
+            confirmPassword: '',
+            grade: 'الصف الأول الثانوى',
+            subject: 'لغة عربية',
+            isTeacher: tabIndex === 1,
+        },
+        validationSchema: Yup.object({
+            firstName: Yup.string().required('الاسم الأول مطلوب'),
+            lastName: Yup.string().required('اسم العائلة مطلوب'),
+            phone: Yup.string()
+                .matches(/^01[0125][0-9]{8}$/, 'رقم الهاتف غير صالح')
+                .required('رقم الهاتف مطلوب'),
+            province: Yup.string().required('المحافظة مطلوبة'),
+            email: Yup.string().email('البريد الإلكتروني غير صالح').required('البريد الإلكتروني مطلوب'),
+            password: Yup.string()
+                .min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل')
+                .matches(/[A-Z]/, 'يجب أن تحتوي على حرف كبير')
+                .matches(/[a-z]/, 'يجب أن تحتوي على حرف صغير')
+                .matches(/[0-9]/, 'يجب أن تحتوي على رقم')
+                .matches(/[@$!%*?&#]/, 'يجب أن تحتوي على رمز خاص')
+                .required('كلمة المرور مطلوبة'),
+            confirmPassword: Yup.string()
+                .oneOf([Yup.ref('password')], 'كلمة المرور غير متطابقة')
+                .required('تأكيد كلمة المرور مطلوب'),
+            isTeacher: Yup.boolean(),
+            grade: Yup.string().when('isTeacher', {
+                is: false,
+                then: (schema) => schema.required('المرحلة الدراسية مطلوبة'),
+                otherwise: (schema) => schema.notRequired(),
+            }),
+            subject: Yup.string().when('isTeacher', {
+                is: true,
+                then: (schema) => schema.required('المادة مطلوبة'),
+                otherwise: (schema) => schema.notRequired(),
+            }),
+        }),
+        onSubmit: async (values) => {
+            console.log("Submitting form values:", values);
+            setLoading(false);
+            setErrorMsg('');
+            try {
+                const { email, password } = values;
+
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const uid = user.uid;
+
+                const fullName = `${values.firstName} ${values.lastName}`;
+
+
+                let imageUrl = null;
+
+                if (isTeacher && fileInputRef.current?.files?.[0]) {
+                    const imageFile = fileInputRef.current.files[0];
+                    const formData = new FormData();
+                    formData.append("file", imageFile);
+                    formData.append("upload_preset", "topamine");
+                    formData.append("folder", "profile_pictures");
+
+                    try {
+                        const response = await fetch("https://api.cloudinary.com/v1_1/duljb1fz3/image/upload", {
+                            method: "POST",
+                            body: formData,
+                        });
+                        const data = await response.json();
+                        imageUrl = data?.secure_url;
+                    } catch (err) {
+                        console.error("فشل رفع الصورة:", err);
+                        setErrorMsg("فشل رفع الصورة");
+                        return;
+                    }
+                }
+
+                await setDoc(doc(db, 'users', uid), {
+                    avatar: imageUrl,
+                    email: values.email,
+                    governorate: values.province,
+                    grade: values.isTeacher ? null : values.grade,
+                    id: uid,
+                    name: fullName,
+                    phone: values.phone,
+                    role: values.isTeacher ? 'teacher' : 'student',
+                    subject: values.isTeacher ? values.subject : null,
+                });
+
+
+                console.log("تم إنشاء المستخدم وإضافة البيانات بنجاح");
+                if (values.isTeacher) {
+                    nav('/profileTeacher');
+                } else {
+                    nav('/profileStd');
+                }
+            } catch (error) {
+                console.error('خطأ أثناء إنشاء الحساب:', error);
+                setErrorMsg(error.message);
+            } finally {
+                setLoading(true);
+            }
+        }
+
+
+    });
+    useEffect(() => {
+        console.log('isTeacher:', tabIndex === 1);
+        formik.setFieldValue('isTeacher', tabIndex === 1);
+    }, [tabIndex]);
 
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
         setTabIndex(newValue);
@@ -179,62 +239,31 @@ const formik = useFormik({
         setShowPassword((prev) => !prev);
     };
 
-function sendDataToApi(values) {
-    setLoading(false);
+    const handleGoogleRegister = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
 
-    const formData = new FormData();
-    formData.append('role', values.isTeacher ? 'Teacher' : 'Student');
-    formData.append('firstName', values.firstName);
-    formData.append('lastName', values.lastName);
-    formData.append('email', values.email);
-    formData.append('password', values.password);
-    formData.append('confirmPassword', values.confirmPassword);
-    formData.append('phone', values.phone);
-    formData.append('province', values.province);
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
 
-    if (!values.isTeacher) {
-        formData.append('academicStage', values.grade);
-    }
+            if (!userSnap.exists()) {
+                await setDoc(userRef, {
+                    name: user.displayName,
+                    email: user.email,
+                    avatar: user.photoURL,
+                    role: 'student',
+                    id: user.uid,
+                });
+            }
 
-    if (values.isTeacher) {
-        formData.append('subject', values.subject);
-        if (fileInputRef.current?.files?.[0]) {
-            formData.append('profileImage', fileInputRef.current.files[0]);
-        } else {
-            setErrorMsg('يرجى رفع صورة شخصية');
-            setLoading(true);
-            return;
+            nav('/profileStd');
+        } catch (error) {
+            console.error('فشل تسجيل الدخول باستخدام جوجل:', error);
+            setErrorMsg('حدث خطأ أثناء التسجيل باستخدام جوجل');
         }
-    }
+    };
 
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${typeof value === 'object' ? value.name : value}`);
-    }
-
-    axios
-        .post('https://topamun-backend.vercel.app/auth/register', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then((response) => {
-            console.log('✅ Success:', response);
-            setLoading(true);
-            if (response.status === 200) {
-                nav('/login');
-            } else {
-                setErrorMsg('تم إرسال الطلب، لكن الاستجابة غير متوقعة');
-            }
-        })
-        .catch((err) => {
-            console.error('API Error:', JSON.stringify(err.response, null, 2));
-            const errorMessage = err.response?.data?.msgError || '';
-            if (err.response?.status === 409 && /email|بريد/i.test(errorMessage)) {
-                setErrorMsg('البريد الإلكتروني موجود من قبل');
-            } else {
-                setErrorMsg(errorMessage || 'حدث خطأ أثناء التسجيل');
-            }
-            setLoading(true);
-        });
-}
 
     const renderForm = () => (
         <ScrollableFormBox component="form" onSubmit={formik.handleSubmit} noValidate sx={{ direction: 'rtl', mt: 2 }}>
@@ -429,6 +458,19 @@ function sendDataToApi(values) {
                         />
                     </Grid>
                 )}
+                
+                
+                <Grid item xs={12} mt={2}>
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<GoogleIcon />}
+                        onClick={handleGoogleRegister}
+                        sx={{ mt: 2, '& .MuiButton-startIcon': { marginLeft: '8px' } }}
+                    >
+                        التسجيل باستخدام جوجل
+                    </Button>
+                </Grid>
                 <Grid item xs={12} mt="40px">
                     <Button type="submit" variant="contained" fullWidth size="large" sx={{ py: 1.5 }}>
                         {loading ? 'إنشاء الحساب' : 'جارٍ التحميل...'}
@@ -439,6 +481,7 @@ function sendDataToApi(values) {
                         {errorMsg}
                     </Typography>
                 )}
+
                 <Typography variant="body2" align="center" mt={1}>
                     لديك حساب بالفعل؟{' '}
                     <Link to="/login">

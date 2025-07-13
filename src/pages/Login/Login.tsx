@@ -2,14 +2,17 @@ import { Box, TextField, Button, Checkbox, Typography, CircularProgress } from '
 import { styled } from '@mui/system';
 import loginPhoto from '../../assets/images/login.jpg';
 import GoogleIcon from '@mui/icons-material/Google';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import * as Yup from "yup";
 import { useFormik } from 'formik';
-import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { IconButton, InputAdornment } from '@mui/material';
-
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db, googleProvider } from '../../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 const CustomBox = styled(Box)({
     display: 'flex',
     justifyContent: 'center',
@@ -68,7 +71,7 @@ const Login = () => {
                 .required('كلمة المرور مطلوبة'),
         });
     }
-
+    const navigate = useNavigate();
     const login = useFormik({
         initialValues: {
             email: '',
@@ -77,39 +80,76 @@ const Login = () => {
         validationSchema,
         onSubmit: async (values) => {
             setLoading(true);
-            console.log('Sending login request with payload:', values);
             try {
-                const response = await fetch('https://topamun-backend.vercel.app/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(values),
-                });
+                const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+                const user = userCredential.user;
 
-                const data = await response.json();
-                console.log('Server response:', data);
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
 
-                if (!response.ok) {
-                    const errorMessage = data.msgError === 'Un-activated Account, please confirm your email'
-                        ? 'بيانات تسجيل الدخول غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور أو سجل حسابًا جديدًا.'
-                        : data.msgError || 'فشل تسجيل الدخول: خطأ في الخادم';
-                    throw new Error(errorMessage);
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const role = userData.role;
+
+                    if (role === 'student') {
+                        navigate('/profileStd');
+                    } else if (role === 'teacher') {
+                        navigate('/profileTeacher');
+                    } else {
+                        alert('نوع الحساب غير معروف');
+                    }
+                } else {
+                    alert('لا يوجد بيانات لهذا المستخدم');
                 }
-
-                toast.success('تسجيل الدخول ناجح!');
-                // Handle successful login (e.g., store token, redirect)
-                // localStorage.setItem('token', data.token);
-                // navigate('/dashboard');
-                
             } catch (error) {
-                console.error('Login error:', error);
-                toast.error(error.msgError || 'حدث خطأ أثناء تسجيل الدخول');
+                console.error("خطأ في تسجيل الدخول:", error.message);
+                alert('فشل تسجيل الدخول: تأكد من البيانات');
             } finally {
                 setLoading(false);
             }
         }
     });
+
+
+
+    const handleGoogleSignIn = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) {
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: user.email,
+                    name: user.displayName,
+                    avatar: user.photoURL,
+                    role: 'student',
+                });
+
+                navigate('/profileStd');
+                return;
+            }
+
+            const userData = userSnap.data();
+            const role = userData.role;
+
+            if (role === 'student') {
+                navigate('/profileStd');
+            } else if (role === 'teacher') {
+                navigate('/profileTeacher');
+            } else {
+                alert('نوع الحساب غير معروف');
+            }
+
+        } catch (error) {
+            console.error("خطأ في تسجيل الدخول باستخدام Google:", error.message);
+            alert("حدث خطأ أثناء تسجيل الدخول باستخدام Google");
+        }
+    };
+
+
 
     return (
         <CustomBox>
@@ -150,7 +190,7 @@ const Login = () => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <IconButton sx={{mr: 1}} onClick={togglePasswordVisibility} edge="end">
+                                        <IconButton sx={{ mr: 1 }} onClick={togglePasswordVisibility} edge="end">
                                             {showPassword ? <VisibilityOff /> : <Visibility />}
                                         </IconButton>
                                     </InputAdornment>
@@ -181,6 +221,7 @@ const Login = () => {
                             startIcon={<GoogleIcon />}
                             fullWidth
                             sx={{ mt: 2, '& .MuiButton-startIcon': { marginLeft: '8px' } }}
+                            onClick={handleGoogleSignIn}
                         >
                             تسجيل الدخول باستخدام جوجل
                         </Button>

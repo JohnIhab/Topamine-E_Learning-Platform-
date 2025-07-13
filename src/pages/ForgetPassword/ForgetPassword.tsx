@@ -5,7 +5,9 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from '../../firebase';
+import { useNavigate } from 'react-router';
 const CustomBox = styled(Box)({
     display: 'flex',
     justifyContent: 'center',
@@ -45,57 +47,72 @@ const SubTitle = styled(Typography)({
     textAlign: 'center',
     marginBottom: '30px',
 });
-
 const ForgetPassword = () => {
+    const navigate = useNavigate();
+
     const formik = useFormik({
         initialValues: { email: '' },
         validationSchema: Yup.object({
             email: Yup.string().email('البريد الإلكتروني غير صالح').required('البريد الإلكتروني مطلوب'),
         }),
-        onSubmit: (values) => {
-            toast.success(`تم إرسال رابط إعادة التعيين إلى ${values.email}`);
-        },
+        onSubmit: async (values) => {
+            try {
+                toast.success(`تم إرسال رابط إعادة التعيين إلى ${values.email}`);
+                await sendPasswordResetEmail(auth, values.email);
+
+                setTimeout(() => {
+                    navigate('/login');
+                }, 2000);
+            } catch (error) {
+                toast.error("حدث خطأ أثناء إرسال الرابط. تأكد من البريد الإلكتروني.");
+                console.error(error);
+            }
+        }
+
+
     });
 
     return (
-        <CustomBox>
-            <LoginContainer>
-                <LeftPanel>
-                    <Typography variant="h6" align="center" gutterBottom>
-                        نسيت كلمة السر؟
-                    </Typography>
-                    <SubTitle>
-                        أدخل الجيميل الخاص بحسابك وسنرسل لك رسالة لإعادة تعيين كلمة المرور الخاصة بك
-                    </SubTitle>
-                    <form onSubmit={formik.handleSubmit}>
-                        <TextField
-                            label="البريد الإلكتروني"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            name="email"
-                            value={formik.values.email}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.email && Boolean(formik.errors.email)}
-                            helperText={formik.touched.email && formik.errors.email}
-                        />
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            fullWidth
-                            sx={{ mt: 2, py: 1.5 }}
-                            disabled={!formik.isValid || !formik.dirty}
-                        >
-                            أرسل الجيميل
-                        </Button>
-                    </form>
-                </LeftPanel>
-                <RightPanel />
-                <ToastContainer position="top-center" autoClose={3000} />
-            </LoginContainer>
-        </CustomBox>
+        <>
+            <CustomBox>
+                <LoginContainer>
+                    <LeftPanel>
+                        <Typography variant="h6" align="center" gutterBottom>
+                            نسيت كلمة السر؟
+                        </Typography>
+                        <SubTitle>
+                            أدخل الجيميل الخاص بحسابك وسنرسل لك رسالة لإعادة تعيين كلمة المرور الخاصة بك
+                        </SubTitle>
+                        <form onSubmit={formik.handleSubmit}>
+                            <TextField
+                                label="البريد الإلكتروني"
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                name="email"
+                                value={formik.values.email}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={formik.touched.email && Boolean(formik.errors.email)}
+                                helperText={formik.touched.email && formik.errors.email}
+                            />
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                sx={{ mt: 2, py: 1.5 }}
+                                disabled={!formik.isValid || !formik.dirty}
+                            >
+                                أرسل الجيميل
+                            </Button>
+                        </form>
+                    </LeftPanel>
+                    <RightPanel />
+                </LoginContainer>
+            </CustomBox>
+            <ToastContainer position="top-center" autoClose={3000} />
+        </>
     );
 };
 
