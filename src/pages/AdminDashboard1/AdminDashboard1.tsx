@@ -80,7 +80,6 @@ export default function PrimarySearchAppBar() {
               sx={{
                 display: "flex",
                 flexDirection: "row",
-
                 height: "70px",
                 padding: "12% 23%",
                 gap: "10%",

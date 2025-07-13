@@ -14,6 +14,7 @@ import AdminDashboard1 from "./pages/AdminDashboard1/AdminDashboard1";
 import Courses from "./pages/Courses/Courses";
 import Teachers from "./pages/Teachers/Teachers";
 import Students from "./pages/Students/Students";
+import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 
 import { SnackbarProvider } from "notistack";
 
@@ -42,6 +43,7 @@ function App() {
           <Route path="/Courses" element={<Courses />} />
           <Route path="/Teachers" element={<Teachers />} />
           <Route path="/Students" element={<Students />} />
+          <Route path="/profileTeacher/courseDetails" element={<CourseDetalis />} />
         </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}

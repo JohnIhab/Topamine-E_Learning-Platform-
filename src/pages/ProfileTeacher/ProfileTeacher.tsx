@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 import {
     Avatar,
@@ -6,7 +7,6 @@ import {
     Button,
     Divider,
     Grid,
-    Link,
     Typography,
 } from '@mui/material';
 import {
@@ -199,9 +199,11 @@ const TeacherProfile = () => {
                                             </Typography>
                                         </Box>
                                         <Box display="flex" justifyContent="space-between" gap={1}>
+                                            <Link to="/profileTeacher/courseDetails" style={{ textDecoration: 'none' }}>
                                             <Button fullWidth variant="outlined">
                                                 تفاصيل الدورة
                                             </Button>
+                                            </Link>
                                             <Button
                                                 fullWidth
                                                 variant="contained"
