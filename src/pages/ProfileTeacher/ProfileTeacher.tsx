@@ -99,9 +99,11 @@ const TeacherProfile = () => {
                             alt="عبده احمد"
                             sx={{ width: 150, height: 150, mb: 4 }}
                         />
-                        <Button variant="contained" startIcon={<Dashboard />} sx={{ mb: 2 }}>
-                            الذهاب إلى اللوحة
-                        </Button>
+                        <Link to="#" style={{ textDecoration: 'none' }}>
+                            <Button variant="contained" startIcon={<Dashboard />} sx={{ mb: 2 }}>
+                                الذهاب إلى اللوحة
+                            </Button>
+                        </Link>
                     </Grid>
 
                     <Grid size={9} xs={12} md={6}>
@@ -110,7 +112,7 @@ const TeacherProfile = () => {
                             <Typography variant="h5" fontWeight="bold">
                                 عبده احمد
                             </Typography>
-                            <Button  variant="outlined" size="small" sx={{ whiteSpace: 'nowrap', mx:'30px' }}>
+                            <Button variant="outlined" size="small" sx={{ whiteSpace: 'nowrap', mx: '30px' }}>
                                 متابعة
                             </Button>
                         </Box>
@@ -200,9 +202,9 @@ const TeacherProfile = () => {
                                         </Box>
                                         <Box display="flex" justifyContent="space-between" gap={1}>
                                             <Link to="/profileTeacher/courseDetails" style={{ textDecoration: 'none' }}>
-                                            <Button fullWidth variant="outlined">
-                                                تفاصيل الدورة
-                                            </Button>
+                                                <Button fullWidth variant="outlined">
+                                                    تفاصيل الدورة
+                                                </Button>
                                             </Link>
                                             <Button
                                                 fullWidth
