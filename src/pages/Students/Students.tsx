@@ -229,6 +229,65 @@ export default function PrimarySearchAppBar() {
               />
               <Typography> الطلاب</Typography>
             </Box>
+            {/* الاعدادات */}
+            <Box sx={{ textAlign: "center" }}>
+              <Button
+                onClick={handleOpen}
+                sx={{
+                  backgroundColor: "#4F46E5",
+                  color: "white",
+                  border: "1px solid #F3F4F6",
+                  borderRadius: "8px",
+                  height: "36px",
+                  fontSize: "14px",
+                  fontWeight: "500px",
+                  margin: "0 3%",
+                  textTransform: "capitalize",
+                  "&:hover": {
+                    backgroundColor: "#4F46E5",
+                    color: "white",
+                  },
+                }}
+              >
+                الاعدادات
+              </Button>
+              {/* change password*/}
+              <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>تغيير كلمة المرور</DialogTitle>
+                <DialogContent>
+                  <TextField
+                    margin="dense"
+                    placeholder="كلمة المرور القديمة"
+                    type="password"
+                    fullWidth
+                  />
+                  <TextField
+                    margin="dense"
+                    placeholder="كلمة المرور الجديدة"
+                    type="password"
+                    fullWidth
+                  />
+                  <TextField
+                    margin="dense"
+                    placeholder="تأكيد كلمة المرور الجديدة"
+                    type="password"
+                    fullWidth
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleClose} color="error">
+                    إلغاء
+                  </Button>
+                  <Button
+                    onClick={handleClose}
+                    color="primary"
+                    variant="contained"
+                  >
+                    حفظ
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Box>
           </Stack>
         </Box>
         <Box
@@ -389,65 +448,27 @@ export default function PrimarySearchAppBar() {
                         {studentstable.status}
                       </TableCell>
                       <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        <img src={blockIcon} alt="Block" />
+                         <Button
+                          sx={{
+                            fontWeight: "400",
+                            fontSize: "14px",
+                            height: "28px",
+                            background: "white",
+                            color: "white",
+                            "&:hover": {
+                              background: "#f1c3c3ff",
+                              color: "white",
+                            },
+                          }}
+                        >
+                          <img src={blockIcon} alt="Block" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
             </Table>
           </TableContainer>
-          <Button
-            onClick={handleOpen}
-            sx={{
-              backgroundColor: "#4F46E5",
-              color: "white",
-              border: "1px solid #F3F4F6",
-              borderRadius: "8px",
-              height: "36px",
-              fontSize: "14px",
-              fontWeight: "500px",
-              margin: "0 3%",
-              textTransform: "capitalize",
-              "&:hover": {
-                backgroundColor: "#4F46E5",
-                color: "white",
-              },
-            }}
-          >
-            الاعدادات
-          </Button>
-          {/* change password*/}
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>تغيير كلمة المرور</DialogTitle>
-            <DialogContent>
-              <TextField
-                margin="dense"
-                placeholder="كلمة المرور القديمة"
-                type="password"
-                fullWidth
-              />
-              <TextField
-                margin="dense"
-                placeholder="كلمة المرور الجديدة"
-                type="password"
-                fullWidth
-              />
-              <TextField
-                margin="dense"
-                placeholder="تأكيد كلمة المرور الجديدة"
-                type="password"
-                fullWidth
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose} color="error">
-                إلغاء
-              </Button>
-              <Button onClick={handleClose} color="primary" variant="contained">
-                حفظ
-              </Button>
-            </DialogActions>
-          </Dialog>
         </Box>
       </Stack>
     </ThemeProvider>

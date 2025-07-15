@@ -18,7 +18,6 @@ import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 import { SnackbarProvider } from "notistack";
 import NotFound from "./pages/NotFound/NotFound";
 
-
 function App() {
   const location = useLocation();
   const hiddenRoutes = ["/login", "/register", "/ForgetPassword", "/admin"];
@@ -38,12 +37,18 @@ function App() {
           <Route path="/profileTeacher" element={<ProfileTeacher />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          <Route path="/profileTeacher/courseDetails/payment" element={<Payment />} />
+          <Route
+            path="/profileTeacher/courseDetails/payment"
+            element={<Payment />}
+          />
           <Route path="/admin" element={<AdminDashboard1 />} />
           <Route path="/Courses" element={<Courses />} />
           <Route path="/Teachers" element={<Teachers />} />
           <Route path="/Students" element={<Students />} />
-          <Route path="/profileTeacher/courseDetails" element={<CourseDetalis />} />
+          <Route
+            path="/profileTeacher/courseDetails"
+            element={<CourseDetalis />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </SnackbarProvider>
