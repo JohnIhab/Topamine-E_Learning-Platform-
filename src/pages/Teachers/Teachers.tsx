@@ -21,35 +21,39 @@ import grayCoursesIcon from "../../assets/images/graycoursesIcon.png";
 import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
 import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import theme from "../../../theme";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-
-const teacherstable = [
-  {
-    name: "أحمد علي",
-    subject: "رياضيات",
-    experiance: "5 سنوات",
-    status: "قيد الانتظار",
-  },
-  {
-    name: "فاطمة محمد",
-    subject: "علوم",
-    experiance: "3 سنوات",
-    status: "مقبول",
-  },
-  {
-    name: "سعيد حسن",
-    subject: "لغة عربية",
-    experiance: "7 سنوات",
-    status: "مرفوض",
-  },
-];
 
 
 export default function TeachersPage() {
 
   const [selectedItem, setSelectedItem] = React.useState("Teachers");
-  
+  const [teachers, setTeachers] = React.useState([]);
+
+
+
   const navigate = useNavigate();
+
+  async function fetchTeachers() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const allUsers = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const teacherUsers = allUsers.filter((user) => user.role === "teacher");
+
+      setTeachers(teacherUsers);
+    } catch (error) {
+      console.error("Error fetching teachers:", error);
+    }
+  }
+
+  React.useEffect(() => {
+    fetchTeachers();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -334,7 +338,7 @@ export default function TeachersPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {teacherstable.map((teacher, index) => (
+                {teachers.map((teacher, index) => (
                   <TableRow key={index}>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
                       {teacher.name}
@@ -343,18 +347,12 @@ export default function TeachersPage() {
                       {teacher.subject}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {teacher.experiance}
+                      {teacher.experiance || "غير محددة"}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {teacher.status}
+                      {teacher.status || "قيد المراجعة"}
                     </TableCell>
-                    <TableCell
-                      sx={{
-                        padding: "0 30px",
-                        width: "20%",
-                        textAlign: "center",
-                      }}
-                    >
+                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
                       <Box sx={{ display: "flex", gap: "12px" }}>
                         <Button
                           sx={{
@@ -391,6 +389,7 @@ export default function TeachersPage() {
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
           </TableContainer>
         </Box>
