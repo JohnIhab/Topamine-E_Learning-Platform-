@@ -17,10 +17,11 @@ import Students from "./pages/Students/Students";
 import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 import { SnackbarProvider } from "notistack";
 import NotFound from "./pages/NotFound/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const location = useLocation();
-  const hiddenRoutes = ["/login", "/register", "/ForgetPassword", "/admin"];
+  const hiddenRoutes = ["/login", "/register", "/ForgetPassword"];
   const hideNavAndFooter = hiddenRoutes.includes(location.pathname);
 
   return (
@@ -33,22 +34,16 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/ForgetPassword" element={<ForgetPassword />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profileStd" element={<ProfileStudent />} />
-          <Route path="/profileTeacher" element={<ProfileTeacher />} />
+          <Route path="/profileStd" element={<ProtectedRoute allowedRoles={["student"]}><ProfileStudent /></ProtectedRoute>} />
+          <Route path="/profileTeacher" element={<ProtectedRoute allowedRoles={["teacher"]}><ProfileTeacher /></ProtectedRoute>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          <Route
-            path="/profileTeacher/courseDetails/payment"
-            element={<Payment />}
-          />
-          <Route path="/admin" element={<AdminDashboard1 />} />
-          <Route path="/Courses" element={<Courses />} />
-          <Route path="/Teachers" element={<Teachers />} />
-          <Route path="/Students" element={<Students />} />
-          <Route
-            path="/profileTeacher/courseDetails"
-            element={<CourseDetalis />}
-          />
+          <Route path="/profileTeacher/courseDetails/payment" element={<ProtectedRoute allowedRoles={["student"]}><Payment /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard1 /></ProtectedRoute>} />
+          <Route path="/Courses" element={<ProtectedRoute allowedRoles={["admin"]}><Courses /></ProtectedRoute>} />
+          <Route path="/Teachers" element={<ProtectedRoute allowedRoles={["admin"]}><Teachers /></ProtectedRoute>} />
+          <Route path="/Students" element={<ProtectedRoute allowedRoles={["admin"]}><Students /></ProtectedRoute>} />
+          <Route path="/profileTeacher/courseDetails" element={<CourseDetalis />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </SnackbarProvider>
