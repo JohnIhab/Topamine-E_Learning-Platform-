@@ -23,7 +23,6 @@ import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import theme from "../../../theme";
 import { useNavigate } from "react-router-dom";
 
-// Teachers data
 const teacherstable = [
   {
     name: "أحمد علي",
@@ -45,8 +44,11 @@ const teacherstable = [
   },
 ];
 
+
 export default function TeachersPage() {
+
   const [selectedItem, setSelectedItem] = React.useState("Teachers");
+  
   const navigate = useNavigate();
 
   return (
