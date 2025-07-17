@@ -40,33 +40,12 @@ import {
   Button,
 } from "@mui/material";
 import { useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase"; 
 
-//Students Data
-const studentstable = [
-  {
-    name: "دينا محمد",
-    email: "dina@gmail.com",
-    enrollmentdata: "2024-01-15",
-    courses: 3,
-    status: "فعال",
-  },
-  {
-    name: "احمد محمد",
-    email: "ahmed@gmail.com",
-    enrollmentdata: "2024-01-15",
-    courses: 3,
-    status: "فعال",
-  },
-  {
-    name: "سليمان عبدالرحمن",
-    email: "dina@gmail.com",
-    enrollmentdata: "2024-01-15",
-    courses: 3,
-    status: "فعال",
-  },
-];
 
 export default function PrimarySearchAppBar() {
+  const [students, setStudents] = useState([]);
   const [selectedItem, setSelectedItem] = useState("dashboard");
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
@@ -76,6 +55,23 @@ export default function PrimarySearchAppBar() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  async function fetchStudents() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    const users = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const filteredStudents = users.filter((user) => user.role === "student");
+    setStudents(filteredStudents);
+  } catch (error) {
+    console.error("Error fetching students:", error);
+  }
+}
+  React.useEffect(() => {
+    fetchStudents();
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <Stack sx={{ display: "flex", flexDirection: "row" }}>
@@ -295,7 +291,7 @@ export default function PrimarySearchAppBar() {
                   freeSolo
                   id="free-solo-2-demo"
                   disableClearable
-                  options={studentstable.map((option) => option.name)}
+                  options={students.map((option) => option.name || "")}
                   onInputChange={(event, newInputValue) => {
                     setSearchValue(newInputValue);
                   }}
@@ -345,16 +341,12 @@ export default function PrimarySearchAppBar() {
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الايميل
                   </TableCell>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                    موعد الالتحاق
-                  </TableCell>
+                  
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     {" "}
                     الكورسات
                   </TableCell>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                    الحاله
-                  </TableCell>
+                  
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الاجراءات
                   </TableCell>
@@ -362,38 +354,32 @@ export default function PrimarySearchAppBar() {
               </TableHead>
 
               <TableBody>
-                {studentstable
-                  .filter((studentstable) =>
-                    searchValue === ""
-                      ? true
-                      : studentstable.name
-                          .toLowerCase()
-                          .includes(searchValue.toLowerCase())
-                  )
+  {students
+    .filter((student) =>
+      searchValue === ""
+        ? true
+        : student.name?.toLowerCase().includes(searchValue.toLowerCase())
+    )
+    .map((student, index) => (
+      <TableRow key={index}>
+        <TableCell sx={{ width: "20%", textAlign: "center" }}>
+          {student.name}
+        </TableCell>
+        <TableCell sx={{ width: "20%", textAlign: "center" }}>
+          {student.email}
+        </TableCell>
+        
+        <TableCell sx={{ width: "20%", textAlign: "center" }}>
+          {student.courses || 0}
+        </TableCell>
+        
+        <TableCell sx={{ width: "20%", textAlign: "center" }}>
+          <img src={blockIcon} alt="Block" />
+        </TableCell>
+      </TableRow>
+    ))}
+</TableBody>
 
-                  .map((studentstable, index) => (
-                    <TableRow key={index}>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        {studentstable.name}
-                      </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        {studentstable.email}
-                      </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        {studentstable.enrollmentdata}
-                      </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        {studentstable.courses}
-                      </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        {studentstable.status}
-                      </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        <img src={blockIcon} alt="Block" />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
             </Table>
           </TableContainer>
           <Button

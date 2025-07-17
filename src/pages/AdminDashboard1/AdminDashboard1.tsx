@@ -10,22 +10,59 @@ import coursesIcon from "../../assets/images/book.png";
 import teacherIcon from "../../assets/images/board.png";
 import studentIcon from "../../assets/images/hatGrad.png";
 import payments from "../../assets/images/dollar.png";
-
 import dashboardIcon from "../../assets/images/dashboardIcon.png";
 import grayCoursesIcon from "../../assets/images/graycoursesIcon.png";
 import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
 import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import TopaminIcon from "../../assets/images/Icon-logo.png";
 
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
+
+
 export default function PrimarySearchAppBar() {
   const [selectedItem, setSelectedItem] = React.useState("Dashboard");
+  const [studentsCount, setStudentsCount] = React.useState(0);
+  const [teachersCount, setTeachersCount] = React.useState(0);
+  const [coursesCount, setCoursesCount] = React.useState(0);
+
   const navigate = useNavigate();
 
-  // direction ,language
+
+
+  async function fetchData() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+
+      const users = querySnapshot.docs.map(doc => doc.data());
+
+      const students = users.filter(user => user.role === "student");
+      const teachers = users.filter(user => user.role === "teacher" && user.status === "accepted");
+
+
+      setStudentsCount(students.length);
+      setTeachersCount(teachers.length);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }
+  async function fetchCourses() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "courses"));
+      const courses = querySnapshot.docs.map(doc => doc.data());
+      setCoursesCount(courses.length);
+      console.log("Courses:", courses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  }
   React.useEffect(() => {
     document.documentElement.lang = "ar";
     document.documentElement.dir = "rtl";
+    fetchData();
+    fetchCourses();
   }, []);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -237,9 +274,9 @@ export default function PrimarySearchAppBar() {
               }}
             >
               <img src={studentIcon} alt="الطلاب" />
-              <Typography sx={{ color: "gray" }}>الطلاب النشطين</Typography>
+              <Typography sx={{ color: "gray" }}>الطلاب </Typography>
               <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                1200
+                {studentsCount}
               </Typography>
             </Box>
 
@@ -255,9 +292,9 @@ export default function PrimarySearchAppBar() {
               }}
             >
               <img src={teacherIcon} alt="المعلمون" />
-              <Typography sx={{ color: "gray" }}>المعلمون النشطون</Typography>
+              <Typography sx={{ color: "gray" }}>المعلمون </Typography>
               <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                20
+                {teachersCount}
               </Typography>
             </Box>
 
@@ -273,9 +310,9 @@ export default function PrimarySearchAppBar() {
               }}
             >
               <img src={coursesIcon} alt="الدورات" />
-              <Typography sx={{ color: "gray" }}>الدورات النشطة</Typography>
+              <Typography sx={{ color: "gray" }}>عدد الكورسات</Typography>
               <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                84
+                {coursesCount}
               </Typography>
             </Box>
 

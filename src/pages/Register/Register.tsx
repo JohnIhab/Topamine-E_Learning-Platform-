@@ -4,6 +4,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { googleProvider, auth, db } from '../../firebase';
 import { getDoc, doc, setDoc } from 'firebase/firestore';
 import GoogleIcon from "@mui/icons-material/Google";
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import {
     Grid,
     Tabs,
@@ -79,6 +80,8 @@ const Register: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showWaitingPopup, setShowWaitingPopup] = useState(false);
+    const [open, setOpen] = useState(true);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -125,9 +128,11 @@ const Register: React.FC = () => {
             email: '',
             password: '',
             confirmPassword: '',
+            info: '',
             grade: 'الصف الأول الثانوى',
             subject: 'لغة عربية',
             isTeacher: tabIndex === 1,
+
         },
         validationSchema: Yup.object({
             firstName: Yup.string().required('الاسم الأول مطلوب'),
@@ -169,19 +174,14 @@ const Register: React.FC = () => {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 const uid = user.uid;
-
                 const fullName = `${values.firstName} ${values.lastName}`;
-
-
                 let imageUrl = null;
-
                 if (isTeacher && fileInputRef.current?.files?.[0]) {
                     const imageFile = fileInputRef.current.files[0];
                     const formData = new FormData();
                     formData.append("file", imageFile);
                     formData.append("upload_preset", "topamine");
                     formData.append("folder", "profile_pictures");
-
                     try {
                         const response = await fetch("https://api.cloudinary.com/v1_1/duljb1fz3/image/upload", {
                             method: "POST",
@@ -206,15 +206,18 @@ const Register: React.FC = () => {
                     phone: values.phone,
                     role: values.isTeacher ? 'teacher' : 'student',
                     subject: values.isTeacher ? values.subject : null,
+                    status: values.isTeacher ? 'قيد المراجعة' : 'تم القبول',
+                    createdAt: new Date(),
                 });
 
 
                 console.log("تم إنشاء المستخدم وإضافة البيانات بنجاح");
                 if (values.isTeacher) {
-                    nav('/profileTeacher');
+                    setShowWaitingPopup(true)
                 } else {
-                    nav('/profileStd');
+                    nav('/profileTeacher');
                 }
+
             } catch (error) {
                 console.error('خطأ أثناء إنشاء الحساب:', error);
                 setErrorMsg(error.message);
@@ -264,7 +267,9 @@ const Register: React.FC = () => {
         }
     };
 
-
+    const handleCloseDialog = () => {
+        setOpen(false); 
+    };
     const renderForm = () => (
         <ScrollableFormBox component="form" onSubmit={formik.handleSubmit} noValidate sx={{ direction: 'rtl', mt: 2 }}>
             <Grid container spacing={2}>
@@ -458,8 +463,8 @@ const Register: React.FC = () => {
                         />
                     </Grid>
                 )}
-                
-                
+
+
                 <Grid item xs={12} mt={2}>
                     <Button
                         variant="outlined"
@@ -510,7 +515,20 @@ const Register: React.FC = () => {
                 </LeftPanel>
                 <RightPanel />
             </LoginContainer>
+            <Dialog open={showWaitingPopup} onClose={handleCloseDialog}>
+                <DialogTitle>بانتظار المراجعة</DialogTitle>
+                <DialogContent>
+                    <Typography>تم تسجيل حسابك كمعلم بنجاح. سيتم مراجعته من قبل الإدارة، وسيتم إعلامك فور الموافقة.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => nav('/login')} color="primary">
+                        حسنًا
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
         </CustomBox>
+
     );
 };
 
