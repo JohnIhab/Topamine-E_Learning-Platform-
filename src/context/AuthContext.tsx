@@ -2,7 +2,7 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "../firebase"; // update path
+import { auth, db } from "../firebase"; // تأكد من صحة المسار
 
 const AuthContext = createContext();
 
@@ -14,11 +14,26 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-                const docRef = doc(db, "users", firebaseUser.uid);
-                const docSnap = await getDoc(docRef);
-                const userRole = docSnap.exists() ? docSnap.data().role : null;
-                setUser(firebaseUser);
-                setRole(userRole);
+                const usersRef = doc(db, "users", firebaseUser.uid);
+                const userSnap = await getDoc(usersRef);
+
+                let fetchedRole = null;
+                let status = null;
+
+                if (userSnap.exists()) {
+                    fetchedRole = userSnap.data().role;
+
+                    if (fetchedRole === "teacher") {
+                        const teachersRef = doc(db, "users", firebaseUser.uid);
+                        const teacherSnap = await getDoc(teachersRef);
+                        if (teacherSnap.exists()) {
+                            status = teacherSnap.data().status;
+                        }
+                    }
+                }
+
+                setUser({ ...firebaseUser, status });
+                setRole(fetchedRole);
             } else {
                 setUser(null);
                 setRole(null);

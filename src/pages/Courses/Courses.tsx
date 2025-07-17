@@ -16,6 +16,10 @@ import {
   TableContainer,
   Paper,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 
 import { ThemeProvider } from "@mui/material/styles";
@@ -30,25 +34,57 @@ import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
 import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import TopaminIcon from "../../assets/images/Icon-logo.png";
 
-// courses data
-const courses = [
-  {
-    name: "AI for Beginners",
-    instructor: "Eman Soliman",
-    price: "$99",
-    status: "Active",
-  },
-  {
-    name: "Web Development",
-    instructor: "Ahmed Salah",
-    price: "$79",
-    status: "Pending",
-  },
-];
+import { collection, getDocs } from "firebase/firestore";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../../firebase";
+
+
 
 export default function PrimarySearchAppBar() {
   const [selectedItem, setSelectedItem] = React.useState("dashboard");
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+  const [selectedCourseId, setSelectedCourseId] = React.useState(null);
   const navigate = useNavigate();
+
+  const [courses, setCourses] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "courses"));
+        const courseList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCourses(courseList);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      await deleteDoc(doc(db, "courses", courseId));
+      setCourses((prev) => prev.filter((course) => course.id !== courseId));
+    } catch (error) {
+      console.error("Error deleting course:", error);
+    }
+  };
+  const confirmDeleteCourse = async () => {
+  try {
+    await deleteDoc(doc(db, "courses", selectedCourseId));
+    setCourses((prev) =>
+      prev.filter((course) => course.id !== selectedCourseId)
+    );
+    setOpenDeleteDialog(false);
+    setSelectedCourseId(null);
+  } catch (error) {
+    console.error("Error deleting course:", error);
+  }
+};
 
   return (
     <ThemeProvider theme={theme}>
@@ -283,10 +319,10 @@ export default function PrimarySearchAppBar() {
                 {courses.map((course, index) => (
                   <TableRow key={index}>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {course.name}
+                      {course.title}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {course.instructor}
+                      {course.teacherId}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
                       {course.price}
@@ -295,15 +331,41 @@ export default function PrimarySearchAppBar() {
                       {course.status}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      <Button color="error">
+                      <Button
+                        color="error"
+                        onClick={() => {
+                          setSelectedCourseId(course.id);
+                          setOpenDeleteDialog(true);
+                        }}
+                      >
                         <DeleteIcon />
                       </Button>
+
+
                     </TableCell>
                   </TableRow>
                 ))}
+                
               </TableBody>
             </Table>
           </TableContainer>
+          <Dialog
+  open={openDeleteDialog}
+  onClose={() => setOpenDeleteDialog(false)}
+>
+  <DialogTitle>تأكيد حذف الكورس</DialogTitle>
+  <DialogContent>
+    <Typography>هل أنت متأكد من أنك تريد حذف هذا الكورس؟</Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+      إلغاء
+    </Button>
+    <Button onClick={confirmDeleteCourse} color="error" variant="contained">
+      حذف
+    </Button>
+  </DialogActions>
+</Dialog>
         </Box>
       </Stack>
     </ThemeProvider>

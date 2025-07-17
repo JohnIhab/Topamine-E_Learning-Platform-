@@ -10,7 +10,6 @@ import coursesIcon from "../../assets/images/book.png";
 import teacherIcon from "../../assets/images/board.png";
 import studentIcon from "../../assets/images/hatGrad.png";
 import payments from "../../assets/images/dollar.png";
-
 import dashboardIcon from "../../assets/images/dashboardIcon.png";
 import grayCoursesIcon from "../../assets/images/graycoursesIcon.png";
 import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
@@ -25,6 +24,7 @@ export default function PrimarySearchAppBar() {
   const [selectedItem, setSelectedItem] = React.useState("Dashboard");
   const [studentsCount, setStudentsCount] = React.useState(0);
   const [teachersCount, setTeachersCount] = React.useState(0);
+  const [coursesCount, setCoursesCount] = React.useState(0);
 
   const navigate = useNavigate();
 
@@ -37,7 +37,8 @@ export default function PrimarySearchAppBar() {
       const users = querySnapshot.docs.map(doc => doc.data());
 
       const students = users.filter(user => user.role === "student");
-      const teachers = users.filter(user => user.role === "teacher");
+      const teachers = users.filter(user => user.role === "teacher" && user.status === "accepted");
+
 
       setStudentsCount(students.length);
       setTeachersCount(teachers.length);
@@ -45,11 +46,21 @@ export default function PrimarySearchAppBar() {
       console.error("Error fetching users:", error);
     }
   }
-
+  async function fetchCourses() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "courses"));
+      const courses = querySnapshot.docs.map(doc => doc.data());
+      setCoursesCount(courses.length);
+      console.log("Courses:", courses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  }
   React.useEffect(() => {
     document.documentElement.lang = "ar";
     document.documentElement.dir = "rtl";
     fetchData();
+    fetchCourses();
   }, []);
 
 
@@ -301,7 +312,7 @@ export default function PrimarySearchAppBar() {
               <img src={coursesIcon} alt="الدورات" />
               <Typography sx={{ color: "gray" }}>عدد الكورسات</Typography>
               <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                84
+                {coursesCount}
               </Typography>
             </Box>
 

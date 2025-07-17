@@ -22,6 +22,7 @@ import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
 import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import theme from "../../../theme";
 import { getDocs, collection } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 
@@ -30,7 +31,7 @@ export default function TeachersPage() {
 
   const [selectedItem, setSelectedItem] = React.useState("Teachers");
   const [teachers, setTeachers] = React.useState([]);
-
+  const [statusFilter, setStatusFilter] = React.useState(null);
 
 
   const navigate = useNavigate();
@@ -41,15 +42,37 @@ export default function TeachersPage() {
       const allUsers = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date(0),
       }));
 
-      const teacherUsers = allUsers.filter((user) => user.role === "teacher");
+      const teacherUsers = allUsers
+        .filter((user) => user.role === "teacher")
+        .sort((a, b) => b.createdAt - a.createdAt);
 
       setTeachers(teacherUsers);
     } catch (error) {
       console.error("Error fetching teachers:", error);
     }
   }
+
+  async function acceptTeacher(id) {
+    try {
+      await updateDoc(doc(db, "users", id), { status: "تم القبول" });
+      fetchTeachers();
+    } catch (error) {
+      console.error("Error accepting teacher:", error);
+    }
+  }
+
+  async function rejectTeacher(id) {
+    try {
+      await updateDoc(doc(db, "users", id), { status: "تم الرفض" });
+      fetchTeachers();
+    } catch (error) {
+      console.error("Error rejecting teacher:", error);
+    }
+  }
+
 
   React.useEffect(() => {
     fetchTeachers();
@@ -262,6 +285,26 @@ export default function TeachersPage() {
 
             <Box sx={{ padding: "10px", gap: "16px", display: "flex" }}>
               <Button
+                onClick={() => setStatusFilter(null)}
+                sx={{
+                  backgroundColor: "#F3F4F6",
+                  color: "#6B7280",
+                  border: "1px solid #F3F4F6",
+                  borderRadius: "8px",
+                  height: "36px",
+                  fontSize: "14px",
+                  fontWeight: "500px",
+                  textTransform: "capitalize",
+                  "&:hover": {
+                    backgroundColor: "#4F46E5",
+                    color: "white",
+                  },
+                }}
+              >
+                الكل
+              </Button>
+              <Button
+                onClick={() => setStatusFilter("قيد المراجعة")}
                 sx={{
                   backgroundColor: "#F3F4F6",
                   color: "#6B7280",
@@ -280,6 +323,7 @@ export default function TeachersPage() {
                 قيد الانتظار
               </Button>
               <Button
+                onClick={() => setStatusFilter("تم القبول")}
                 sx={{
                   backgroundColor: "#F3F4F6",
                   color: "#6B7280",
@@ -298,6 +342,7 @@ export default function TeachersPage() {
                 مقبول
               </Button>
               <Button
+                onClick={() => setStatusFilter("تم الرفض")}
                 sx={{
                   backgroundColor: "#F3F4F6",
                   color: "#6B7280",
@@ -317,6 +362,7 @@ export default function TeachersPage() {
               </Button>
             </Box>
 
+
             <Table>
               <TableHead>
                 <TableRow>
@@ -327,7 +373,7 @@ export default function TeachersPage() {
                     المادة
                   </TableCell>
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                    الخبرة
+                    الايميل
                   </TableCell>
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الحالة
@@ -338,56 +384,68 @@ export default function TeachersPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {teachers.map((teacher, index) => (
-                  <TableRow key={index}>
-                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {teacher.name}
-                    </TableCell>
-                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {teacher.subject}
-                    </TableCell>
-                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {teacher.experiance || "غير محددة"}
-                    </TableCell>
-                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {teacher.status || "قيد المراجعة"}
-                    </TableCell>
-                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      <Box sx={{ display: "flex", gap: "12px" }}>
-                        <Button
-                          sx={{
-                            fontWeight: "400",
-                            fontSize: "14px",
-                            height: "28px",
-                            background: "#10B981",
-                            color: "white",
-                            "&:hover": {
+                {teachers
+                  .filter((teacher) => {
+                    if (!statusFilter) return true;
+                    return (teacher.status || "قيد المراجعة") === statusFilter;
+                  })
+                  .map((teacher, index) => (
+
+                    <TableRow key={index}>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {teacher.name}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {teacher.subject}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {teacher.email}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {teacher.status || "قيد المراجعة"}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        <Box sx={{ display: "flex", gap: "12px" }}>
+                          <Button
+                            sx={{
+                              fontWeight: "400",
+                              fontSize: "14px",
+                              height: "28px",
                               background: "#10B981",
                               color: "white",
-                            },
-                          }}
-                        >
-                          قبول
-                        </Button>
-                        <Button
-                          sx={{
-                            fontWeight: "400",
-                            fontSize: "14px",
-                            height: "28px",
-                            background: "#EF4444",
-                            color: "white",
-                            "&:hover": {
+                              "&:hover": {
+                                background: "#10B981",
+                                color: "white",
+                              },
+                            }}
+                            onClick={() => acceptTeacher(teacher.id)}
+                            disabled={teacher.status === "تم القبول"}
+
+                          >
+                            قبول
+                          </Button>
+                          <Button
+                            sx={{
+                              fontWeight: "400",
+                              fontSize: "14px",
+                              height: "28px",
                               background: "#EF4444",
                               color: "white",
-                            },
-                          }}
-                        >
-                          رفض
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                              "&:hover": {
+                                background: "#EF4444",
+                                color: "white",
+                              },
+                            }}
+                            onClick={() => rejectTeacher(teacher.id)}
+                            disabled={teacher.status === "تم الرفض"}
+                          >
+                            رفض
+                          </Button>
+                        </Box>
+                      </TableCell>
+
+                    </TableRow>
+                  ))}
               </TableBody>
 
             </Table>
