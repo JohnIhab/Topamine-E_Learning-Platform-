@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
+import { useState } from "react";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { user, role, loading } = useAuth();

@@ -145,7 +145,9 @@ const ProfileStudent = () => {
                     ))}
                 </Grid>
             </Box>
+            
         </Box>
+        
     );
 };
 
