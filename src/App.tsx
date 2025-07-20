@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
@@ -22,18 +22,31 @@ import Video from "./pages/VideoPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FullChatPage from "./pages/FullChatPage/FullChatPage";
+import TeacherDashboardLayout from './components/TeacherHome/TeacherDashboardLayout';
+import TeachHome from './components/TeacherHome/TeacherHome';
+import CourseManagment from './components/CourseManagment/CourseManagment';
+import StudentsComponent from './components/Students/Students';
+import AddNewCourse from './components/AddNewCourse/NewCourse';
 
 
 function App() {
   const location = useLocation();
-  const hiddenRoutes = ["/login", "/register", "/ForgetPassword"];
-  const hideNavAndFooter = hiddenRoutes.includes(location.pathname);
+  const hiddenRoutes = ["/login", "/register", "/ForgetPassword", "/teacherdashboard", "/teacherdashboard/courses", "/teacherdashboard/courses/add", "/teacherdashboard/students"];
+  const hideNavAndFooter = hiddenRoutes.includes(location.pathname) || location.pathname.startsWith('/teacherdashboard');
 
   return (
     <>
       {!hideNavAndFooter && <Navbar />}
       <SnackbarProvider maxSnack={3}>
         <Routes>
+          <Route path="/teacherdashboard" element={<TeacherDashboardLayout />}>
+            <Route index element={<TeachHome />} />
+            <Route path="courses" element={<CourseManagment />}>
+              <Route path="add" element={<AddNewCourse />} />
+            </Route>
+            <Route path="students" element={<StudentsComponent />} />
+          </Route>
+          <Route path="/coursedetalis/:courseId" element={<CourseDetalis />} />
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -48,7 +61,6 @@ function App() {
           <Route path="/Courses" element={<ProtectedRoute allowedRoles={["admin"]}><Courses /></ProtectedRoute>} />
           <Route path="/Teachers" element={<ProtectedRoute allowedRoles={["admin"]}><Teachers /></ProtectedRoute>} />
           <Route path="/Students" element={<ProtectedRoute allowedRoles={["admin"]}><Students /></ProtectedRoute>} />
-          <Route path="/profileTeacher/courseDetails" element={<CourseDetalis />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/Checkout" element={<Checkout />} />
           <Route path="/video" element={<Video />} />

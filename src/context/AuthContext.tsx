@@ -2,7 +2,7 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "../firebase"; // تأكد من صحة المسار
+import { auth, db } from "../firebase"; 
 
 const AuthContext = createContext();
 

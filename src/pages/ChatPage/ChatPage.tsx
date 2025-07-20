@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebase'
+import { db } from '../../firebase';
 import { Box, Button, TextField, Typography } from '@mui/material';
 
 interface ChatPageProps {

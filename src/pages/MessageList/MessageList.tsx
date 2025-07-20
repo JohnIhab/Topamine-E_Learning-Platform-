@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import type { DocumentData } from 'firebase/firestore';
-import { db } from '../../firebase'
+import { db } from '../../firebase';
 import { Box, Typography } from '@mui/material';
 
 interface MessageListProps {

@@ -23,7 +23,7 @@ import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import theme from "../../../theme";
 import { getDocs, collection } from "firebase/firestore";
 import { updateDoc, doc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from '../../firebase';
 import { useNavigate } from "react-router-dom";
 
 

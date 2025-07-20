@@ -17,7 +17,7 @@ import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import TopaminIcon from "../../assets/images/Icon-logo.png";
 
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from '../../firebase';
 
 
 export default function PrimarySearchAppBar() {

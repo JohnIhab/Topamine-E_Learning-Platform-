@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
-  Box, TextField, Typography, Stack, InputLabel, Button, MenuItem,List, ListItem, ListItemText,Collapse
+  Box, TextField, Typography, Stack, InputLabel, Button, MenuItem,List, ListItem,Collapse, LinearProgress
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Header from '../Header/Header';
 import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
-// import Aside from '../Aside';
 import { collection, addDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebase.ts';
+import { db } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
@@ -17,13 +16,23 @@ import createCache from '@emotion/cache';
 import { ToastContainer, toast } from 'react-toastify';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import DescriptionIcon from '@mui/icons-material/Description';
-import HelpIcon from '@mui/icons-material/Help';
+import axios from 'axios';
+import { UserContext } from '../../UserContext';
+
+
 
 interface Lecture {
   open: boolean;
+  title?: string;
+  videoUrl?: string;
+  docFile?: File;
+  docUrl?: string;
+  txtFile?: File;
+  txtUrl?: string;
+  uploading?: boolean;
+  uploadError?: string;
 }
+
 
 const theme = createTheme({ direction: 'rtl' });
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });
@@ -39,12 +48,14 @@ const termOptions = [
   { value: 'الفصل الدراسي الثاني', label: 'الفصل الدراسي الثاني' }
 ];
 const StatusOptions = [
-  { value: 'active', label: 'active' },
-  { value: 'draft', label: 'draft' }
+  { value: 'حاليا', label: 'حاليا' },
+  { value: 'مسجل', label: 'مسجل' }
 ];
 
 const NewCourse: React.FC = () => {
-  const [lectures, setLectures] = useState<Lecture[]>([{ open: false }]);
+  const navigate = useNavigate();
+  const { user } = useContext(UserContext) || {};
+  const [lectures, setLectures] = useState<Lecture[]>([{ open: false, title: '' }]);
   
     const toggleLecture = (index: number) => {
       const updated = lectures.map((item, i) =>
@@ -54,7 +65,7 @@ const NewCourse: React.FC = () => {
     };
   
     const handleClick = () => {
-      setLectures([...lectures, { open: false }]);
+      setLectures([...lectures, { open: false, title: '' }]);
     };
   const [title, setTitle] = useState<string>('');
   const [subTitle, setSubTitle] = useState<string>('');
@@ -65,33 +76,148 @@ const NewCourse: React.FC = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [capacity, setCapacity] = useState<number>(0);
+  const [teacherName,setTeacherName]=useState<string>('');
   const [enrolledCount, setEnrolledCount] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
+   const [progress, setProgress] = useState<number>(0);
+    const [uploading, setUploading] = useState<boolean>(false);
 
-  const navigate = useNavigate();
+   const [image, setImage] = useState<File | null>(null);
+  const [video, setVideo] = useState<File | null>(null);
+  const [doc, setDoc] = useState<File | null>(null);
+  const [txt, setTxt] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsUploading(true);
+  const [uploadedImgUrl, setUploadedImgUrl] = useState<string | null>(null);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
+  const [uploadedDoc, setUploadedDoc] = useState<string | null>(null);
+  const [uploadedTxt, setUploadedTxt] = useState<string | null>(null);
+
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: { video?: number; doc?: number; txt?: number } }>({});
+
+  const handleLectureTitleChange = (index: number, value: string) => {
+    const updated = [...lectures];
+    updated[index].title = value;
+    setLectures(updated);
+  };
+
+  const uploadFile = async (
+    type: "image" | "video" | "doc" | "txt",
+    file?: File,
+    lectureIndex?: number
+  ): Promise<string | null> => {
+    const selectedFile =
+      file ||
+      (type === "image"
+        ? image
+        : type === "video"
+        ? video
+        : type === "doc"
+        ? doc
+        : type === "txt"
+        ? txt
+        : null);
+
+    if (!selectedFile) return null;
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    let resourceType = "image";
+    let uploadPreset = "";
+
+    if (type === "video") {
+      resourceType = "video";
+      uploadPreset = "videos";
+    } else if (type === "image") {
+      resourceType = "image";
+      uploadPreset = "images";
+    } else if (type === "doc" || type === "txt") {
+      resourceType = "raw";
+      uploadPreset = "raw_files";
+    }
+
+    formData.append("upload_preset", uploadPreset);
+    formData.append("folder", uploadPreset);
+    formData.append("context", `display_name=${selectedFile.name}`);
+
     try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
+      if (lectureIndex !== undefined) {
+        setLectures(prev => prev.map((lec, i) => i === lectureIndex ? { ...lec, uploading: true, uploadError: '' } : lec));
+        
+        setUploadProgress(prev => ({
+          ...prev,
+          [lectureIndex]: { ...prev[lectureIndex], [type]: 0 }
+        }));
+      }
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+      const res = await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        },
+        onUploadProgress: (progressEvent: any) => {
+       
+          const percent = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+          if (lectureIndex !== undefined) {
+            setUploadProgress(prev => ({
+              ...prev,
+              [lectureIndex]: { ...prev[lectureIndex], [type]: percent }
+            }));
+          }
+        }
       });
-      setImageUrl(base64);
+      if (lectureIndex !== undefined) {
+        setLectures(prev => prev.map((lec, i) => i === lectureIndex ? { ...lec, uploading: false, uploadError: '' } : lec));
+        setUploadProgress(prev => ({
+          ...prev,
+          [lectureIndex]: { ...prev[lectureIndex], [type]: 100 }
+        }));
+      }
+      return res.data.secure_url;
     } catch (error) {
-      console.error("error", error);
+      if (lectureIndex !== undefined) {
+        setLectures(prev => prev.map((lec, i) => i === lectureIndex ? { ...lec, uploading: false, uploadError: `فشل رفع ${type}` } : lec));
+        setUploadProgress(prev => ({
+          ...prev,
+          [lectureIndex]: { ...prev[lectureIndex], [type]: 0 }
+        }));
+      }
+      console.error(`${type} upload error:`, error);
+      alert(`فشل رفع ${type}`);
+      return null;
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const imgUrl = image ? await uploadFile("image", image) : null;
+      const videoUrl = video ? await uploadFile("video", video) : null;
+      const docUrl = doc ? await uploadFile("doc", doc) : null;
+      const txtUrl = txt ? await uploadFile("txt", txt) : null;
+      setUploadedImgUrl(imgUrl);
+      setUploadedVideoUrl(videoUrl);
+      setUploadedDoc(docUrl);
+      setUploadedTxt(txtUrl);
+      alert("تم رفع الملفات بنجاح");
+    } catch (error) {
+      alert(" فشل الرفع، حاول مرة أخرى");
     } finally {
-      setIsUploading(false);
+      setLoading(false);
     }
   };
 
   const handleCreate = async () => {
-    // const currentUser = auth.currentUser;
+
+    // if (!user || user.role !== "teacher") {
+    //   alert("غير مصرح لك بإضافة كورس. هذا الإجراء مخصص للمدرسين فقط.");
+    //   return;
+    // }
+    const effectiveTeacherName = user && user.name ? user.name : teacherName;
+    const effectiveTeacherId = user && user.id ? user.id : "guest-user";
+    const effectiveTeacherEmail = user && user.email ? user.email : "guest@example.com";
     if (
       !title.trim() || !subTitle.trim() || !gradeLevel || !term ||
       !status.trim() || !price || !startDate || !endDate || !capacity || !imageUrl
@@ -103,9 +229,26 @@ const NewCourse: React.FC = () => {
       alert("تاريخ النهاية يجب أن يكون بعد تاريخ البداية");
       return;
     }
+
+    for (let i = 0; i < lectures.length; i++) {
+      const lec = lectures[i];
+      if (!lec.title && !lec.videoUrl && !lec.docUrl && !lec.txtUrl) {
+        alert(`يرجى إدخال عنوان أو رفع محتوى للمحاضرة رقم ${i + 1}`);
+        return;
+      }
+      if (lec.uploading) {
+        alert(`يرجى الانتظار حتى انتهاء رفع الملفات للمحاضرة رقم ${i + 1}`);
+        return;
+      }
+      if (lec.uploadError) {
+        alert(`يوجد خطأ في رفع ملفات المحاضرة رقم ${i + 1}: ${lec.uploadError}`);
+        return;
+      }
+    }
     try {
       const course = collection(db, 'courses');
       const docRef = await addDoc(course, {
+        teacherName: effectiveTeacherName,
         title,
         subTitle,
         gradeLevel,
@@ -114,12 +257,18 @@ const NewCourse: React.FC = () => {
         price: Number(price),
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        teacherId: "guest-user",
-        teacherEmail: "guest@example.com",
+        teacherId: effectiveTeacherId,
+        teacherEmail: effectiveTeacherEmail,
         capacity: Number(capacity),
         enrolledCount: Number(enrolledCount),
         imageUrl,
         createdAt: new Date(),
+        lectures: lectures.map((lecture) => ({
+          title: lecture.title || '',
+          videoUrl: lecture.videoUrl || '',
+          docUrl: lecture.docUrl || '',
+          txtUrl: lecture.txtUrl || ''
+        }))
       });
       await updateDoc(docRef, { id: docRef.id });
       toast.success("تم اضافة الكورس بنجاح", {
@@ -135,92 +284,146 @@ const NewCourse: React.FC = () => {
     }
   };
 
+
+  React.useEffect(() => {
+    if (user && user.name) {
+      setTeacherName(user.name);
+    }
+  }, [user]);
+
   return (
-    <Box>
-      <ResponsiveDrawer/>
-      <Box sx={{ backgroundColor: '#f5f5f5', width: '99vw', direction: 'rtl' }}>
-        <Header />
-        <Box
-          component="form"
-          sx={{ width: '77%', mr: 39, borderRadius: 2, backgroundColor: 'white', mt: 3, pt: 2 }}
-          noValidate autoComplete="off"
-        >
-          <Box sx={{ border: '1px solid gray', mt: 2, width: '95%', borderRadius: 2, mr: 4 }}>
-            <Stack direction={'row'} spacing={1} sx={{ mb: 2, mt: 2, mr: 2, pl: 2, display: 'flex', justifyContent: 'space-between' }}>
-              <Typography onClick={handleCreate} sx={{ cursor: 'pointer' }}>اضافة كورس جديد</Typography>
+    <Box sx={{ width: '100%', overflowX: 'hidden' }}>
+      <Box
+        sx={{ width: '100%', borderRadius: 2, backgroundColor: 'white', mt: 3, pt: 2, mx: 'auto', overflowX: 'hidden' }}
+      >
+        <Box sx={{ mt: 2, width: '100%', borderRadius: 2, mx: 'auto' }}>
+          <Stack direction={'row'}  sx={{ mb: 2, mt: 2,  display: 'flex', justifyContent: 'space-between'}}>
+            <Typography onClick={handleCreate} sx={{ cursor: 'pointer',fontWeight:700,fontSize:'20px',lineHeight:'28px' }}>اضافة كورس جديد</Typography>
+            <Button onClick={() => navigate('/courseMangement')} sx={{ minWidth: 'auto' }}>
               <CloseIcon />
-            </Stack>
-          </Box>
+            </Button>
+          </Stack>
+        </Box>
 
           <CacheProvider value={cacheRtl}>
             <ThemeProvider theme={theme}>
-              <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>عنوان الكورس</InputLabel>
+
+               <Box sx={{ m: 2}}>
+                
+                {user && user.name ? (
+                  <Typography sx={{ fontSize: 18, fontWeight: 'bold', color: '#1976d2', mt: 1 }}>
+                    {user.name}
+                  </Typography>
+                ) : (
+                  <Typography sx={{ fontSize: 18, fontWeight: '700', color: 'black', mt: 1 ,lineHeight:"28px"}}>
+                    لا يوجد مدرس حاليا
+                  </Typography>
+                )}
+              </Box>
+              <Box sx={{ m: 2, width: '100%' }}>
+                <InputLabel  sx={{   fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>عنوان الكورس</InputLabel>
                 <TextField
                   label="ادخل عنوان الكورس"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 />
               </Box>
 
               <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>وصف الكورس</InputLabel>
+                <InputLabel  sx={{  fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>وصف الكورس</InputLabel>
                 <TextField
                   label="ادخل وصف الكورس"
                   value={subTitle}
                   onChange={(e) => setSubTitle(e.target.value)}
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 />
               </Box>
 
               <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>الصف الدراسي</InputLabel>
+                <Typography  sx={{  fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>الصف الدراسي</Typography>
                 <TextField
                   select
                   value={gradeLevel}
                   onChange={(e) => setGradeLevel(e.target.value)}
                   label="اختر"
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 >
                   {gradeOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                   ))}
                 </TextField>
               </Box>
+ <Box sx={{ m: 2 }}>
+  <Typography  sx={{ fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>
+    تحميل صورة الكورس
+  </Typography>
 
-              <Box sx={{ m: 2, ml: 17 }}>
-                <InputLabel shrink sx={{ mr: 1, fontSize: 20, fontWeight: 'bold' }}>تحميل صورة</InputLabel>
-                <input type="file" accept="image/*" onChange={handleUpload} />
-                {isUploading && (
-                  <Typography sx={{ ml: 80, mt: 1, color: 'orange' }}>
-                    يتم تحميل الصورة...
-                  </Typography>
-                )}
-              </Box>
+    <Button
+      variant="outlined"
+      component="label"
+      sx={{ fontFamily: 'Tajawal', fontWeight: 'bold' }}
+    >
+      اختر صورة
+      <input
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          setImage(file);
+          const url = await uploadFile("image", file);
+          if (url) {
+            setUploadedImgUrl(url);
+            setImageUrl(url);
+          }
+        }}
+      />
+    </Button>
+</Box>
 
-              <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>السعر</InputLabel>
+             
+
+
+{uploadedImgUrl && (
+  <Box sx={{ mt: 2, m: 2 }}>
+ 
+    <img
+      src={uploadedImgUrl}
+      alt="Uploaded"
+      width="100"
+      style={{
+        borderRadius: "8px",
+        boxShadow: "0px 2px 8px rgba(0,0,0,0.2)",
+        objectFit: "cover"
+      }}
+    />
+  </Box>
+)}
+
+           <Box sx={{ m: 2 }}>
+                <Typography sx={{   fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>السعر</Typography>
                 <TextField
-                  label="$ 0.00"
+                  label=" 0.00ج"
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 />
               </Box>
 
-              <Typography sx={{ ml: 17, fontSize: 20, fontWeight: 'bold', mt: 2, mb: 2, color: 'gray' }}>الجدول الزمني</Typography>
-              <Stack direction="row" spacing={1} sx={{ ml: 2 }}>
+              <Typography sx={{ fontSize: "24px", fontWeight: '700', mt: 2, mb: 2,color:'#374151'}}>الجدول الزمني</Typography>
+              <Stack direction="row" spacing={1} sx={{ m: 2 }}>
                 <CacheProvider value={cacheRtl}>
                   <ThemeProvider theme={theme}>
-                    <Box sx={{ m: 1 }}>
-                      <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>تاريخ البداية</InputLabel>
+                    <Box sx={{ m: 1, flex: 1 }}>
+                      <Typography  sx={{  fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mb:1,mt:1}}>تاريخ البداية</Typography>
                       <TextField
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        sx={{ width: '80%', ml: 15 }}
+                        sx={{ width: '100%' }}
                         InputLabelProps={{ shrink: true }}
                       />
                     </Box>
@@ -228,13 +431,13 @@ const NewCourse: React.FC = () => {
                 </CacheProvider>
                 <CacheProvider value={cacheRtl}>
                   <ThemeProvider theme={theme}>
-                    <Box sx={{ m: 1 }}>
-                      <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>تاريخ النهاية</InputLabel>
+                    <Box sx={{ m: 1, flex: 1 }}>
+                      <Typography  sx={{   fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>تاريخ النهاية</Typography>
                       <TextField
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        sx={{ width: '80%', ml: 15 }}
+                        sx={{ width: '100%' }}
                         InputLabelProps={{ shrink: true }}
                       />
                     </Box>
@@ -243,35 +446,35 @@ const NewCourse: React.FC = () => {
               </Stack>
 
               <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>السعة</InputLabel>
+                <Typography sx={{   fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px",mt:1,mb:2}}>السعة</Typography>
                 <TextField
                   label="عدد الطلاب"
                   type="number"
                   value={capacity}
                   onChange={(e) => setCapacity(Number(e.target.value))}
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 />
               </Box>
 
               <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>عدد الطلاب المسجلين</InputLabel>
+                <Typography  sx={{  fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px" ,mb:2,mt:1}}>عدد الطلاب المسجلين</Typography>
                 <TextField
                   label="عدد الطلاب المسجلين"
                   type="number"
                   value={enrolledCount}
                   onChange={(e) => setEnrolledCount(Number(e.target.value))}
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 />
               </Box>
 
               <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>الحالة</InputLabel>
+                <Typography  sx={{  fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px" ,mb:2,mt:1}}>الحالة</Typography>
                 <TextField
                   select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   label="اختر الحالة"
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 >
                   {StatusOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
@@ -280,13 +483,13 @@ const NewCourse: React.FC = () => {
               </Box>
 
               <Box sx={{ m: 2 }}>
-                <InputLabel shrink sx={{ ml: 15, fontSize: 20, fontWeight: 'bold' }}>الترم</InputLabel>
+                <Typography sx={{  fontSize: "25px", fontWeight: 500 ,color:'#374151', lineHeight:"20px" ,mb:2,mt:1}}>الترم</Typography>
                 <TextField
                   select
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
                   label="اختر الترم"
-                  sx={{ width: '80%', ml: 15 }}
+                  sx={{ width: '100%' }}
                 >
                   {termOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
@@ -294,67 +497,249 @@ const NewCourse: React.FC = () => {
                 </TextField>
               </Box>
                 
-    <Box sx={{ m: 2, width: "60vw", ml: 13 }}>
+    <Box sx={{ mt: 6,ml:2 ,width:'65vw'}}>
       {lectures.map((lecture, index) => (
          
         <Box key={index} sx={{ mb: 2 }}>
-           
-          
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{
-              p: 2,
-              border: '1px solid gray',
-              borderRadius: 2,
-              cursor: 'pointer'
-            }}
-            onClick={() => toggleLecture(index)}
-          >
-              <Typography variant="h6">المحاضرة {index + 1}</Typography>
-            {lecture.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            {/* <Typography variant="h6">المحاضرة {index + 1}</Typography> */}
-          </Stack>
-         
+   
+         <Stack
+  direction={"row"}
+  
+  sx={{ mb: 2,gap:2 ,width:"65vw"}}
+>
+ 
+ 
+
+ 
+  <Box
+    onClick={() => toggleLecture(index)}
+    sx={{
+      p: 2,
+      border: '1px solid gray',
+      borderRadius: 2,
+      cursor: 'pointer',
+      
+      width:"88vw",
+      // mr:15
+      
+     
+    }}
+  >
+    <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Typography variant="h6">المحاضرة {index + 1}</Typography>
+      {lecture.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+    </Stack>
+  </Box>
+<Box>
+     <Button
+    variant="outlined"
+    component="label"
+    onClick={handleClick}
+    sx={{ width: 30, minWidth: 30 ,height:40,mt:2}}
+    disabled={loading}
+  >
+    +
+  </Button>
+</Box>
+</Stack>
+
 
           <Collapse in={lecture.open}>
             <Box sx={{ mt: 1, pl: 2 }}>
-              <List>
-                <ListItem>
-                  <Stack direction={'row'} spacing={1}>
-                    <ListItemText primary="فيديو توضيحي" />
-                    <PlayCircleIcon />
-                  </Stack>
-                </ListItem>
-                <ListItem>
-                  <Stack direction={'row'} spacing={1}>
-                    <ListItemText primary="ملف للمحاضرة" />
-                    <DescriptionIcon />
-                  </Stack>
-                </ListItem>
-                <ListItem>
-                  <Stack direction={'row'} spacing={1}>
-                    <ListItemText primary="اختبار على المحاضرة" />
-                    <HelpIcon />
-                  </Stack>
-                </ListItem>
-              </List>
+           
+             <TextField
+              label="عنوان المحاضرة"
+              value={lecture.title || ''}
+              onChange={e => handleLectureTitleChange(index, e.target.value)}
+              sx={{ width: '59vw', mb: 2,mt:2 }}
+            />
+             <List>
+ 
+  <ListItem>
+    <Stack direction={'column'} spacing={1} >
+      <Box sx={{ m: 2, ml: 17 }}>
+       
+        <InputLabel sx={{fontSize: "24px", fontWeight: '700', mb: 1 }}>
+          فيديو توضيحي
+        </InputLabel>
+      <Button
+   variant="outlined"
+   component="label"
+   sx={{
+     fontFamily: 'Tajawal',
+     fontWeight: 700,
+    //  ml: 7,
+    fontSize: '16px',
+     height: '48px',
+     width:150
+   }}
+ >
+   اختر فيديو
+   <input
+     type="file"
+     accept="video/*"
+     disabled={lecture.uploading}
+     onChange={async (e) => {
+       const file = e.target.files?.[0];
+       if (!file) return;
+       const url = await uploadFile('video', file, index);
+       if (!url) return;
+       const updatedLectures = [...lectures];
+       updatedLectures[index].videoUrl = url;
+       setLectures(updatedLectures);
+     }}
+     hidden 
+   />
+  
+   
+ </Button>
+ 
+  {uploadProgress[index]?.video !==undefined&&lecture.uploading&&(
+     <Box sx={{ width: '80%', mt: 1 }}>
+            <LinearProgress variant="determinate" value={uploadProgress[index]?.video || 0} />
+            <Typography variant="caption">{uploadProgress[index]?.video || 0}%</Typography>
+          </Box>
+
+)}
+
+      </Box>
+{lecture.videoUrl && (<Typography variant="subtitle2" color="success.main"> تم رفع فيديو المحاضرة</Typography>
+
+)}
+  </Stack>
+  </ListItem>
+
+  <ListItem>
+    <Stack direction="column" spacing={2} >
+    
+      <Box>
+        <InputLabel sx={{fontSize: "24px", fontWeight: '700', mb: 1 }}>  ملف DOC</InputLabel>
+  
+            <Button
+          variant="outlined"
+          component="label"
+          sx={{
+            fontFamily: 'Tajawal',
+            fontWeight: 'bold',
+            //  ml: 7,
+          
+            fontSize: '16px',
+            height: '48px',
+            display: 'inline-block',
+            width:150,
+            textAlign:'center',
+            lineHeight:'40px'
+          }}
+        >
+         اختر ملف DOC
+          <input
+            type="file"
+            accept=".doc,.docx"
+            disabled={lecture.uploading}
+            hidden
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+        
+              const updatedLectures = [...lectures];
+              updatedLectures[index].docFile = file;
+        
+              const url = await uploadFile('doc', file, index);
+              if (url) {
+                updatedLectures[index].docUrl = url;
+              }
+        
+              setLectures(updatedLectures);
+            }}
+          />
+        </Button>
+     
+        {uploadProgress[index]?.doc !== undefined && lecture.uploading && (
+          <Box sx={{ width: '80%', mt: 1 }}>
+            <LinearProgress variant="determinate" value={uploadProgress[index]?.doc || 0} />
+            <Typography variant="caption">{uploadProgress[index]?.doc || 0}%</Typography>
+          </Box>
+        )}
+        {lecture.docUrl && (  <Typography color="success.main">تم رفع ملف DOC بنجاح</Typography>
+          
+
+        )}
+      </Box>
+    </Stack>
+  </ListItem>
+
+  <ListItem>
+    <Stack direction="column" spacing={2} >
+    
+      <Box>
+        <InputLabel sx={{fontSize: "24px", fontWeight: '700', mb: 1 }}>  ملف TXT</InputLabel>
+    
+           <Button
+         variant="outlined"
+         component="label"
+         sx={{
+           fontFamily: 'Tajawal',
+           fontWeight: 'bold',
+          //  ml: 7,
+         
+           fontSize: '16px',
+           height: '48px',
+           width:150
+         }}
+       >
+        اختر ملف TXT 
+         <input
+           type="file"
+           accept=".txt"
+           hidden
+           disabled={lecture.uploading}
+           onChange={async (e) => {
+             const file = e.target.files?.[0];
+             if (!file) return;
+             const updatedLectures = [...lectures];
+             updatedLectures[index].txtFile = file;
+             const url = await uploadFile('txt', file, index);
+             if (url) {
+               updatedLectures[index].txtUrl = url;
+             }
+             setLectures(updatedLectures);
+           }}
+         />
+       </Button>
+       
+        {uploadProgress[index]?.txt !== undefined && lecture.uploading && (
+          <Box sx={{ width: '80%', mt: 1 }}>
+            <LinearProgress variant="determinate" value={uploadProgress[index]?.txt || 0} />
+            <Typography variant="caption">{uploadProgress[index]?.txt || 0}%</Typography>
+          </Box>
+        )}
+        {lecture.txtUrl && (
+          <Typography color="success.main" sx={{ mt: 1 }}>
+             تم رفع TXT:{" "}
+          
+          </Typography>
+        )}
+      </Box>
+    </Stack>
+  </ListItem>
+</List>
+
             </Box>
        
           </Collapse>
         </Box>
       ))}
 
-      <Button variant="contained" onClick={handleClick} sx={{ml:115,width:30}}>+</Button>
-    </Box>
-              <Button variant="contained" color="primary" sx={{ ml: 15, mt: 3, mb: 3 }} onClick={handleCreate}>
+
+            </Box>
+              <Button  variant="outlined"
+      component="label" sx={{ ml: 120, mt: 3, mb: 3,fontFamily: 'Tajawal', fontWeight: 'bold' }} onClick={handleCreate} disabled={loading}>
                 حفظ الكورس
               </Button>
             </ThemeProvider>
           </CacheProvider>
         </Box>
-      </Box>
+      {/* </Box> */}
       <ToastContainer />
     </Box>
   );
