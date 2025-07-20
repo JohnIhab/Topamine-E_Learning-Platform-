@@ -17,9 +17,9 @@ import Students from "./pages/Students/Students";
 import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 import { SnackbarProvider } from "notistack";
 import NotFound from "./pages/NotFound/NotFound";
-import Checkout from "./pages/CheckoutPage";
-import Video from "./pages/VideoPage";
-import PaymentSuccess from "./pages/PaymentSuccess";
+// import Checkout from "./pages/CheckoutPage";
+// import Video from "./pages/VideoPage";
+// import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FullChatPage from "./pages/FullChatPage/FullChatPage";
 import TeacherDashboardLayout from './components/TeacherHome/TeacherDashboardLayout';
@@ -62,9 +62,9 @@ function App() {
           <Route path="/Teachers" element={<ProtectedRoute allowedRoles={["admin"]}><Teachers /></ProtectedRoute>} />
           <Route path="/Students" element={<ProtectedRoute allowedRoles={["admin"]}><Students /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/Checkout" element={<Checkout />} />
+          {/* <Route path="/Checkout" element={<Checkout />} />
           <Route path="/video" element={<Video />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} /> */}
           <Route path="/chat/:teacherId" element={<FullChatPage />} />
         </Routes>
       </SnackbarProvider>
