@@ -1,19 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AppBar,
-  Typography,
-  Toolbar,
-  Box,
-  Stack,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  DialogActions,
-} from "@mui/material";
-import { useState } from "react";
+import { AppBar, Typography, Toolbar, Box, Stack } from "@mui/material";
 
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
@@ -43,7 +30,6 @@ export default function PrimarySearchAppBar() {
 
 
 
-
   async function fetchData() {
     try {
       const querySnapshot = await getDocs(collection(db, "users"));
@@ -70,14 +56,6 @@ export default function PrimarySearchAppBar() {
       console.error("Error fetching courses:", error);
     }
   }
-
-  //EditPassword
-  // const [open, setOpen] = useState(false);
-  // const handleOpen = () => setOpen(true);
-  // const handleClose = () => setOpen(false);
-
-  // direction ,language
-
   React.useEffect(() => {
     document.documentElement.lang = "ar";
     document.documentElement.dir = "rtl";
@@ -240,68 +218,8 @@ export default function PrimarySearchAppBar() {
               />
               <Typography> الطلاب</Typography>
             </Box>
-            {/* الاعدادات */}
-            <Box sx={{ textAlign: "center" }}>
-              <Button
-                onClick={handleOpen}
-                sx={{
-                  backgroundColor: "#4F46E5",
-                  color: "white",
-                  border: "1px solid #F3F4F6",
-                  borderRadius: "8px",
-                  height: "36px",
-                  fontSize: "14px",
-                  fontWeight: "500px",
-                  margin: "0 3%",
-                  textTransform: "capitalize",
-                  "&:hover": {
-                    backgroundColor: "#4F46E5",
-                    color: "white",
-                  },
-                }}
-              >
-                الاعدادات
-              </Button>
-              {/* change password*/}
-              <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>تغيير كلمة المرور</DialogTitle>
-                <DialogContent>
-                  <TextField
-                    margin="dense"
-                    placeholder="كلمة المرور القديمة"
-                    type="password"
-                    fullWidth
-                  />
-                  <TextField
-                    margin="dense"
-                    placeholder="كلمة المرور الجديدة"
-                    type="password"
-                    fullWidth
-                  />
-                  <TextField
-                    margin="dense"
-                    placeholder="تأكيد كلمة المرور الجديدة"
-                    type="password"
-                    fullWidth
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose} color="error">
-                    إلغاء
-                  </Button>
-                  <Button
-                    onClick={handleClose}
-                    color="primary"
-                    variant="contained"
-                  >
-                    حفظ
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            </Box>
           </Stack>
         </Box>
-
         <Box
           sx={{
             flexGrow: 1,

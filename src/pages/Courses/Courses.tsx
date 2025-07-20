@@ -17,18 +17,10 @@ import {
   Paper,
   Button,
   Dialog,
-<<<<<<< HEAD
   DialogTitle,
   DialogContent,
   DialogActions,
-=======
-  DialogActions,
-  DialogContent,
-  TextField,
-  DialogTitle,
->>>>>>> Eman
 } from "@mui/material";
-import { useState } from "react";
 
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
@@ -54,52 +46,45 @@ export default function PrimarySearchAppBar() {
   const [selectedCourseId, setSelectedCourseId] = React.useState(null);
   const navigate = useNavigate();
 
- 
-//   const [courses, setCourses] = React.useState([]);
+  const [courses, setCourses] = React.useState([]);
 
-//   React.useEffect(() => {
-//     const fetchCourses = async () => {
-//       try {
-//         const querySnapshot = await getDocs(collection(db, "courses"));
-//         const courseList = querySnapshot.docs.map((doc) => ({
-//           id: doc.id,
-//           ...doc.data(),
-//         }));
-//         setCourses(courseList);
-//       } catch (error) {
-//         console.error("Error fetching courses:", error);
-//       }
-//     };
+  React.useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "courses"));
+        const courseList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCourses(courseList);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
 
-//     fetchCourses();
-//   }, []);
+    fetchCourses();
+  }, []);
 
-//   const handleDeleteCourse = async (courseId) => {
-//     try {
-//       await deleteDoc(doc(db, "courses", courseId));
-//       setCourses((prev) => prev.filter((course) => course.id !== courseId));
-//     } catch (error) {
-//       console.error("Error deleting course:", error);
-//     }
-//   };
-//   const confirmDeleteCourse = async () => {
-//   try {
-//     await deleteDoc(doc(db, "courses", selectedCourseId));
-//     setCourses((prev) =>
-//       prev.filter((course) => course.id !== selectedCourseId)
-//     );
-//     setOpenDeleteDialog(false);
-//     setSelectedCourseId(null);
-//   } catch (error) {
-//     console.error("Error deleting course:", error);
-//   }
-// };
- 
-  //EditPassword
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
- 
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      await deleteDoc(doc(db, "courses", courseId));
+      setCourses((prev) => prev.filter((course) => course.id !== courseId));
+    } catch (error) {
+      console.error("Error deleting course:", error);
+    }
+  };
+  const confirmDeleteCourse = async () => {
+  try {
+    await deleteDoc(doc(db, "courses", selectedCourseId));
+    setCourses((prev) =>
+      prev.filter((course) => course.id !== selectedCourseId)
+    );
+    setOpenDeleteDialog(false);
+    setSelectedCourseId(null);
+  } catch (error) {
+    console.error("Error deleting course:", error);
+  }
+};
 
   return (
     <ThemeProvider theme={theme}>
@@ -249,65 +234,6 @@ export default function PrimarySearchAppBar() {
                 style={{ height: "25px" }}
               />
               <Typography> الطلاب</Typography>
-            </Box>
-            {/* الاعدادات */}
-            <Box sx={{ textAlign: "center" }}>
-              <Button
-                onClick={handleOpen}
-                sx={{
-                  backgroundColor: "#4F46E5",
-                  color: "white",
-                  border: "1px solid #F3F4F6",
-                  borderRadius: "8px",
-                  height: "36px",
-                  fontSize: "14px",
-                  fontWeight: "500px",
-                  margin: "0 3%",
-                  textTransform: "capitalize",
-                  "&:hover": {
-                    backgroundColor: "#4F46E5",
-                    color: "white",
-                  },
-                }}
-              >
-                الاعدادات
-              </Button>
-              {/* change password*/}
-              <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>تغيير كلمة المرور</DialogTitle>
-                <DialogContent>
-                  <TextField
-                    margin="dense"
-                    placeholder="كلمة المرور القديمة"
-                    type="password"
-                    fullWidth
-                  />
-                  <TextField
-                    margin="dense"
-                    placeholder="كلمة المرور الجديدة"
-                    type="password"
-                    fullWidth
-                  />
-                  <TextField
-                    margin="dense"
-                    placeholder="تأكيد كلمة المرور الجديدة"
-                    type="password"
-                    fullWidth
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose} color="error">
-                    إلغاء
-                  </Button>
-                  <Button
-                    onClick={handleClose}
-                    color="primary"
-                    variant="contained"
-                  >
-                    حفظ
-                  </Button>
-                </DialogActions>
-              </Dialog>
             </Box>
           </Stack>
         </Box>

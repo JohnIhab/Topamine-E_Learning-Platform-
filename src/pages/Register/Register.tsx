@@ -31,7 +31,7 @@ const governments = [
     'القليوبية', 'المنوفية', 'المنيا', 'الوادي الجديد', 'بني سويف', 'بورسعيد',
     'جنوب سيناء', 'دمياط', 'سوهاج', 'شمال سيناء', 'قنا', 'كفر الشيخ', 'مطروح'
 ];
-const grades = ['الصف الأول الثانوى', 'الصف الثانى الثانوى', 'الصف الثالث الثانوى'];
+const grades = ['الصف الأول الثانوى', 'الصف الثانى الثانوى', 'الصف الثالث الثانوى', 'الثانوية العامة'];
 const materials = ['لغة عربية', 'الرياضيات', 'لغة انجليزية', 'فيزياء', 'كيمياء', 'احياء', 'جيولوجيا', 'فلسفة', 'علم نفس', 'جغرافيا', 'تاريخ'];
 
 const CustomBox = styled(Box)({
@@ -176,15 +176,12 @@ const Register: React.FC = () => {
                 const uid = user.uid;
                 const fullName = `${values.firstName} ${values.lastName}`;
                 let imageUrl = null;
-
-                const file = fileInputRef.current?.files?.[0];
-
-                if (file) {
+                if (isTeacher && fileInputRef.current?.files?.[0]) {
+                    const imageFile = fileInputRef.current.files[0];
                     const formData = new FormData();
-                    formData.append("file", file);
+                    formData.append("file", imageFile);
                     formData.append("upload_preset", "topamine");
                     formData.append("folder", "profile_pictures");
-
                     try {
                         const response = await fetch("https://api.cloudinary.com/v1_1/duljb1fz3/image/upload", {
                             method: "POST",
@@ -195,13 +192,8 @@ const Register: React.FC = () => {
                     } catch (err) {
                         console.error("فشل رفع الصورة:", err);
                         setErrorMsg("فشل رفع الصورة");
-                        setLoading(true);
                         return;
                     }
-                } else if (isTeacher) {
-                    setErrorMsg("يجب رفع صورة شخصية للمعلم");
-                    setLoading(true);
-                    return;
                 }
 
                 await setDoc(doc(db, 'users', uid), {
@@ -216,14 +208,14 @@ const Register: React.FC = () => {
                     subject: values.isTeacher ? values.subject : null,
                     status: values.isTeacher ? 'قيد المراجعة' : 'تم القبول',
                     createdAt: new Date(),
-                    info: values.info || '',
                 });
+
 
                 console.log("تم إنشاء المستخدم وإضافة البيانات بنجاح");
                 if (values.isTeacher) {
-                    setShowWaitingPopup(true);
+                    setShowWaitingPopup(true)
                 } else {
-                    nav('/profileStd');
+                    nav('/profileTeacher');
                 }
 
             } catch (error) {
@@ -233,7 +225,6 @@ const Register: React.FC = () => {
                 setLoading(true);
             }
         }
-
 
 
     });
@@ -277,7 +268,7 @@ const Register: React.FC = () => {
     };
 
     const handleCloseDialog = () => {
-        setOpen(false);
+        setOpen(false); 
     };
     const renderForm = () => (
         <ScrollableFormBox component="form" onSubmit={formik.handleSubmit} noValidate sx={{ direction: 'rtl', mt: 2 }}>
@@ -428,7 +419,7 @@ const Register: React.FC = () => {
                         }}
                     />
                 </Grid>
-                
+                {isTeacher && (
                     <Grid item xs={12}>
                         <Box
                             onClick={handleImageClick}
@@ -471,7 +462,7 @@ const Register: React.FC = () => {
                             onChange={handleImageChange}
                         />
                     </Grid>
-                
+                )}
 
 
                 <Grid item xs={12} mt={2}>
