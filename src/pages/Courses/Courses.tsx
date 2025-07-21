@@ -290,7 +290,7 @@ export default function PrimarySearchAppBar() {
               }}
             >
               <Typography variant="h6" fontWeight="bold" sx={{ p: 2 }}>
-                الكورسات
+                الكورسات ({courses.length})
               </Typography>
             </Box>
 
@@ -322,7 +322,7 @@ export default function PrimarySearchAppBar() {
                       {course.title}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {course.teacherId}
+                      {course.teacherName}
                     </TableCell>
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
                       {course.price}

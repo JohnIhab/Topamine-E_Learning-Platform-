@@ -279,7 +279,7 @@ export default function TeachersPage() {
             dir="rtl"
           >
             <Typography variant="h6" fontWeight="bold" sx={{ p: 2 }}>
-              المعلمون
+              المعلمون ({teachers.length})
             </Typography>
 
             <Box sx={{ padding: "10px", gap: "16px", display: "flex" }}>

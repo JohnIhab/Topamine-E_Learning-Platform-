@@ -103,7 +103,6 @@ const Login = () => {
                         const teacherRef = doc(db, 'users', user.uid);
                         const teacherSnap = await getDoc(teacherRef);
                         const status = teacherSnap.exists() ? teacherSnap.data().status : null;
-
                         if (status === 'تم القبول') {
                             navigate('/profileTeacher');
                         } else if (status === 'تم الرفض') {

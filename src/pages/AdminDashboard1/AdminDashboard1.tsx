@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { AppBar, Typography, Toolbar, Box, Stack } from "@mui/material";
+import { AppBar, Typography, Toolbar, Box, Stack, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
 
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
@@ -25,6 +25,9 @@ export default function PrimarySearchAppBar() {
   const [studentsCount, setStudentsCount] = React.useState(0);
   const [teachersCount, setTeachersCount] = React.useState(0);
   const [coursesCount, setCoursesCount] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const navigate = useNavigate();
 
@@ -37,7 +40,8 @@ export default function PrimarySearchAppBar() {
       const users = querySnapshot.docs.map(doc => doc.data());
 
       const students = users.filter(user => user.role === "student");
-      const teachers = users.filter(user => user.role === "teacher" && user.status === "accepted");
+      const teachers = users.filter(user => user.role === "teacher" && user.status === "تم القبول");
+      console.log("Teachers:", teachers);
 
 
       setStudentsCount(students.length);
@@ -218,8 +222,10 @@ export default function PrimarySearchAppBar() {
               />
               <Typography> الطلاب</Typography>
             </Box>
+          
           </Stack>
         </Box>
+
         <Box
           sx={{
             flexGrow: 1,

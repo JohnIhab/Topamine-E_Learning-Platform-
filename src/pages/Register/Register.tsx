@@ -131,7 +131,9 @@ const Register: React.FC = () => {
             info: '',
             grade: 'الصف الأول الثانوى',
             subject: 'لغة عربية',
+            blocked: false,
             isTeacher: tabIndex === 1,
+            isStudent: tabIndex === 0,
 
         },
         validationSchema: Yup.object({
@@ -207,6 +209,7 @@ const Register: React.FC = () => {
                     role: values.isTeacher ? 'teacher' : 'student',
                     subject: values.isTeacher ? values.subject : null,
                     status: values.isTeacher ? 'قيد المراجعة' : 'تم القبول',
+                    blocked: values.isStudent ? false : true,
                     createdAt: new Date(),
                 });
 
@@ -270,6 +273,8 @@ const Register: React.FC = () => {
     const handleCloseDialog = () => {
         setOpen(false); 
     };
+
+    
     const renderForm = () => (
         <ScrollableFormBox component="form" onSubmit={formik.handleSubmit} noValidate sx={{ direction: 'rtl', mt: 2 }}>
             <Grid container spacing={2}>

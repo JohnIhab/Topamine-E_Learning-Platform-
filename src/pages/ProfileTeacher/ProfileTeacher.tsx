@@ -39,7 +39,6 @@ import {
   Dashboard,
 } from "@mui/icons-material";
 
-// import image from "../../assets/images/main-removebg.png";
 
 type Course = {
   title: string;
@@ -98,7 +97,7 @@ const TeacherProfile = () => {
   //Edit Profile
   const [open, setOpen] = useState(false);
 
-  const [teacherData, setTeacherData] = useState<any>(null); //any,null => typeScript
+  const [teacherData, setTeacherData] = useState<any>(null); 
 
   //Editing
   const [editName, setEditName] = useState("");

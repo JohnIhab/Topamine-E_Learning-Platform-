@@ -2,7 +2,7 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "../firebase"; // تأكد من صحة المسار
+import { auth, db } from "../firebase"; 
 
 const AuthContext = createContext();
 
@@ -19,25 +19,32 @@ export const AuthProvider = ({ children }) => {
 
                 let fetchedRole = null;
                 let status = null;
+                let isBlocked = false;
 
                 if (userSnap.exists()) {
-                    fetchedRole = userSnap.data().role;
+                    const data = userSnap.data();
+                    fetchedRole = data.role;
 
                     if (fetchedRole === "teacher") {
-                        const teachersRef = doc(db, "users", firebaseUser.uid);
-                        const teacherSnap = await getDoc(teachersRef);
-                        if (teacherSnap.exists()) {
-                            status = teacherSnap.data().status;
-                        }
+                        status = data.status; 
+                    } else if (fetchedRole === "student") {
+                        isBlocked = data.blocked === true; 
                     }
                 }
 
-                setUser({ ...firebaseUser, status });
-                setRole(fetchedRole);
+                if (fetchedRole === "student" && isBlocked) {
+                    setUser(null);
+                    setRole(null);
+                    alert("Your account is blocked. Please contact support.");
+                } else {
+                    setUser({ ...firebaseUser, status, isBlocked });
+                    setRole(fetchedRole);
+                }
             } else {
                 setUser(null);
                 setRole(null);
             }
+
             setLoading(false);
         });
 
