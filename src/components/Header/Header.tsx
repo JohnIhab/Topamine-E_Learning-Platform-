@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+// import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+// import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+// import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 // import TextField from '@mui/material/TextField';
 import rtlPlugin from 'stylis-plugin-rtl';
@@ -17,116 +17,148 @@ const cacheRtl = createCache({
   stylisPlugins: [prefixer, rtlPlugin],
 });
 
-const DashboardSummary: React.FC = () => {
+const Header: React.FC = () => {
   return (
-    <Box sx={{ position: 'static', top: 0, right: 0, left: 0 }}>
+  
      <CacheProvider value={cacheRtl}>
-                 <ThemeProvider theme={theme}>
-    <Box sx={{ backgroundColor: 'white', pb: 2, pt: 7, direction: 'rtl', }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start'  ,width:"80vw"}}>
+      <ThemeProvider theme={theme}>
+    <Box sx={{ backgroundColor: 'white', pb: 2, pt: 5, width: '100%' }}>
+    
         <Stack
           direction="row"
-          // spacing={5}
+          spacing={4}
           sx={{
-            width: '77vw',
-            justifyContent: 'space-around',
-            alignItems: 'flex-end',
-            display: 'flex',
-            // border:'1px solid black',
-            mr:10
+            width: '100%',
+            px: 3,
+            flexWrap: { xs: 'wrap', md: 'nowrap' },
+            justifyContent: { xs: 'center', md: 'flex-start' }
           }}
         >
-        
+         <Box
+            sx={{
+               width: { xs: '100%', sm: '260px' },
+              height: "140px",
+              borderRadius: 2,
+              backgroundColor: '#F5F3FF',
+               boxShadow: 1,
+              fontFamily:'Tajawal'
+              
+            }}
+          >
+             <Stack direction={'column'} spacing={1} sx={{mt:3,ml:3}}>
+               <img src='./images/doller.png' width="32px" height="32px" />
+                  <Typography sx={{fontWeight:700,fontSize:'30px',lineHeight:"36px",color:'#111827'}}>
+                ١٢,٤٥٠
+              </Typography>
+              <Typography sx={{fontWeight:500,fontSize:'16px',lineHeight:"24px",color:'#6B7280'}}>
+                مجموع المدفوعات
+              </Typography>
+          
+           
+           
+            
+             </Stack>
+              </Box>
           <Box
             sx={{
-              width: 335,
-              height: 80,
+              width: { xs: '100%', sm: '260px' },
+              height: "140px",
               borderRadius: 2,
-              // backgroundColor: rgba(243, 244, 255,0.5),
-                  backgroundColor: '#e8eaf6',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
+              
+                  backgroundColor: '#FFF7ED',
+            
               boxShadow: 1,
-              fontFamily:'Tajawal'
+              fontFamily:'Tajawal',
+              
+
              
              
              
             }}
           >
-            <Box sx={{ }}>
-              <Typography variant="subtitle1" fontWeight="bold">
-                مجموع الكورسات
-              </Typography>
-              <Typography variant="h5" color="black">
+            <Stack direction={'column'} spacing={1} sx={{mt:3,ml:3}}>
+               <img src='./images/SVG.png' width="32px" height="32px"  />
+                 <Typography  sx={{fontWeight:700,fontSize:'30px',lineHeight:"36px",color:'#111827'}}>
                 ١٢
               </Typography>
-            </Box>
-            <AutoStoriesIcon sx={{ fontSize: 40, color: 'blue' }} />
-          </Box>
+               
+              <Typography sx={{fontWeight:500,fontSize:'16px',lineHeight:"24px",color:'#6B7280'}}>
+                مجموع الكورسات
+              </Typography>
+            
 
+            </Stack>
+           
+           </Box>
+     
+            
+          
        
-          <Box
+         
+        
+  <Box
             sx={{
-              width: 335,
-              height: 80,
+              width: { xs: '100%', sm: '260px' },
+              height: "140px",
               borderRadius: 2,
-              backgroundColor: '#f1f8e9',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
+              backgroundColor: '#F0FDF4',
+            
               boxShadow: 1,
               fontFamily:'Tajawal'
               
             }}
           >
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold">
-                مجموع المدفوعات
+            <Stack direction={'column'} spacing={1} sx={{mt:3,ml:3}}>
+             
+             <img src='./images/teacher.png'  width="32px" height="32px" />
+               <Typography sx={{fontWeight:700,fontSize:'30px',lineHeight:"36px",color:'#111827'}}>
+               126
               </Typography>
-              <Typography variant="h5" color="black">
-                $١٢,٤٥٠
+               <Typography sx={{fontWeight:500,fontSize:'16px',lineHeight:"24px",color:'#6B7280'}}>
+                المدرسيين
               </Typography>
+            </Stack>
+             
+            
             </Box>
-            <MonetizationOnIcon sx={{ fontSize: 40, color: 'green' }} />
-          </Box>
-
        
           <Box
             sx={{
-              width: 335,
-              height: 80,
+              width: { xs: '100%', sm: '260px' },
+              height: "140px",
               borderRadius: 2,
-              backgroundColor: '#fff3e0',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              p: 2,
+              backgroundColor: '#F3F4FF',
+             
               boxShadow: 1,
               fontFamily:'Tajawal'
             
              
             }}
           >
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold">
-                مجموع الطلاب
-              </Typography>
-              <Typography variant="h5" color="black">
+           
+             <Stack direction={'column'} spacing={1} sx={{mt:3,ml:3}}>
+              <img src="./images/h57.png" width="32px" height="32px"/>
+              <Typography sx={{fontWeight:700,fontSize:'30px',lineHeight:"36px",color:'#111827'}}>
                 ٢٤٨
               </Typography>
-            </Box>
-            <PeopleAltIcon sx={{ fontSize: 40, color: '#fbc02d' }} />
+              <Typography sx={{fontWeight:500,fontSize:'16px',lineHeight:"24px",color:'#6B7280'}}>
+                مجموع الطلاب
+              </Typography>
+              
+            
+          
+            
+         
+          </Stack>
           </Box>
         </Stack>
-      </Box>
-    </Box>
+        </Box>
+      
+  
          </ThemeProvider>
       </CacheProvider>
-    </Box>
+ 
   );
 }
 
-export default DashboardSummary; 
+export default Header; 

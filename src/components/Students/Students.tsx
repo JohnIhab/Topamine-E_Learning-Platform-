@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell,
-  TableHead, TableRow, Paper, Avatar, InputLabel, MenuItem,
-  FormControl, Select, LinearProgress, Stack
+  TableHead, TableRow, Paper, Avatar, LinearProgress, Stack, TextField,Button,
+  Select, FormControl, InputLabel, MenuItem
 } from '@mui/material';
 import TableContainer from '@mui/material/TableContainer';
-import { SelectChangeEvent } from '@mui/material/Select';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import Header from '../Header/Header';
 import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -14,6 +14,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
+import { useNavigate } from 'react-router';
 
 
 const StaticProgress: React.FC<{ value?: number }> = ({ value = 50 }) => {
@@ -53,6 +54,7 @@ interface StudentRow {
 }
 
 const Students: React.FC = () => {
+  const navigate=useNavigate()
   const theme = createTheme({ direction: 'rtl' });
   const cacheRtl = createCache({
     key: 'muirtl',
@@ -103,6 +105,7 @@ const Students: React.FC = () => {
   ];
 
   const [filterBy, setFilterBy] = useState<string>('');
+  const [searchText, setSearchText] = useState<string>('');
   const [filterData, setFilterData] = useState<StudentRow[]>(rows1);
 
   const handleFilterChange = (e: SelectChangeEvent) => {
@@ -125,54 +128,64 @@ const Students: React.FC = () => {
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value);
+    if (value === '') {
+      setFilterData(rows1);
+    } else {
+      const lowerValue = value.toLowerCase();
+      setFilterData(
+        rows1.filter(item =>
+          item.الاسم.toLowerCase().includes(lowerValue) ||
+          item.البريد.toLowerCase().includes(lowerValue) 
+        )
+      );
+    }
+  };
+
+
   return (
-    <Box>
-      <Header />
-      <ResponsiveDrawer />
-      <Box sx={{ mr: '243px', p: 9, backgroundColor: '#f5f5f5', width: '83vw' }}>
-        <CacheProvider value={cacheRtl}>
-          <ThemeProvider theme={theme}>
-            <Box
-              sx={{
-                width: '100%',
-                borderRadius: 3,
-                display: 'flex',
-                justifyContent: 'space-between',
-                p: 2,
-                backgroundColor: 'white',
-              }}
-            >
-              <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-                الطلاب المسجلين
-              </Typography>
-              <Box sx={{ minWidth: 160 }}>
-                <FormControl fullWidth dir="rtl">
-                  <InputLabel id="select-label">ترتيب حسب</InputLabel>
-                  <Select
-                    labelId="select-label"
-                    value={filterBy}
-                    label="ترتيب حسب"
-                    onChange={handleFilterChange}
-                  >
-                    <MenuItem value="name">الاسم</MenuItem>
-                    <MenuItem value="email">البريد الإلكتروني</MenuItem>
-                    <MenuItem value="grade">الدرجة</MenuItem>
-                    <MenuItem value="progress">التقدُّم</MenuItem>
-                    <MenuItem value="enrollment">تاريخ التسجيل</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
+    <Box sx={{ width: '100%', overflowX: 'hidden' }}>
+      <CacheProvider value={cacheRtl}>
+        <ThemeProvider theme={theme}>
+          <Box
+            sx={{
+              width: '100%',
+              borderRadius: 3,
+              display: 'flex',
+              justifyContent: 'space-between',
+              p: 2,
+              backgroundColor: 'white',
+              mb: 2
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
+              الطلاب المسجلين
+            </Typography>
+            <Box sx={{ minWidth: 300 }}>
+              <TextField
+                fullWidth
+                dir="rtl"
+                variant="outlined"
+                placeholder="ابحث بالاسم أو البريد الإلكتروني"
+                value={searchText}
+                onChange={handleSearchChange}
+                size="small"
+              />
             </Box>
-            <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 600, overflow: 'auto', borderRadius: 3 }}>
+          </Box>
+            <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 600, overflow: 'auto', borderRadius: 3,width:'100%'}}>
               <Table dir="rtl" stickyHeader>
                 <TableHead>
-                  <TableRow>
-                    <TableCell align="center">البريد الإلكتروني</TableCell>
-                    <TableCell align="center">اسم الطالب</TableCell>
-                    <TableCell align="center">تاريخ التسجيل</TableCell>
-                    <TableCell align="center">التقدُّم</TableCell>
-                    <TableCell align="center">الدرجة</TableCell>
-                    <TableCell align="center">آخر دخول</TableCell>
+                  <TableRow >
+                    <TableCell align="center" sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>البريد الإلكتروني</TableCell>
+                    <TableCell align="center" sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>اسم الطالب</TableCell>
+                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>تاريخ التسجيل</TableCell>
+                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>التقدُّم</TableCell>
+                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>الدرجة</TableCell>
+                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>آخر دخول</TableCell>
+                     <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>آجراء</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -181,25 +194,35 @@ const Students: React.FC = () => {
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mr: 7 }}>
                           <Avatar src={'https://via.placeholder.com/40?text=S'} sx={{ width: 32, height: 32 }} />
-                          <Typography>{row['البريد']}</Typography>
+                          <Typography sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['البريد']}</Typography>
                         </Box>
                       </TableCell>
-                      <TableCell align="center">{row['الاسم']}</TableCell>
-                      <TableCell align="center">{row['تاريخ التسجيل']}</TableCell>
+                      <TableCell align="center" sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['الاسم']}</TableCell>
+                      <TableCell align="center" sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['تاريخ التسجيل']}</TableCell>
                       <TableCell align="center">
                         <StaticProgress value={row['التقدم']} />
                       </TableCell>
-                      <TableCell align="center">{row['الدرجة']}</TableCell>
-                      <TableCell align="center">{row['آخر دخول']}</TableCell>
+                      <TableCell align="center" sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['الدرجة']}</TableCell>
+                      <TableCell align="center"sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['آخر دخول']}</TableCell>
+          <TableCell>
+  <Box sx={{ display: 'flex', gap: 1 }}>
+    <img src="./images/eye.png" alt="" style={{ width: "20px", height: "20px" }} />
+    <img src="./images/deletee.png" alt="حذف" style={{ width: "20px", height: "20px",}} />
+  </Box>
+</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
+              <Button onClick={() => navigate('/')} variant="outlined"
+      component="label" sx={{ mt: 3, mb: 3,fontFamily: 'Tajawal', fontWeight: '700' ,width:180,float:'right'}}>
+              الرجوع للصفحة الرئيسية
+            </Button>
           </ThemeProvider>
         </CacheProvider>
       </Box>
-    </Box>
+    // </Box>
   );
 };
 
