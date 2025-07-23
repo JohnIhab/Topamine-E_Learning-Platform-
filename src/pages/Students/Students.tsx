@@ -40,8 +40,8 @@ import {
   Button,
 } from "@mui/material";
 import { useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase"; 
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 
 export default function PrimarySearchAppBar() {
@@ -50,28 +50,41 @@ export default function PrimarySearchAppBar() {
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
 
-  //EditPassword
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   async function fetchStudents() {
-  try {
-    const querySnapshot = await getDocs(collection(db, "users"));
-    const users = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const users = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-    const filteredStudents = users.filter((user) => user.role === "student");
-    setStudents(filteredStudents);
-  } catch (error) {
-    console.error("Error fetching students:", error);
+      const filteredStudents = users.filter((user) => user.role === "student");
+      setStudents(filteredStudents);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
   }
-}
   React.useEffect(() => {
     fetchStudents();
   }, []);
+
+  const handleToggleBlock = async (studentId, currentStatus) => {
+    try {
+      const studentRef = doc(db, "users", studentId);
+      await updateDoc(studentRef, {
+        blocked: !currentStatus,
+      });
+      setStudents((prev) =>
+        prev.map((s) =>
+          s.id === studentId ? { ...s, blocked: !currentStatus } : s
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling block status:", error);
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Stack sx={{ display: "flex", flexDirection: "row" }}>
@@ -279,7 +292,7 @@ export default function PrimarySearchAppBar() {
               }}
             >
               <Typography variant="h6" fontWeight="bold" sx={{ p: 2 }}>
-                الطلاب
+                الطلاب ({students.length})
               </Typography>
               <Stack
                 spacing={2}
@@ -341,12 +354,12 @@ export default function PrimarySearchAppBar() {
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الايميل
                   </TableCell>
-                  
+
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     {" "}
                     الكورسات
                   </TableCell>
-                  
+
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الاجراءات
                   </TableCell>
@@ -354,86 +367,40 @@ export default function PrimarySearchAppBar() {
               </TableHead>
 
               <TableBody>
-  {students
-    .filter((student) =>
-      searchValue === ""
-        ? true
-        : student.name?.toLowerCase().includes(searchValue.toLowerCase())
-    )
-    .map((student, index) => (
-      <TableRow key={index}>
-        <TableCell sx={{ width: "20%", textAlign: "center" }}>
-          {student.name}
-        </TableCell>
-        <TableCell sx={{ width: "20%", textAlign: "center" }}>
-          {student.email}
-        </TableCell>
-        
-        <TableCell sx={{ width: "20%", textAlign: "center" }}>
-          {student.courses || 0}
-        </TableCell>
-        
-        <TableCell sx={{ width: "20%", textAlign: "center" }}>
-          <img src={blockIcon} alt="Block" />
-        </TableCell>
-      </TableRow>
-    ))}
-</TableBody>
+                {students
+                  .filter((student) =>
+                    searchValue === ""
+                      ? true
+                      : student.name?.toLowerCase().includes(searchValue.toLowerCase())
+                  )
+                  .map((student, index) => (
+                    <TableRow key={index}>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {student.name}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {student.email}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        {student.courses || 0}
+                      </TableCell>
+                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                        <Button
+                          variant="outlined"
+                          color={student.blocked ? "success" : "error"}
+                          onClick={() => handleToggleBlock(student.id, student.blocked)}
+                        >
+                          {student.blocked ? "إلغاء الحظر" : "حظر"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+
 
             </Table>
           </TableContainer>
-          <Button
-            onClick={handleOpen}
-            sx={{
-              backgroundColor: "#4F46E5",
-              color: "white",
-              border: "1px solid #F3F4F6",
-              borderRadius: "8px",
-              height: "36px",
-              fontSize: "14px",
-              fontWeight: "500px",
-              margin: "0 3%",
-              textTransform: "capitalize",
-              "&:hover": {
-                backgroundColor: "#4F46E5",
-                color: "white",
-              },
-            }}
-          >
-            الاعدادات
-          </Button>
-          {/* change password*/}
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>تغيير كلمة المرور</DialogTitle>
-            <DialogContent>
-              <TextField
-                margin="dense"
-                placeholder="كلمة المرور القديمة"
-                type="password"
-                fullWidth
-              />
-              <TextField
-                margin="dense"
-                placeholder="كلمة المرور الجديدة"
-                type="password"
-                fullWidth
-              />
-              <TextField
-                margin="dense"
-                placeholder="تأكيد كلمة المرور الجديدة"
-                type="password"
-                fullWidth
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose} color="error">
-                إلغاء
-              </Button>
-              <Button onClick={handleClose} color="primary" variant="contained">
-                حفظ
-              </Button>
-            </DialogActions>
-          </Dialog>
+
         </Box>
       </Stack>
     </ThemeProvider>
