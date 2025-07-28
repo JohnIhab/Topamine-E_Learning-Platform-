@@ -36,7 +36,12 @@ import { db } from '../../firebase';
 import { UserContext } from '../../context/UserContext';
 // import {userCon}
 
-const theme = createTheme({ direction: 'rtl' });
+const theme = createTheme({ 
+  direction: 'rtl',
+  typography: {
+    fontFamily: `'Tajawal', 'sans-serif'`,
+  },
+});
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });
 
 
@@ -60,7 +65,7 @@ interface Course {
   endDate: any;
   gradeLevel: string;
   teacherName: string;
-  price:number;
+  price: number;
   lectures?: Lecture[];
 }
 
@@ -73,7 +78,7 @@ function getDownloadUrl(url: string) {
 }
 
 const CourseDetails = () => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const { courseId } = useParams();
   const { user } = useContext(UserContext) || {};
   const [lectures, setLectures] = useState<Lecture[]>([]);
@@ -122,15 +127,15 @@ const CourseDetails = () => {
 
   return (
     <>
-   
+
       <Box
         sx={{
           width: '95vw',
-       
+
           height: { xs: 250, md: 350, lg: 400 },
           margin: '20px 0px',
-          mr:3,
-          
+          mr: 3,
+
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           position: 'relative',
@@ -140,7 +145,7 @@ const CourseDetails = () => {
           backgroundImage: `url(${courseData?.imageUrl || '/images/default.jpg'})`,
         }}
       >
-        
+
         <Box
           sx={{
             position: 'absolute',
@@ -149,14 +154,14 @@ const CourseDetails = () => {
             width: '100%',
             height: '100%',
             // background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)',
-           background: 'linear-gradient(135deg, rgba(161, 196, 253, 0.8) 0%, rgba(194, 233, 251, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(161, 196, 253, 0.8) 0%, rgba(194, 233, 251, 0.8) 100%)',
 
 
             zIndex: 1,
           }}
         />
-        
-       
+
+
         <Box
           sx={{
             position: 'absolute',
@@ -171,9 +176,9 @@ const CourseDetails = () => {
         >
           {courseData && (
             <>
-              <Typography 
-                sx={{ 
-                  fontSize: { xs: 24, md: 32, lg: 36 }, 
+              <Typography
+                sx={{
+                  fontSize: { xs: 24, md: 32, lg: 36 },
                   fontWeight: 'bold',
                   mb: 1,
                   fontFamily: 'Tajawal',
@@ -182,9 +187,9 @@ const CourseDetails = () => {
               >
                 {courseData.title}
               </Typography>
-              <Typography 
-                sx={{ 
-                  fontSize: { xs: 14, md: 16, lg: 18 }, 
+              <Typography
+                sx={{
+                  fontSize: { xs: 14, md: 16, lg: 18 },
                   opacity: 0.9,
                   fontFamily: 'Tajawal',
                   textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
@@ -201,29 +206,29 @@ const CourseDetails = () => {
         width: '60%',
         // maxWidth: '1200px',
         // margin: '40px auto',
-        mr:3,
+        mr: 3,
         backgroundColor: '#ffffff',
         borderRadius: 3,
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
         overflow: 'hidden',
         border: '1px solid #e0e0e0'
       }}>
-       
+
         <Box sx={{
           // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           backgroundColor: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)'
-,
+          ,
           color: 'gray',
           p: { xs: 3, md: 4 },
           // textAlign: 'center'
         }}>
-         {/* <Skeleton variant="rectangular" sx={{ width: 250, height: 7}} /> */}
-         {/* <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mt:1}} /> */}
-           {/* <Skeleton variant="rectangular" sx={{ width: 100, height: 7,mt:1}} /> */}
-           <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mb:1,mt:1}} />
-          <Typography 
-            sx={{ 
-              fontSize: { xs: 24, md: 28, lg: 32 }, 
+          {/* <Skeleton variant="rectangular" sx={{ width: 250, height: 7}} /> */}
+          {/* <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mt:1}} /> */}
+          {/* <Skeleton variant="rectangular" sx={{ width: 100, height: 7,mt:1}} /> */}
+          <Skeleton variant="rectangular" sx={{ width: 150, height: 7, mb: 1, mt: 1 }} />
+          <Typography
+            sx={{
+              fontSize: { xs: 24, md: 28, lg: 32 },
               fontWeight: 'bold',
               mb: 1,
               fontFamily: 'Tajawal'
@@ -231,21 +236,21 @@ const CourseDetails = () => {
           >
             تفاصيل الكورس
           </Typography>
-          <Typography 
-            sx={{ 
-              fontSize: { xs: 14, md: 16 }, 
+          <Typography
+            sx={{
+              fontSize: { xs: 14, md: 16 },
               opacity: 0.9,
               fontFamily: 'Tajawal'
             }}
           >
-            معلومات شاملة عن الكورس 
+            معلومات شاملة عن الكورس
           </Typography>
-          <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mb:1,mt:1}} />
+          <Skeleton variant="rectangular" sx={{ width: 150, height: 7, mb: 1, mt: 1 }} />
           {/* <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mt:1}} /> */}
-          <Skeleton variant="rectangular" sx={{ width: 250, height: 7,mt:1}} />
+          <Skeleton variant="rectangular" sx={{ width: 250, height: 7, mt: 1 }} />
         </Box>
 
-       
+
         <Box sx={{ p: { xs: 3, md: 4 } }}>
           {loading ? (
             <Box sx={{ p: 3 }}>
@@ -258,7 +263,7 @@ const CourseDetails = () => {
             </Box>
           ) : courseData ? (
             <Stack spacing={4}>
-           
+
               <Box sx={{
                 p: 3,
                 backgroundColor: '#f8f9fa',
@@ -280,9 +285,9 @@ const CourseDetails = () => {
                     👨‍🏫
                   </Box>
                   <Box>
-                    <Typography 
-                      sx={{ 
-                        fontWeight: 'bold', 
+                    <Typography
+                      sx={{
+                        fontWeight: 'bold',
                         color: '#2c3e50',
                         fontSize: { xs: 16, md: 18 },
                         fontFamily: 'Tajawal'
@@ -290,8 +295,8 @@ const CourseDetails = () => {
                     >
                       المدرس المسؤول
                     </Typography>
-                    <Typography 
-                      sx={{ 
+                    <Typography
+                      sx={{
                         color: '#667eea',
                         fontSize: { xs: 16, md: 18 },
                         fontWeight: 'bold',
@@ -304,10 +309,10 @@ const CourseDetails = () => {
                 </Stack>
               </Box>
 
-           
+
               <Box>
-                <Typography 
-                  sx={{ 
+                <Typography
+                  sx={{
                     fontWeight: 'bold',
                     fontSize: { xs: 20, md: 24, lg: 28 },
                     color: '#2c3e50',
@@ -318,8 +323,8 @@ const CourseDetails = () => {
                 >
                   {courseData.title}
                 </Typography>
-                <Typography 
-                  sx={{ 
+                <Typography
+                  sx={{
                     color: '#6c757d',
                     fontSize: { xs: 14, md: 16 },
                     fontFamily: 'Tajawal',
@@ -330,13 +335,13 @@ const CourseDetails = () => {
                 </Typography>
               </Box>
 
-              
+
               <Box sx={{
                 display: 'grid',
                 gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
                 gap: 3
               }}>
-            
+
                 <Box sx={{
                   p: 3,
                   backgroundColor: '#f8f9fa',
@@ -364,8 +369,8 @@ const CourseDetails = () => {
                       🎓
                     </Box>
                     <Box>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 14, md: 16 },
@@ -374,8 +379,8 @@ const CourseDetails = () => {
                       >
                         المرحلة الدراسية
                       </Typography>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           color: '#6c757d',
                           fontSize: { xs: 14, md: 16 },
                           fontFamily: 'Tajawal'
@@ -414,8 +419,8 @@ const CourseDetails = () => {
                       📚
                     </Box>
                     <Box>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 14, md: 16 },
@@ -424,8 +429,8 @@ const CourseDetails = () => {
                       >
                         الترم
                       </Typography>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           color: '#6c757d',
                           fontSize: { xs: 14, md: 16 },
                           fontFamily: 'Tajawal'
@@ -437,7 +442,7 @@ const CourseDetails = () => {
                   </Stack>
                 </Box>
 
-               
+
                 <Box sx={{
                   p: 3,
                   backgroundColor: '#f8f9fa',
@@ -465,8 +470,8 @@ const CourseDetails = () => {
                       📅
                     </Box>
                     <Box>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 14, md: 16 },
@@ -475,8 +480,8 @@ const CourseDetails = () => {
                       >
                         تاريخ البدء
                       </Typography>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           color: '#6c757d',
                           fontSize: { xs: 14, md: 16 },
                           fontFamily: 'Tajawal'
@@ -490,7 +495,7 @@ const CourseDetails = () => {
                   </Stack>
                 </Box>
 
-               
+
                 <Box sx={{
                   p: 3,
                   backgroundColor: '#f8f9fa',
@@ -518,8 +523,8 @@ const CourseDetails = () => {
                       🏁
                     </Box>
                     <Box>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 14, md: 16 },
@@ -528,8 +533,8 @@ const CourseDetails = () => {
                       >
                         تاريخ الانتهاء
                       </Typography>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           color: '#6c757d',
                           fontSize: { xs: 14, md: 16 },
                           fontFamily: 'Tajawal'
@@ -570,8 +575,8 @@ const CourseDetails = () => {
                       📹
                     </Box>
                     <Box>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 14, md: 16 },
@@ -580,8 +585,8 @@ const CourseDetails = () => {
                       >
                         عدد المحاضرات
                       </Typography>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           color: '#6c757d',
                           fontSize: { xs: 14, md: 16 },
                           fontFamily: 'Tajawal'
@@ -593,7 +598,7 @@ const CourseDetails = () => {
                   </Stack>
                 </Box>
 
-              
+
                 <Box sx={{
                   p: 3,
                   backgroundColor: '#f8f9fa',
@@ -621,8 +626,8 @@ const CourseDetails = () => {
                       👥
                     </Box>
                     <Box>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 14, md: 16 },
@@ -631,8 +636,8 @@ const CourseDetails = () => {
                       >
                         السعة
                       </Typography>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           color: '#6c757d',
                           fontSize: { xs: 14, md: 16 },
                           fontFamily: 'Tajawal'
@@ -654,8 +659,8 @@ const CourseDetails = () => {
                 background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
                 color: 'white'
               }}>
-                <Typography 
-                  sx={{ 
+                <Typography
+                  sx={{
                     fontSize: { xs: 16, md: 18 },
                     fontWeight: 'bold',
                     mb: 1,
@@ -664,8 +669,8 @@ const CourseDetails = () => {
                 >
                   سعر الكورس
                 </Typography>
-                <Typography 
-                  sx={{ 
+                <Typography
+                  sx={{
                     fontSize: { xs: 32, md: 40, lg: 48 },
                     fontWeight: 'bold',
                     fontFamily: 'Tajawal'
@@ -677,9 +682,9 @@ const CourseDetails = () => {
             </Stack>
           ) : (
             <Box sx={{ p: 3 }}>
-              <Alert 
-                severity="error" 
-                sx={{ 
+              <Alert
+                severity="error"
+                sx={{
                   width: '100%',
                   borderRadius: 2,
                   fontFamily: 'Tajawal'
@@ -692,32 +697,32 @@ const CourseDetails = () => {
         </Box>
       </Box>
 
-      
+
       <CacheProvider value={cacheRtl}>
         <ThemeProvider theme={theme}>
-        
+
           <Box sx={{
             width: '95vw',
             // maxWidth: '1200px',
             margin: '40px auto',
-            ml:3,
+            ml: 3,
             backgroundColor: '#ffffff',
             borderRadius: 3,
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
             border: '1px solid #e0e0e0'
           }}>
-           
+
             <Box sx={{
               // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'gray',
               p: 4,
               // textAlign: 'center'
             }}>
-               <Skeleton variant="rectangular" sx={{ width: 300, height: 7,mt:1}} />
-              <Typography 
-                sx={{ 
-                  fontSize: { xs: 28, md: 32, lg: 36 }, 
+              <Skeleton variant="rectangular" sx={{ width: 300, height: 7, mt: 1 }} />
+              <Typography
+                sx={{
+                  fontSize: { xs: 28, md: 32, lg: 36 },
                   fontWeight: 'bold',
                   mb: 1,
                   fontFamily: 'Tajawal'
@@ -725,44 +730,44 @@ const CourseDetails = () => {
               >
                 محتوى الكورس
               </Typography>
-              <Typography 
-                sx={{ 
-                  fontSize: { xs: 14, md: 16 }, 
+              <Typography
+                sx={{
+                  fontSize: { xs: 14, md: 16 },
                   opacity: 0.9,
                   fontFamily: 'Tajawal'
                 }}
               >
                 استكشف المحاضرات والمواد التعليمية
               </Typography>
-               <Skeleton variant="rectangular" sx={{ width: 200, height: 7,mt:1}} />
-                <Skeleton variant="rectangular" sx={{ width: 300, height: 7,mt:1}} />
+              <Skeleton variant="rectangular" sx={{ width: 200, height: 7, mt: 1 }} />
+              <Skeleton variant="rectangular" sx={{ width: 300, height: 7, mt: 1 }} />
             </Box>
 
-         
+
             <Box sx={{ p: { xs: 2, md: 4 } }}>
               {loading ? (
                 <Box sx={{ p: 3 }}>
-                  <LinearProgress 
-                    sx={{ 
-                      mb: 3, 
-                      height: 6, 
+                  <LinearProgress
+                    sx={{
+                      mb: 3,
+                      height: 6,
                       borderRadius: 3,
                       backgroundColor: '#e9ecef',
                       '& .MuiLinearProgress-bar': {
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         borderRadius: 3
                       }
-                    }} 
+                    }}
                   />
                   <Skeleton variant="rectangular" height={60} sx={{ mb: 2, borderRadius: 2 }} />
                   <Skeleton variant="rectangular" height={60} sx={{ mb: 2, borderRadius: 2 }} />
                   <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2 }} />
                 </Box>
               ) : error ? (
-                <Alert 
-                  severity="error" 
-                  sx={{ 
-                    width: '100%', 
+                <Alert
+                  severity="error"
+                  sx={{
+                    width: '100%',
                     mb: 3,
                     borderRadius: 2,
                     fontFamily: 'Tajawal'
@@ -771,14 +776,14 @@ const CourseDetails = () => {
                   {error}
                 </Alert>
               ) : lectures.length === 0 ? (
-                <Box sx={{ 
-                  textAlign: 'center', 
+                <Box sx={{
+                  textAlign: 'center',
                   py: 6,
                   px: 3
                 }}>
-                  <Alert 
-                    severity="info" 
-                    sx={{ 
+                  <Alert
+                    severity="info"
+                    sx={{
                       width: '100%',
                       borderRadius: 2,
                       fontFamily: 'Tajawal'
@@ -798,8 +803,8 @@ const CourseDetails = () => {
                     mb: 3
                   }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                      <Typography 
-                        sx={{ 
+                      <Typography
+                        sx={{
                           fontWeight: 'bold',
                           color: '#2c3e50',
                           fontSize: { xs: 16, md: 18 },
@@ -808,7 +813,7 @@ const CourseDetails = () => {
                       >
                         تقدم الكورس
                       </Typography>
-                      <Chip 
+                      <Chip
                         label={`${lectures.length} محاضرة`}
                         sx={{
                           backgroundColor: '#667eea',
@@ -818,21 +823,21 @@ const CourseDetails = () => {
                         }}
                       />
                     </Stack>
-                    <LinearProgress 
-                      variant="determinate" 
-                      value={100} 
-                      sx={{ 
-                        height: 8, 
+                    <LinearProgress
+                      variant="determinate"
+                      value={100}
+                      sx={{
+                        height: 8,
                         borderRadius: 4,
                         backgroundColor: '#e9ecef',
                         '& .MuiLinearProgress-bar': {
                           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                           borderRadius: 4
                         }
-                      }} 
+                      }}
                     />
-                    <Typography 
-                      sx={{ 
+                    <Typography
+                      sx={{
                         mt: 1,
                         color: '#6c757d',
                         fontSize: { xs: 12, md: 14 },
@@ -847,169 +852,253 @@ const CourseDetails = () => {
 
                   <Stack spacing={3}>
                     {lectures.map((lecture, index) => (
-                    <Box key={index} sx={{ 
-                      border: '1px solid #e0e0e0',
-                      borderRadius: 3,
-                      overflow: 'hidden',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                        transform: 'translateY(-2px)'
-                      }
-                    }}>
-                      
-                      <Box
-                        onClick={() => toggleLecture(index)}
-                        sx={{
-                          p: { xs: 2, md: 3 },
-                          backgroundColor: '#f8f9fa',
-                          cursor: 'pointer',
-                          transition: 'background-color 0.3s ease',
-                          borderBottom: openLectures[index] ? '1px solid #e0e0e0' : 'none',
-                          '&:hover': {
-                            backgroundColor: '#e9ecef'
-                          }
-                        }}
-                      >
-                        <Stack
-                          direction="row"
-                          justifyContent="space-between"
-                          alignItems="center"
-                          spacing={2}
+                      <Box key={index} sx={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                          transform: 'translateY(-2px)'
+                        }
+                      }}>
+
+                        <Box
+                          onClick={() => toggleLecture(index)}
+                          sx={{
+                            p: { xs: 2, md: 3 },
+                            backgroundColor: '#f8f9fa',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.3s ease',
+                            borderBottom: openLectures[index] ? '1px solid #e0e0e0' : 'none',
+                            '&:hover': {
+                              backgroundColor: '#e9ecef'
+                            }
+                          }}
                         >
-                          <Stack direction="row" spacing={2} alignItems="center">
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            spacing={2}
+                          >
+                            <Stack direction="row" spacing={2} alignItems="center">
+                              <Box sx={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: '50%',
+                                backgroundColor: '#667eea',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white'
+                              }}>
+                                <DashboardCustomizeIcon sx={{ fontSize: 20 }} />
+                              </Box>
+                              <Box>
+                                <Typography
+                                  variant="h6"
+                                  sx={{
+                                    fontWeight: 'bold',
+                                    color: '#2c3e50',
+                                    fontFamily: 'Tajawal',
+                                    fontSize: { xs: 16, md: 18 }
+                                  }}
+                                >
+                                  {lecture.title || `محاضرة ${index + 1}`}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: '#6c757d',
+                                    fontFamily: 'Tajawal',
+                                    fontSize: { xs: 12, md: 14 }
+                                  }}
+                                >
+                                  انقر لعرض المحتوى
+                                </Typography>
+                              </Box>
+                            </Stack>
                             <Box sx={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '50%',
-                              backgroundColor: '#667eea',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white'
+                              transition: 'transform 0.3s ease',
+                              transform: openLectures[index] ? 'rotate(180deg)' : 'rotate(0deg)'
                             }}>
-                              <DashboardCustomizeIcon sx={{ fontSize: 20 }} />
-                            </Box>
-                            <Box>
-                              <Typography 
-                                variant="h6" 
-                                sx={{ 
-                                  fontWeight: 'bold',
-                                  color: '#2c3e50',
-                                  fontFamily: 'Tajawal',
-                                  fontSize: { xs: 16, md: 18 }
-                                }}
-                              >
-                                {lecture.title || `محاضرة ${index + 1}`}
-                              </Typography>
-                              <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                  color: '#6c757d',
-                                  fontFamily: 'Tajawal',
-                                  fontSize: { xs: 12, md: 14 }
-                                }}
-                              >
-                                انقر لعرض المحتوى
-                              </Typography>
+                              <KeyboardArrowDownIcon sx={{
+                                color: '#667eea',
+                                fontSize: { xs: 24, md: 28 }
+                              }} />
                             </Box>
                           </Stack>
+                        </Box>
+
+                        {/* Lecture Content */}
+                        <MUICollapse in={openLectures[index]}>
                           <Box sx={{
-                            transition: 'transform 0.3s ease',
-                            transform: openLectures[index] ? 'rotate(180deg)' : 'rotate(0deg)'
+                            p: { xs: 2, md: 3 },
+                            backgroundColor: 'white'
                           }}>
-                            <KeyboardArrowDownIcon sx={{ 
-                              color: '#667eea',
-                              fontSize: { xs: 24, md: 28 }
-                            }} />
-                          </Box>
-                        </Stack>
-                      </Box>
-
-                      {/* Lecture Content */}
-                      <MUICollapse in={openLectures[index]}>
-                        <Box sx={{ 
-                          p: { xs: 2, md: 3 },
-                          backgroundColor: 'white'
-                        }}>
-                          <Stack spacing={3}>
-                            {/* Video Section */}
-                            {lecture.videoUrl && (
-                              <Box>
-                                <Typography 
-                                  variant="h6" 
-                                  sx={{ 
-                                    mb: 2,
-                                    fontWeight: 'bold',
-                                    color: '#2c3e50',
-                                    fontFamily: 'Tajawal',
-                                    fontSize: { xs: 16, md: 18 }
-                                  }}
-                                >
-                                  🎥 فيديو المحاضرة
-                                </Typography>
-                                <Box sx={{
-                                  borderRadius: 2,
-                                  overflow: 'hidden',
-                                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                                }}>
-                                  <video
-                                    src={lecture.videoUrl}
-                                    controls
-                                    style={{
-                                      width: '100%',
-                                      maxWidth: '100%',
-                                      display: 'block'
+                            <Stack spacing={3}>
+                              {/* Video Section */}
+                              {lecture.videoUrl && (
+                                <Box>
+                                  <Typography
+                                    variant="h6"
+                                    sx={{
+                                      mb: 2,
+                                      fontWeight: 'bold',
+                                      color: '#2c3e50',
+                                      fontFamily: 'Tajawal',
+                                      fontSize: { xs: 16, md: 18 }
                                     }}
-                                    onError={e => (e.currentTarget.poster = '')}
-                                  />
+                                  >
+                                    🎥 فيديو المحاضرة
+                                  </Typography>
+                                  <Box sx={{
+                                    borderRadius: 2,
+                                    overflow: 'hidden',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                                  }}>
+                                    <video
+                                      src={lecture.videoUrl}
+                                      controls
+                                      style={{
+                                        width: '100%',
+                                        maxWidth: '100%',
+                                        display: 'block'
+                                      }}
+                                      onError={e => (e.currentTarget.poster = '')}
+                                    />
+                                  </Box>
                                 </Box>
-                              </Box>
-                            )}
+                              )}
 
-                            {/* Files Section */}
-                            {(lecture.pdfUrl || lecture.txtUrl || lecture.docUrl) && (
-                              <Box>
-                                <Typography 
-                                  variant="h6" 
-                                  sx={{ 
-                                    mb: 2,
-                                    fontWeight: 'bold',
-                                    color: '#2c3e50',
-                                    fontFamily: 'Tajawal',
-                                    fontSize: { xs: 16, md: 18 }
-                                  }}
-                                >
-                                  📁 الملفات المرفقة
-                                </Typography>
-                                <Stack spacing={2}>
-                                  {lecture.pdfUrl && (
-                                    <Box sx={{
-                                      p: 2,
-                                      border: '1px solid #e0e0e0',
-                                      borderRadius: 2,
-                                      backgroundColor: '#f8f9fa',
-                                      transition: 'all 0.3s ease',
-                                      '&:hover': {
-                                        backgroundColor: '#e9ecef',
-                                        borderColor: '#667eea'
-                                      }
-                                    }}>
-                                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Stack direction="row" spacing={2} alignItems="center">
-                                          <Typography sx={{ color: '#e74c3c', fontSize: 20 }}>📄</Typography>
-                                          <Typography sx={{ 
-                                            fontWeight: 'bold',
-                                            fontFamily: 'Tajawal'
-                                          }}>
-                                            ملف PDF
-                                          </Typography>
+                              {/* Files Section */}
+                              {(lecture.pdfUrl || lecture.txtUrl || lecture.docUrl) && (
+                                <Box>
+                                  <Typography
+                                    variant="h6"
+                                    sx={{
+                                      mb: 2,
+                                      fontWeight: 'bold',
+                                      color: '#2c3e50',
+                                      fontFamily: 'Tajawal',
+                                      fontSize: { xs: 16, md: 18 }
+                                    }}
+                                  >
+                                    📁 الملفات المرفقة
+                                  </Typography>
+                                  <Stack spacing={2}>
+                                    {lecture.pdfUrl && (
+                                      <Box sx={{
+                                        p: 2,
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: 2,
+                                        backgroundColor: '#f8f9fa',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                          backgroundColor: '#e9ecef',
+                                          borderColor: '#667eea'
+                                        }
+                                      }}>
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                          <Stack direction="row" spacing={2} alignItems="center">
+                                            <Typography sx={{ color: '#e74c3c', fontSize: 20 }}>📄</Typography>
+                                            <Typography sx={{
+                                              fontWeight: 'bold',
+                                              fontFamily: 'Tajawal'
+                                            }}>
+                                              ملف PDF
+                                            </Typography>
+                                          </Stack>
+                                          {getDownloadUrl(lecture.pdfUrl) ? (
+                                            <Button
+                                              variant="contained"
+                                              size="small"
+                                              href={getDownloadUrl(lecture.pdfUrl)}
+                                              download
+                                              sx={{
+                                                backgroundColor: '#667eea',
+                                                '&:hover': { backgroundColor: '#5a6fd8' },
+                                                fontFamily: 'Tajawal',
+                                                fontWeight: 'bold'
+                                              }}
+                                            >
+                                              تحميل
+                                            </Button>
+                                          ) : (
+                                            <Typography color="error.main" sx={{ fontFamily: 'Tajawal' }}>
+                                              لا يمكن تحميل الملف
+                                            </Typography>
+                                          )}
                                         </Stack>
-                                        {getDownloadUrl(lecture.pdfUrl) ? (
+                                      </Box>
+                                    )}
+
+                                    {lecture.txtUrl && (
+                                      <Box sx={{
+                                        p: 2,
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: 2,
+                                        backgroundColor: '#f8f9fa',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                          backgroundColor: '#e9ecef',
+                                          borderColor: '#667eea'
+                                        }
+                                      }}>
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                          <Stack direction="row" spacing={2} alignItems="center">
+                                            <Typography sx={{ color: '#27ae60', fontSize: 20 }}>📝</Typography>
+                                            <Typography sx={{
+                                              fontWeight: 'bold',
+                                              fontFamily: 'Tajawal'
+                                            }}>
+                                              ملف نصي
+                                            </Typography>
+                                          </Stack>
                                           <Button
                                             variant="contained"
                                             size="small"
-                                            href={getDownloadUrl(lecture.pdfUrl)}
+                                            href={getDownloadUrl(lecture.txtUrl)}
+                                            sx={{
+                                              backgroundColor: '#667eea',
+                                              '&:hover': { backgroundColor: '#5a6fd8' },
+                                              fontFamily: 'Tajawal',
+                                              fontWeight: 'bold'
+                                            }}
+                                          >
+                                            تحميل
+                                          </Button>
+                                        </Stack>
+                                      </Box>
+                                    )}
+
+                                    {lecture.docUrl && (
+                                      <Box sx={{
+                                        p: 2,
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: 2,
+                                        backgroundColor: '#f8f9fa',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                          backgroundColor: '#e9ecef',
+                                          borderColor: '#667eea'
+                                        }
+                                      }}>
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                          <Stack direction="row" spacing={2} alignItems="center">
+                                            <Typography sx={{ color: '#3498db', fontSize: 20 }}>📋</Typography>
+                                            <Typography sx={{
+                                              fontWeight: 'bold',
+                                              fontFamily: 'Tajawal'
+                                            }}>
+                                              ملف Word
+                                            </Typography>
+                                          </Stack>
+                                          <Button
+                                            variant="contained"
+                                            size="small"
+                                            href={getDownloadUrl(lecture.docUrl)}
                                             download
                                             sx={{
                                               backgroundColor: '#667eea',
@@ -1020,116 +1109,32 @@ const CourseDetails = () => {
                                           >
                                             تحميل
                                           </Button>
-                                        ) : (
-                                          <Typography color="error.main" sx={{ fontFamily: 'Tajawal' }}>
-                                            لا يمكن تحميل الملف
-                                          </Typography>
-                                        )}
-                                      </Stack>
-                                    </Box>
-                                  )}
-
-                                  {lecture.txtUrl && (
-                                    <Box sx={{
-                                      p: 2,
-                                      border: '1px solid #e0e0e0',
-                                      borderRadius: 2,
-                                      backgroundColor: '#f8f9fa',
-                                      transition: 'all 0.3s ease',
-                                      '&:hover': {
-                                        backgroundColor: '#e9ecef',
-                                        borderColor: '#667eea'
-                                      }
-                                    }}>
-                                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Stack direction="row" spacing={2} alignItems="center">
-                                          <Typography sx={{ color: '#27ae60', fontSize: 20 }}>📝</Typography>
-                                          <Typography sx={{ 
-                                            fontWeight: 'bold',
-                                            fontFamily: 'Tajawal'
-                                          }}>
-                                            ملف نصي
-                                          </Typography>
                                         </Stack>
-                                        <Button
-                                          variant="contained"
-                                          size="small"
-                                          href={getDownloadUrl(lecture.txtUrl)}
-                                          sx={{
-                                            backgroundColor: '#667eea',
-                                            '&:hover': { backgroundColor: '#5a6fd8' },
-                                            fontFamily: 'Tajawal',
-                                            fontWeight: 'bold'
-                                          }}
-                                        >
-                                          تحميل
-                                        </Button>
-                                      </Stack>
-                                    </Box>
-                                  )}
+                                      </Box>
+                                    )}
+                                  </Stack>
+                                </Box>
+                              )}
 
-                                  {lecture.docUrl && (
-                                    <Box sx={{
-                                      p: 2,
-                                      border: '1px solid #e0e0e0',
-                                      borderRadius: 2,
-                                      backgroundColor: '#f8f9fa',
-                                      transition: 'all 0.3s ease',
-                                      '&:hover': {
-                                        backgroundColor: '#e9ecef',
-                                        borderColor: '#667eea'
-                                      }
-                                    }}>
-                                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                        <Stack direction="row" spacing={2} alignItems="center">
-                                          <Typography sx={{ color: '#3498db', fontSize: 20 }}>📋</Typography>
-                                          <Typography sx={{ 
-                                            fontWeight: 'bold',
-                                            fontFamily: 'Tajawal'
-                                          }}>
-                                            ملف Word
-                                          </Typography>
-                                        </Stack>
-                                        <Button
-                                          variant="contained"
-                                          size="small"
-                                          href={getDownloadUrl(lecture.docUrl)}
-                                          download
-                                          sx={{
-                                            backgroundColor: '#667eea',
-                                            '&:hover': { backgroundColor: '#5a6fd8' },
-                                            fontFamily: 'Tajawal',
-                                            fontWeight: 'bold'
-                                          }}
-                                        >
-                                          تحميل
-                                        </Button>
-                                      </Stack>
-                                    </Box>
-                                  )}
-                                </Stack>
-                              </Box>
-                            )}
-
-                            {/* No Content Message */}
-                            {!lecture.videoUrl && !lecture.pdfUrl && !lecture.txtUrl && !lecture.docUrl && (
-                              <Alert 
-                                severity="info" 
-                                sx={{ 
-                                  width: '100%',
-                                  borderRadius: 2,
-                                  fontFamily: 'Tajawal'
-                                }}
-                              >
-                                لا يوجد محتوى متاح لهذه المحاضرة حالياً.
-                              </Alert>
-                            )}
-                          </Stack>
-                        </Box>
-                      </MUICollapse>
-                    </Box>
-                  ))}
-                </Stack>
+                              {/* No Content Message */}
+                              {!lecture.videoUrl && !lecture.pdfUrl && !lecture.txtUrl && !lecture.docUrl && (
+                                <Alert
+                                  severity="info"
+                                  sx={{
+                                    width: '100%',
+                                    borderRadius: 2,
+                                    fontFamily: 'Tajawal'
+                                  }}
+                                >
+                                  لا يوجد محتوى متاح لهذه المحاضرة حالياً.
+                                </Alert>
+                              )}
+                            </Stack>
+                          </Box>
+                        </MUICollapse>
+                      </Box>
+                    ))}
+                  </Stack>
                 </>
               )}
             </Box>
@@ -1145,33 +1150,39 @@ const CourseDetails = () => {
             gap: { xs: 2, md: 3 },
             flexWrap: 'wrap'
           }}>
-            <Button 
-              onClick={() => navigate('/')} 
+            <Button
+              onClick={() => {
+                console.log("Navigating to Checkout with price:", courseData?.price);
+                navigate("/Checkout", {
+                  state: { price: courseData?.price },
+                });
+              }}
               variant="contained"
-              sx={{ 
+              sx={{
                 minWidth: { xs: 140, md: 160 },
                 height: { xs: 48, md: 52 },
-                fontFamily: 'Tajawal', 
-                fontWeight: 'bold',
+                fontFamily: "Tajawal",
+                fontWeight: "bold",
                 fontSize: { xs: 14, md: 16 },
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
                 },
                 borderRadius: 2,
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
               }}
             >
               حجز الكورس
             </Button>
 
-            <Button 
-              onClick={() => navigate('/courseMangement')} 
+
+            <Button
+              onClick={() => navigate('/courseMangement')}
               variant="outlined"
-              sx={{ 
+              sx={{
                 minWidth: { xs: 140, md: 160 },
                 height: { xs: 48, md: 52 },
-                fontFamily: 'Tajawal', 
+                fontFamily: 'Tajawal',
                 fontWeight: 'bold',
                 fontSize: { xs: 14, md: 16 },
                 borderColor: '#667eea',

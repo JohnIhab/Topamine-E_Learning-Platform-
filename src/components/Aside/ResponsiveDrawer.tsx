@@ -23,6 +23,9 @@ import createCache from '@emotion/cache';
 
 const theme = createTheme({
   direction: 'rtl',
+  typography: {
+    fontFamily: `'Tajawal', 'sans-serif'`,
+  },
 });
 
 const cacheRtl = createCache({

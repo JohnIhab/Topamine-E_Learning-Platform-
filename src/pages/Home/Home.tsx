@@ -8,7 +8,6 @@ import Footer from '../../components/Footer/Footer';
 export default function Home() {
     return (
         <>
-            
             <Box
                 sx={{
                     minHeight: '100vh',
@@ -36,9 +35,7 @@ export default function Home() {
                                 <Typography variant="h2" fontWeight="bold">
                                     منصة <span style={{ color: '#60a5fa' }}>توبامين</span>
                                 </Typography>
-
                             </motion.div>
-
                             <Typography variant="h5" fontWeight="500">
                                 منصة تعليمة شاملة جميع المراحل التعليمية
                             </Typography>

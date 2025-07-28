@@ -24,6 +24,7 @@ import {
   Typography,
   TextField,
   DialogActions,
+  CardActions,
 } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import {
@@ -38,7 +39,6 @@ import {
   ViewModule,
   Dashboard,
 } from "@mui/icons-material";
-
 
 type Course = {
   title: string;
@@ -94,17 +94,15 @@ const courses: Course[] = [
 ];
 
 const TeacherProfile = () => {
-  //Edit Profile
   const [open, setOpen] = useState(false);
+  const [teacherData, setTeacherData] = useState<any>(null);
 
-  const [teacherData, setTeacherData] = useState<any>(null); 
-
-  //Editing
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editSubject, setEditSubject] = useState("");
   const [editExperiance, setEditExperiance] = useState("");
   const [editInfo, setEditInfo] = useState("");
+
   const handleOpen = () => {
     if (teacherData) {
       setEditName(teacherData.name || "");
@@ -115,9 +113,9 @@ const TeacherProfile = () => {
     }
     setOpen(true);
   };
+
   const handleClose = () => setOpen(false);
 
-  //save After Editing
   const handleSave = async () => {
     const user = auth.currentUser;
     if (!user) return;
@@ -148,11 +146,9 @@ const TeacherProfile = () => {
   useEffect(() => {
     const fetchTeacherProfile = async () => {
       const user = auth.currentUser;
-      console.log("current user:", user);
       if (!user) return;
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
         setTeacherData(docSnap.data());
       } else {
@@ -162,9 +158,12 @@ const TeacherProfile = () => {
 
     fetchTeacherProfile();
   }, []);
+
   if (!teacherData)
     return (
-      <Typography sx={{ color: "blue" }}> جارى التحميل..........</Typography>
+      <Typography sx={{ color: "blue", textAlign: "center", mt: 5 }}>
+        جاري التحميل...
+      </Typography>
     );
 
   return (
@@ -173,7 +172,7 @@ const TeacherProfile = () => {
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "flex-start",
         backgroundColor: "#f9f9f9",
         direction: "rtl",
         p: 2,
@@ -181,65 +180,72 @@ const TeacherProfile = () => {
     >
       <Box sx={{ width: "100%", maxWidth: 1500, p: 4 }}>
         <Grid container spacing={4}>
-          <Grid size={3} xs={12} md={3}>
-            <Box sx={{ position: "relative", display: "inline-block", mb: 4 }}>
-              <Avatar
-                src={teacherData.avatar}
-                alt={teacherData.name}
-                sx={{ width: 150, height: 150 }}
-              />
-
-              <label htmlFor="upload-photo">
-                <AddAPhotoIcon
+          <Grid item xs={12} md={3}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                mb: 4,
+              }}
+            >
+              <Box sx={{ position: "relative", mb: 2 }}>
+                <Avatar
+                  src={teacherData.avatar || "/default-avatar.png"}
+                  alt={teacherData.name}
                   sx={{
-                    position: "absolute",
-                    bottom: 8,
-                    right: 8,
-                    backgroundColor: "#fff",
-                    borderRadius: "25%",
-                    padding: "6px",
-                    fontSize: 28,
-                    color: "#1976d2",
-                    cursor: "pointer",
-                    boxShadow: 1,
-                    transition: "0.3s",
-                    "&:hover": {
-                      backgroundColor: "#e3f2fd",
-                    },
+                    width: 150,
+                    height: 150,
+                    border: "2px solid #1976d2",
+                    backgroundColor: "#eee",
                   }}
                 />
-              </label>
+                <label htmlFor="upload-photo">
+                  <AddAPhotoIcon
+                    sx={{
+                      position: "absolute",
+                      bottom: 8,
+                      right: 8,
+                      backgroundColor: "#fff",
+                      borderRadius: "25%",
+                      padding: "6px",
+                      fontSize: 28,
+                      color: "#1976d2",
+                      cursor: "pointer",
+                      boxShadow: 1,
+                      transition: "0.3s",
+                      "&:hover": {
+                        backgroundColor: "#e3f2fd",
+                      },
+                    }}
+                  />
+                </label>
+                <input
+                  type="file"
+                  id="upload-photo"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                />
+              </Box>
 
-              <input
-                type="file"
-                id="upload-photo"
-                accept="image/*"
-                style={{ display: "none" }}
-                // onChange={handleImageChange} // لازم تكوني عرفتيها
-              />
+              <Link to="/teacherdashboard" style={{ textDecoration: "none", width: "100%" }}>
+                <Button
+                  variant="contained"
+                  startIcon={<Dashboard />}
+                  fullWidth
+                >
+                  الذهاب إلى اللوحة
+                </Button>
+              </Link>
             </Box>
-
-            <Link to="#" style={{ textDecoration: "none" }}>
-              <Button
-                variant="contained"
-                startIcon={<Dashboard />}
-                sx={{ mb: 2 }}
-              >
-                الذهاب إلى اللوحة
-              </Button>
-            </Link>
           </Grid>
 
-          <Grid size={9} xs={12} md={6}>
-            <Box display="flex" alignItems="center" gap={2}>
+          <Grid item xs={12} md={9}>
+            <Box display="flex" alignItems="center" gap={2} mb={1}>
               <Typography variant="h5" fontWeight="bold">
                 {teacherData.name}
               </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{ whiteSpace: "nowrap", mx: "30px" }}
-              >
+              <Button variant="outlined" size="small" sx={{ whiteSpace: "nowrap" }}>
                 متابعة
               </Button>
             </Box>
@@ -259,7 +265,7 @@ const TeacherProfile = () => {
 
             <Box display="flex" alignItems="center" mb={1}>
               <School sx={{ ml: 1 }} />
-              <Typography>التخصص:{teacherData.subject}</Typography>
+              <Typography>التخصص: {teacherData.subject}</Typography>
             </Box>
 
             <Box display="flex" alignItems="center" mb={1}>
@@ -269,72 +275,72 @@ const TeacherProfile = () => {
 
             <Box display="flex" alignItems="center" mb={1}>
               <Info sx={{ ml: 1, maxWidth: 200 }} />
-              <Typography>{teacherData.info} </Typography>
+              <Typography>{teacherData.info}</Typography>
             </Box>
 
-            <Link
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mt: 2,
+                cursor: "pointer",
+              }}
               onClick={handleOpen}
-              href="#"
-              underline="hover"
-              sx={{ display: "flex", alignItems: "center", mt: 1 }}
             >
               <Edit sx={{ ml: 1 }} />
-              تعديل الملف الشخصي
-            </Link>
-            {/* Edit  Profile*/}
+              <Typography>تعديل الملف الشخصي</Typography>
+            </Box>
+
+            {/* Edit Dialog */}
             <Dialog open={open} onClose={handleClose}>
-              <DialogTitle> تعديل الملف الشخصى </DialogTitle>
+              <DialogTitle>تعديل الملف الشخصي</DialogTitle>
               <DialogContent>
                 <TextField
                   margin="dense"
                   placeholder="تغيير الاسم"
-                  type="string"
                   fullWidth
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
+                  inputProps={{ style: { direction: "rtl" } }}
                 />
                 <TextField
                   margin="dense"
-                  placeholder=" تعديل رقم الهاتف "
-                  type="string"
+                  placeholder="تعديل رقم الهاتف"
                   fullWidth
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
+                  inputProps={{ style: { direction: "rtl" } }}
                 />
                 <TextField
                   margin="dense"
                   placeholder="تغيير التخصص"
-                  type="string"
                   fullWidth
                   value={editSubject}
                   onChange={(e) => setEditSubject(e.target.value)}
+                  inputProps={{ style: { direction: "rtl" } }}
                 />
                 <TextField
                   margin="dense"
-                  placeholder="تغيير سنين الخبره"
-                  type="string"
+                  placeholder="تغيير سنين الخبرة"
                   fullWidth
                   value={editExperiance}
                   onChange={(e) => setEditExperiance(e.target.value)}
+                  inputProps={{ style: { direction: "rtl" } }}
                 />
                 <TextField
                   margin="dense"
-                  placeholder="تغيير المعلومات عن المدرس"
-                  type="string"
+                  placeholder="تغيير المعلومات"
                   fullWidth
                   value={editInfo}
                   onChange={(e) => setEditInfo(e.target.value)}
+                  inputProps={{ style: { direction: "rtl" } }}
                 />
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClose} color="error">
                   إلغاء
                 </Button>
-                <Button
-                  onClick={handleSave}
-                  color="primary"
-                  variant="contained"
-                >
+                <Button onClick={handleSave} color="primary" variant="contained">
                   حفظ
                 </Button>
               </DialogActions>
@@ -344,15 +350,9 @@ const TeacherProfile = () => {
 
         <Divider sx={{ my: 4 }} />
 
-        <Box display="flex" alignItems="center" mb={2}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">دوراتي</Typography>
-          <Link
-            href="#"
-            underline="hover"
-            mr={10}
-            display="flex"
-            alignItems="center"
-          >
+          <Link to="#" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
             <ViewModule fontSize="small" sx={{ ml: 0.5 }} />
             عرض كل الدورات
           </Link>
@@ -364,7 +364,7 @@ const TeacherProfile = () => {
 
         <Grid container spacing={3}>
           {courses.map((course, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 initial={{ opacity: 0, y: 20 }}
@@ -375,53 +375,47 @@ const TeacherProfile = () => {
                   sx={{
                     borderRadius: 2,
                     overflow: "hidden",
-                    boxShadow: 1,
+                    boxShadow: 2,
                     bgcolor: "background.paper",
-                    width: 330,
+                    width: "100%",
+                    maxWidth: 330,
                   }}
                 >
                   <img
-                    src={teacherData.avatar}
+                    src={teacherData.avatar || "/default-course.png"}
                     alt={course.title}
-                    style={{ width: "100%", height: 200, objectFit: "fill" }}
+                    style={{ width: "100%", height: 200, objectFit: "cover" }}
                   />
                   <Box p={2}>
                     <Typography fontWeight="bold">{course.title}</Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
                       {course.subtitle}
                     </Typography>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      color="text.secondary"
-                      mb={2}
-                    >
+                    <Box display="flex" alignItems="center" color="text.secondary" mb={2}>
                       <CalendarMonth fontSize="small" sx={{ ml: 0.5 }} />
                       <Typography variant="body2">
                         {course.start} – {course.end}
                       </Typography>
                     </Box>
-                    <Box display="flex" justifyContent="space-between" gap={1}>
-                      <Link
-                        to="/profileTeacher/courseDetails"
-                        style={{ textDecoration: "none" }}
-                      >
-                        <Button fullWidth variant="outlined">
-                          تفاصيل الدورة
-                        </Button>
-                      </Link>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        startIcon={<Payment sx={{ ml: 1 }} />}
-                      >
-                        معلومات الدفع
-                      </Button>
-                    </Box>
+                    <CardActions sx={{ px: 2, pb: 2 }}>
+  <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
+    <Button
+      variant="contained"
+      color="primary"
+      sx={{ flex: 1 }}
+    >
+      الدفع
+    </Button>
+    <Button
+      variant="outlined"
+      color="primary"
+      sx={{ flex: 1 }}
+    >
+      تفاصيل الكورس
+    </Button>
+  </Box>
+</CardActions>
+
                   </Box>
                 </Box>
               </motion.div>

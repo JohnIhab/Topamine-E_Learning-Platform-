@@ -19,7 +19,12 @@ import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 
-const theme = createTheme({ direction: 'rtl' });
+const theme = createTheme({ 
+  direction: 'rtl',
+  typography: {
+    fontFamily: `'Tajawal', 'sans-serif'`,
+  },
+});
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });
 
 interface Course {

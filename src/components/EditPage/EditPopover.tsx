@@ -22,7 +22,12 @@ import axios from 'axios';
 //     const [uploading, setUploading] = useState<boolean>(false);
 //       const [uploadProgress, setUploadProgress] = useState<{ [key: string]: { video?: number; doc?: number; txt?: number } }>({});
 
-const theme = createTheme({ direction: 'rtl' });
+const theme = createTheme({ 
+  direction: 'rtl',
+  typography: {
+    fontFamily: `'Tajawal', 'sans-serif'`,
+  },
+});
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });
 
 const gradeOptions = [

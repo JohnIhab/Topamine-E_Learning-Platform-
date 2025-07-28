@@ -55,7 +55,12 @@ interface StudentRow {
 
 const Students: React.FC = () => {
   const navigate=useNavigate()
-  const theme = createTheme({ direction: 'rtl' });
+  const theme = createTheme({ 
+    direction: 'rtl',
+    typography: {
+      fontFamily: `'Tajawal', 'sans-serif'`,
+    },
+  });
   const cacheRtl = createCache({
     key: 'muirtl',
     stylisPlugins: [prefixer, rtlPlugin],

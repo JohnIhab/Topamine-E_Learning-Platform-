@@ -19,7 +19,7 @@ import { SnackbarProvider } from "notistack";
 import NotFound from "./pages/NotFound/NotFound";
 import Checkout from "./pages/CheckoutPage";
 import Video from "./pages/VideoPage";
-import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentResult from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FullChatPage from "./pages/FullChatPage/FullChatPage";
 import TeacherDashboardLayout from './components/TeacherHome/TeacherDashboardLayout';
@@ -46,7 +46,7 @@ function App() {
               </Route>
               <Route path="students" element={<StudentsComponent />} />
             </Route>
-            <Route path="/coursedetalis/:courseId" element={<CourseDetalis />} />
+            <Route path="coursedetalis/:courseId" element={<CourseDetalis />} />
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -117,7 +117,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
             <Route path="/Checkout" element={<Checkout />} />
             <Route path="/video" element={<Video />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/paymentSuccess" element={<PaymentResult />} />
+
             <Route path="/chat/:teacherId" element={<FullChatPage />} />
           </Routes>
       </SnackbarProvider>

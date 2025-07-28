@@ -34,7 +34,12 @@ interface Lecture {
 }
 
 
-const theme = createTheme({ direction: 'rtl' });
+const theme = createTheme({ 
+  direction: 'rtl',
+  typography: {
+    fontFamily: `'Tajawal', 'sans-serif'`,
+  },
+});
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });
 
 const gradeOptions = [
@@ -276,7 +281,7 @@ const NewCourse: React.FC = () => {
         autoClose: 2000,
       });
       setTimeout(() => {
-        navigate('/courseMangement');
+        navigate('/teacherdashboard/courses');
       }, 3000);
     } catch (error) {
       console.error(error);
@@ -732,6 +737,7 @@ const NewCourse: React.FC = () => {
 
 
             </Box>
+
               <Button  variant="outlined"
       component="label" sx={{ ml: 120, mt: 3, mb: 3,fontFamily: 'Tajawal', fontWeight: 'bold' }} onClick={handleCreate} disabled={loading}>
                 حفظ الكورس
