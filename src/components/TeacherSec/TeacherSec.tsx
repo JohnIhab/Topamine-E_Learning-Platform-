@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import mainImg from '../../assets/images/Icon-logo.png'
+import mainImg from "../../assets/images/Icon-logo.png";
 import { motion } from "framer-motion";
-
+import { useEffect } from "react";
+import { collection, doc, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 import {
     Card,
@@ -15,131 +17,42 @@ import {
     Box,
 } from "@mui/material";
 
-const teacherCards = [
-    {
-        name: "أ. أحمد السيد",
-        title: "مدرس فيزياء",
-        handle: "ahmedphysics",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. منى علي",
-        title: "مدرسة أحياء",
-        handle: "monabiology",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. خالد سامي",
-        title: "مدرس رياضيات",
-        handle: "khaledmath",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. نورهان محمد",
-        title: "مدرسة كيمياء",
-        handle: "norhanchem",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. عمر عبد الله",
-        title: "مدرس إنجليزي",
-        handle: "omarenglish",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. نورهان محمد",
-        title: "مدرسة كيمياء",
-        handle: "norhanchem",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. عمر عبد الله",
-        title: "مدرس إنجليزي",
-        handle: "omarenglish",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. نورهان محمد",
-        title: "مدرسة كيمياء",
-        handle: "norhanchem",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. عمر عبد الله",
-        title: "مدرس إنجليزي",
-        handle: "omarenglish",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. نورهان محمد",
-        title: "مدرسة كيمياء",
-        handle: "norhanchem",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. عمر عبد الله",
-        title: "مدرس إنجليزي",
-        handle: "omarenglish",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. نورهان محمد",
-        title: "مدرسة كيمياء",
-        handle: "norhanchem",
-
-
-        avatarUrl: mainImg,
-    },
-    {
-        name: "أ. عمر عبد الله",
-        title: "مدرس إنجليزي",
-        handle: "omarenglish",
-
-
-        avatarUrl: mainImg,
-    },
-
-];
-
-const uniqueSubjects = [...new Set(teacherCards.map((card) => card.title))];
-
 export default function TeacherSec() {
+    const [teacherCards, setTeacherCards] = useState([]);
     const [visibleCount, setVisibleCount] = useState(4);
     const [nameFilter, setNameFilter] = useState("");
     const [subjectFilter, setSubjectFilter] = useState("");
 
+    const uniqueSubjects = [...new Set(teacherCards.map((card) => card.title))];
+
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                const data = querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                console.log(data);
+                setTeacherCards(data);
+            } catch (error) {
+                console.log("Error While bring data of teachers :", error);
+            }
+        };
+        fetchTeachers();
+    }, []);
+
     const filteredCards = teacherCards.filter((card) => {
-        const nameMatch = card.name.includes(nameFilter);
-        const subjectMatch = subjectFilter ? card.title === subjectFilter : true;
-        return nameMatch && subjectMatch;
+        if (card.role == "teacher") {
+            const nameMatch = card.name.includes(nameFilter);
+            const subjectMatch = subjectFilter ? card.title === subjectFilter : true;
+            return nameMatch && subjectMatch;
+        }
     });
 
     const handleSeeMore = () => {
         setVisibleCount((prev) => Math.min(prev + 4, filteredCards.length));
     };
-
 
     return (
         <Box sx={{ padding: 3, width: "100%" }}>
@@ -191,26 +104,30 @@ export default function TeacherSec() {
                     </Typography>
                 </Box>
             </Box>
-            <Box sx={{
-                display: "flex",
-                justifyContent: "center",
-                mt: 4,
-                mb: 3
-            }}>
-                <Box sx={{
+            <Box
+                sx={{
                     display: "flex",
-                    gap: 2,
-                    width: {
-                        xs: '100%',
-                        sm: '80%',
-                        md: '60%',
-                        lg: '40%',
-                    },
-                    flexDirection: {
-                        xs: 'column',
-                        sm: 'row'
-                    }
-                }}>
+                    justifyContent: "center",
+                    mt: 4,
+                    mb: 3,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 2,
+                        width: {
+                            xs: "100%",
+                            sm: "80%",
+                            md: "60%",
+                            lg: "40%",
+                        },
+                        flexDirection: {
+                            xs: "column",
+                            sm: "row",
+                        },
+                    }}
+                >
                     <TextField
                         label="فلترة بالاسم"
                         variant="outlined"
@@ -235,33 +152,29 @@ export default function TeacherSec() {
                 </Box>
             </Box>
 
-
             <Grid container spacing={2} justifyContent="center">
                 {filteredCards.slice(0, visibleCount).map((card, index) => (
                     <Grid item xs={12} sm={6} md={3} key={index}>
-                        <Card sx={{ minWidth: 300, maxHeight: 300, mx: 'auto' }}>
+                        <Card sx={{ minWidth: 300, maxHeight: 300, mx: "auto" }}>
                             <CardMedia
                                 component="img"
                                 height="200"
-                                image={card.avatarUrl}
+                                image={card.avatar}
                                 alt={card.name}
-                                sx={{ objectFit: 'fill' }}
+                                sx={{ objectFit: "fill" }}
                             />
-                            <CardContent >
+                            <CardContent>
                                 <Typography variant="h6" gutterBottom>
                                     {card.name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                    {card.title}
+                                    {card.subject}
                                 </Typography>
-
-
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
-
 
             {filteredCards.length === 0 && (
                 <Box textAlign="center" mt={4}>
