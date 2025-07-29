@@ -1,18 +1,17 @@
+// CheckoutPage.jsx
 import React, { useEffect, useState } from "react";
 import { getPaymentIframe } from "../paymob";
 import { useLocation, useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 
-
 const CheckoutPage = () => {
     const navigate = useNavigate();
     const [iframeUrl, setIframeUrl] = useState(null);
     const location = useLocation();
+
     const price = location.state?.price;
-
-
-    console.log("Received price:", price);
+    const courseId = location.state?.courseId;
 
     useEffect(() => {
         const fetchIframe = async () => {
@@ -31,20 +30,24 @@ const CheckoutPage = () => {
     }, []);
 
     useEffect(() => {
-        const listener = (event) => {
+        const listener = async (event) => {
+            console.log("Received postMessage event:", event);
+            console.log("Message data:", event.data);
             if (event.origin.includes("accept.paymob.com")) {
                 if (event.data === "payment_success") {
                     const userAuth = auth.currentUser;
                     const uid = userAuth?.uid;
+                    console.log("user:", uid);
+                    console.log("Course ID:", courseId);
 
-                    const paymentRef = doc(db, "payments", uid || "unknown_user");
-                    setDoc(paymentRef, {
-                        uid: uid || null,
-                        status: "paid",
-                        paid: true,
-                        timestamp: new Date(),
-                        price: price,
-                    });
+                    // const paymentRef = doc(db, "payments", `${uid}_${courseId}`);
+                    // await setDoc(paymentRef, {
+                    //     uid: uid || null,
+                    //     courseId,
+                    //     price,
+                    //     paid: true,
+                    //     timestamp: new Date(),
+                    // }, { merge: true });
 
                     navigate("/video");
                 }
@@ -53,8 +56,7 @@ const CheckoutPage = () => {
 
         window.addEventListener("message", listener);
         return () => window.removeEventListener("message", listener);
-    }, [navigate, price]);
-
+    }, [navigate, price, courseId]);
 
     return (
         <div>

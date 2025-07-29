@@ -1154,7 +1154,7 @@ const CourseDetails = () => {
               onClick={() => {
                 console.log("Navigating to Checkout with price:", courseData?.price);
                 navigate("/Checkout", {
-                  state: { price: courseData?.price },
+                  state: { price: courseData?.price, courseId: courseId },
                 });
               }}
               variant="contained"
