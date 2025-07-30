@@ -1,6 +1,6 @@
 import { useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { UserContext } from '../context/UserContext';
@@ -11,43 +11,71 @@ const PaymentResult = () => {
     const location = useLocation();
     const userContext = useContext(UserContext);
     const authContext = useAuth();
-    
+
     // Try to get user from UserContext first, then fallback to AuthContext
     const user = userContext?.user || authContext?.user;
-    
+    const isLoading = authContext?.loading;
+
     console.log("=== PaymentResult Debug ===");
     console.log("UserContext user:", userContext?.user);
     console.log("AuthContext user:", authContext?.user);
+    console.log("AuthContext loading:", authContext?.loading);
     console.log("Final user:", user);
     console.log("==========================");
 
     useEffect(() => {
+        // Don't proceed if AuthContext is still loading
+        if (isLoading) {
+            console.log("🔄 AuthContext still loading, waiting...");
+            return;
+        }
+
         const params = new URLSearchParams(location.search);
         const isSuccess = params.get('success');
         const price = parseFloat(sessionStorage.getItem('amount'));
         const courseId = sessionStorage.getItem('courseId');
 
+        console.log("🔍 Payment params:", { isSuccess, price, courseId });
 
-        if (user) {
-            // Get user ID from either context (UserContext.user.id or AuthContext.user.uid)
-            const userId = user.id || user.uid;
+        // Check for user in contexts or localStorage as fallback
+        let currentUser = user;
+        let userId = null;
+
+        if (currentUser) {
+            userId = currentUser.id || currentUser.uid;
+        } else {
+            // Fallback: check localStorage for user data
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    userId = currentUser.id || currentUser.uid;
+                    console.log("📦 Found user in localStorage:", currentUser);
+                } catch (error) {
+                    console.error("Error parsing stored user:", error);
+                }
+            }
+        }
+
+        if (currentUser && userId) {
             console.log("✅ User found, ID:", userId);
             console.log("courseId:", courseId);
 
             if (isSuccess === 'true') {
                 const savePayment = async () => {
                     try {
-                        const paymentRef = doc(db, 'payments', userId);
-                        await setDoc(paymentRef, {
+                        const paymentsRef = collection(db, 'payments');
+                        await addDoc(paymentsRef, {
                             uid: userId,
                             paid: true,
-                            amount: price ,
-                            courseId: courseId, // Save courseId in Firestore
+                            amount: price,
+                            courseId: courseId,
                             timestamp: new Date(),
                         });
                         sessionStorage.removeItem('amount');
                         sessionStorage.removeItem('courseId')
 
+                        console.log("💾 Payment saved successfully, navigating to video page...");
                         // Navigate to the video page, passing courseId in state
                         navigate('/video', { state: { courseId } });
                     } catch (error) {
@@ -62,17 +90,21 @@ const PaymentResult = () => {
                 navigate('/payment-failed'); // Handle failed payment case
             }
         } else {
-            console.log('⛔ No user found in any context.');
+            // If not loading and still no user, then redirect to login
+            console.log('⛔ No user found in any context or localStorage after loading completed.');
+            console.log('🔍 Debug - userContext:', userContext);
+            console.log('🔍 Debug - authContext:', authContext);
+            console.log('🔍 Debug - localStorage user:', localStorage.getItem('user'));
             navigate('/login'); // Redirect to login page if no user
         }
-    }, [location.search, navigate, user]);
+    }, [location.search, navigate, user, isLoading, userContext, authContext]);
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
             <Box sx={{ textAlign: 'center' }}>
                 <CircularProgress sx={{ mb: 2 }} />
                 <Typography variant="h5" sx={{ fontFamily: 'Tajawal' }}>
-                    جارٍ التحقق من حالة الدفع...
+                    {isLoading ? 'جارٍ تحميل بيانات المستخدم...' : 'جارٍ التحقق من حالة الدفع...'}
                 </Typography>
             </Box>
         </Box>

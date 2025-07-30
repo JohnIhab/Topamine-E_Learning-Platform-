@@ -65,8 +65,8 @@ export const getPaymentIframe = async (amountCents, userData) => {
             lock_order_when_paid: true,
             redirect_url:
                 window.location.hostname === "localhost"
-                    ? "http://localhost:5173/paymentSuccess"
-                    : "https://localhost:5173/paymentSuccess",
+                    ? "http://localhost:5174/paymentSuccess?success=true"
+                    : "https://your-production-domain.com/paymentSuccess?success=true",
         }
     );
 
