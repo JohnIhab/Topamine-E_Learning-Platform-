@@ -30,7 +30,7 @@ import AddNewCourse from './components/AddNewCourse/NewCourse';
 import { useThemeMode } from './context/ThemeContext';
 import { useEffect } from 'react';
 import ThemeTestPage from './pages/ThemeTest/ThemeTestPage';
-// import Chatbot from "./pages/ChatBot/ChatBot";
+import Chatbot from "./pages/ChatBot/ChatBot";
 
 function App() {
   const location = useLocation();
@@ -133,15 +133,18 @@ function App() {
               element={<CourseDetalis />}
             />
             <Route path="*" element={<NotFound />} />
-            <Route path="/Checkout" element={<Checkout />} />
+            <Route
+            path="/Checkout" 
+            element={<Checkout />} 
+            />
             <Route path="/video" element={<Video />} />
             <Route path="/paymentSuccess" element={<PaymentResult />} />
 
             <Route path="/chat/:teacherId" element={<FullChatPage />} />
-            {/* <Route path="/chatbot" element={<Chatbot />} /> */}
           </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
+      <Chatbot />
     </>
   );
 }

@@ -78,7 +78,7 @@ const Chatbot: React.FC = () => {
                 sx={{
                     position: 'fixed',
                     bottom: 20,
-                    left: 20,
+                    right: 20,
                     zIndex: 1300,
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 }}
