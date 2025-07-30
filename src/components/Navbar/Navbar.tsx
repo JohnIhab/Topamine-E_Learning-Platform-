@@ -19,6 +19,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase'; 
+import ThemeToggle from '../ThemeToggle/ThemeToggle'; 
 
 export default function Navbar() {
     const theme = useTheme();
@@ -97,7 +98,10 @@ export default function Navbar() {
                 )}
 
                 {!isMobile && (
-                    <>
+                    <Box display="flex" alignItems="center" gap={1}>
+                        {/* Theme Toggle */}
+                        <ThemeToggle />
+                        
                         {!user ? (
                             <Link to="/login" style={{ textDecoration: 'none' }}>
                                 <Button
@@ -124,7 +128,7 @@ export default function Navbar() {
                                 تسجيل الخروج
                             </Button>
                         )}
-                    </>
+                    </Box>
                 )}
 
                 {isMobile && (

@@ -27,11 +27,21 @@ import TeachHome from './components/TeacherHome/TeacherHome';
 import CourseManagment from './components/CourseManagment/CourseManagment';
 import StudentsComponent from './components/Students/Students';
 import AddNewCourse from './components/AddNewCourse/NewCourse';
+import { useThemeMode } from './context/ThemeContext';
+import { useEffect } from 'react';
+import ThemeTestPage from './pages/ThemeTest/ThemeTestPage';
+// import Chatbot from "./pages/ChatBot/ChatBot";
 
 function App() {
   const location = useLocation();
+  const { isDarkMode } = useThemeMode();
   const hiddenRoutes = ["/login", "/register", "/ForgetPassword"];
   const hideNavAndFooter = hiddenRoutes.includes(location.pathname);
+
+  // Apply theme class to document body
+  useEffect(() => {
+    document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
 
   return (
     <>
@@ -39,7 +49,14 @@ function App() {
       <SnackbarProvider maxSnack={3}>
 
           <Routes>
-            <Route path="/teacherdashboard" element={<TeacherDashboardLayout />}>
+            <Route 
+              path="/teacherdashboard" 
+              element={
+                <ProtectedRoute allowedRoles={["teacher"]}>
+                  <TeacherDashboardLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<TeachHome />} />
               <Route path="courses" element={<CourseManagment />}>
                 <Route path="add" element={<AddNewCourse />} />
@@ -49,6 +66,7 @@ function App() {
             <Route path="coursedetalis/:courseId" element={<CourseDetalis />} />
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/theme-test" element={<ThemeTestPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/ForgetPassword" element={<ForgetPassword />} />
             <Route path="/register" element={<Register />} />
@@ -120,6 +138,7 @@ function App() {
             <Route path="/paymentSuccess" element={<PaymentResult />} />
 
             <Route path="/chat/:teacherId" element={<FullChatPage />} />
+            {/* <Route path="/chatbot" element={<Chatbot />} /> */}
           </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}

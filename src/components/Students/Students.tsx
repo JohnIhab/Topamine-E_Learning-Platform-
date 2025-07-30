@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import TableContainer from '@mui/material/TableContainer';
 import type { SelectChangeEvent } from '@mui/material/Select';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Header from '../Header/Header';
 import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -42,7 +44,7 @@ const StaticProgress: React.FC<{ value?: number }> = ({ value = 50 }) => {
       </Typography>
     </Stack>
   );
-};
+}; 
 
 interface StudentRow {
   الاسم: string;
@@ -211,8 +213,8 @@ const Students: React.FC = () => {
                       <TableCell align="center"sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['آخر دخول']}</TableCell>
           <TableCell>
   <Box sx={{ display: 'flex', gap: 1 }}>
-    <img src="./images/eye.png" alt="" style={{ width: "20px", height: "20px" }} />
-    <img src="./images/deletee.png" alt="حذف" style={{ width: "20px", height: "20px",}} />
+    <VisibilityIcon sx={{ fontSize: 20, color: '#2563EB', cursor: 'pointer' }} />
+    <DeleteIcon sx={{ fontSize: 20, color: '#DC2626', cursor: 'pointer' }} />
   </Box>
 </TableCell>
                     </TableRow>

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Card, CardContent, CardMedia, Stack, Alert } from '@mui/material';
+import { Box, Typography, Button, Card, CardContent, CardMedia, Stack, Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-// import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-// import EditIcon from '@mui/icons-material/Edit';
-// import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { doc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import PaymentsIcon from '@mui/icons-material/Payments';
@@ -49,13 +48,19 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   useEffect(() => {
     console.log('CourseCard image URL:', image);
-    setImageLoading(true);
+    // setImageLoading(true);
     setImageError(false);
   }, [image]);
 
-  const handleEdit = (event: React.MouseEvent<HTMLElement>) => {
-    setEditAnchorEl(event.currentTarget);
+  const handleEditIconClick = (event: React.MouseEvent<SVGSVGElement>) => {
+    setEditAnchorEl(event.currentTarget as any);
     setEditOpen(true);
+  };
+
+  const handleDeleteIconClick = () => {
+    if (window.confirm('هل أنت متأكد من حذف هذا الكورس؟')) {
+      handleDelete();
+    }
   };
 
   const handleEditClose = () => {
@@ -84,7 +89,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
     setImageError(true);
     setImageLoading(false);
     const target = e.target as HTMLImageElement;
-    target.src = 'https://via.placeholder.com/350x180?text=No+Image';
+    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjE0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij7YtdmI2LHYqSDZhNmFINiq2YXYqdo8L3RleHQ+PC9zdmc+';
   };
 
   const handleImageLoad = () => {
@@ -152,21 +157,24 @@ const CourseCard: React.FC<CourseCardProps> = ({
                 bottom: 0,
                 backgroundColor: '#f0f0f0',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderTopLeftRadius: '12px',
-                borderTopRightRadius: '12px'
+                borderTopRightRadius: '12px',
+                gap: 1
               }}
             >
-              <Typography variant="body2" color="text.secondary">
-                جاري تحميل الصورة
+              <CircularProgress size={30} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                جارى التحميل
               </Typography>
             </Box>
           )}
           <CardMedia
             component="img"
             height="140"
-            image={image || 'https://via.placeholder.com/350x140?text=No+Image'}
+            image={image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjE0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Ob3QgRm91bmQ8L3RleHQ+PC9zdmc+'}
             alt={title}
             sx={{ 
               objectFit: 'contain',
@@ -228,8 +236,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
               </Typography>
 
               <Box sx={{display:'flex',gap:2}}>
-                <img src='/edit.png'  onClick={handleEdit} style={{ cursor: 'pointer' }} />
-                <img src='/delete.png' onClick={handleDelete} style={{ cursor: 'pointer' }}/>
+                <EditIcon sx={{ color: '#2563EB', cursor: 'pointer', fontSize: '1.2rem' }} onClick={handleEditIconClick} />
+                <DeleteIcon sx={{ color: '#DC2626', cursor: 'pointer', fontSize: '1.2rem' }} onClick={handleDeleteIconClick} />
+                {/* <img src='/edit.png'  onClick={handleEdit} style={{ cursor: 'pointer' }} />
+                <img src='/delete.png' onClick={handleDelete} style={{ cursor: 'pointer' }}/> */}
                 {/* <EditIcon sx={{ color: 'blue', cursor: 'pointer', fontSize: '1.2rem' }} onClick={handleEdit} /> */}
                 {/* <DeleteIcon sx={{ color: 'red', cursor: 'pointer', fontSize: '1.2rem' }} onClick={handleDelete} /> */}
               </Box>

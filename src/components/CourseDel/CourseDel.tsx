@@ -154,7 +154,8 @@ const CourseDetails = () => {
             width: '100%',
             height: '100%',
             // background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)',
-            background: 'linear-gradient(135deg, rgba(161, 196, 253, 0.8) 0%, rgba(194, 233, 251, 0.8) 100%)',
+            // background: 'linear-gradient(135deg, rgba(161, 196, 253, 0.8) 0%, rgba(194, 233, 251, 0.8) 100%)',
+            backgroundPosition: 'fill',
 
 
             zIndex: 1,
@@ -599,64 +600,18 @@ const CourseDetails = () => {
                 </Box>
 
 
-                <Box sx={{
-                  p: 3,
-                  backgroundColor: '#f8f9fa',
-                  borderRadius: 2,
-                  border: '1px solid #e9ecef',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    backgroundColor: '#e9ecef',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                  }
-                }}>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Box sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      backgroundColor: '#fd7e14',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: 16
-                    }}>
-                      👥
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{
-                          fontWeight: 'bold',
-                          color: '#2c3e50',
-                          fontSize: { xs: 14, md: 16 },
-                          fontFamily: 'Tajawal'
-                        }}
-                      >
-                        السعة
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: '#6c757d',
-                          fontSize: { xs: 14, md: 16 },
-                          fontFamily: 'Tajawal'
-                        }}
-                      >
-                        {courseData.capacity} طالب
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Box>
+                
+                  
+                
               </Box>
 
               <Box sx={{
                 p: 4,
-                backgroundColor: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+                backgroundColor: 'linear-gradient(135deg, #a1c4fd 0%, #8ed4f5ff 100%)',
 
                 borderRadius: 3,
                 textAlign: 'center',
-                background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+                background: 'linear-gradient(135deg, #1569f1ff 0%, #c2e9fb 100%)',
                 color: 'white'
               }}>
                 <Typography

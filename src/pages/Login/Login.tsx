@@ -1,5 +1,4 @@
 import { Box, TextField, Button, Checkbox, Typography, CircularProgress } from '@mui/material';
-import { styled } from '@mui/system';
 import loginPhoto from '../../assets/images/login.jpg';
 import GoogleIcon from '@mui/icons-material/Google';
 import { Link, Navigate } from 'react-router-dom';
@@ -14,45 +13,6 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-
-const CustomBox = styled(Box)({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f5f5f5',
-});
-
-const LoginContainer = styled(Box)({
-    display: 'flex',
-    width: '800px',
-    backgroundColor: '#fff',
-    padding: '10',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-});
-
-const LeftPanel = styled(Box)({
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: '20px',
-});
-
-const RightPanel = styled(Box)({
-    flex: 1,
-    backgroundImage: `url(${loginPhoto})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    position: 'relative',
-});
-
-const SubTitle = styled(Typography)({
-    fontSize: '1rem',
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: '30px',
-});
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
@@ -171,15 +131,39 @@ const Login = () => {
     };
 
     return (
-        <CustomBox>
-            <LoginContainer>
-                <LeftPanel>
-                    <Typography variant="h6" align="center" gutterBottom>
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            backgroundColor: 'background.default',
+        }}>
+            <Box sx={{
+                display: 'flex',
+                width: '800px',
+                backgroundColor: 'background.paper',
+                padding: '10px',
+                boxShadow: 3,
+                borderRadius: 1,
+            }}>
+                <Box sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    padding: '20px',
+                }}>
+                    <Typography variant="h6" align="center" gutterBottom color="text.primary">
                         مرحبًا مجددًا!
                     </Typography>
-                    <SubTitle>
+                    <Typography sx={{
+                        fontSize: '1rem',
+                        color: 'text.secondary',
+                        textAlign: 'center',
+                        marginBottom: '30px',
+                    }}>
                         تسجيل الدخول لمواصلة التعلم
-                    </SubTitle>
+                    </Typography>
                     <form onSubmit={login.handleSubmit}>
                         <TextField
                             label="البريد الإلكتروني"
@@ -280,10 +264,16 @@ const Login = () => {
                     </Dialog>
 
 
-                </LeftPanel>
-                <RightPanel />
-            </LoginContainer>
-        </CustomBox >
+                </Box>
+                <Box sx={{
+                    flex: 1,
+                    backgroundImage: `url(${loginPhoto})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    position: 'relative',
+                }} />
+            </Box>
+        </Box>
     );
 };
 

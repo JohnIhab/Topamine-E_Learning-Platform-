@@ -244,7 +244,7 @@ const ProfileStudent = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "background.default",
         direction: "rtl",
         p: 2,
       }}
@@ -266,16 +266,16 @@ const ProfileStudent = () => {
                   marginTop: -8,
                   right: 8,
 
-                  backgroundColor: "#fff",
+                  backgroundColor: "background.paper",
                   borderRadius: "25%",
                   padding: "6px",
                   fontSize: 28,
-                  color: "#1976d2",
+                  color: "primary.main",
                   cursor: "pointer",
                   boxShadow: 1,
                   transition: "0.3s",
                   "&:hover": {
-                    backgroundColor: "#e3f2fd",
+                    backgroundColor: "action.hover",
                   },
                 }}
               />

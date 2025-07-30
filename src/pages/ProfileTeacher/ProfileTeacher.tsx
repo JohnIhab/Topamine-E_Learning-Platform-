@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -102,6 +102,7 @@ const TeacherProfile = () => {
   const [editSubject, setEditSubject] = useState("");
   const [editExperiance, setEditExperiance] = useState("");
   const [editInfo, setEditInfo] = useState("");
+  let navigate = useNavigate();
 
   const handleOpen = () => {
     if (teacherData) {
@@ -165,7 +166,6 @@ const TeacherProfile = () => {
         جاري التحميل...
       </Typography>
     );
-
   return (
     <Box
       sx={{
@@ -173,7 +173,7 @@ const TeacherProfile = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "background.default",
         direction: "rtl",
         p: 2,
       }}
@@ -196,8 +196,9 @@ const TeacherProfile = () => {
                   sx={{
                     width: 150,
                     height: 150,
-                    border: "2px solid #1976d2",
-                    backgroundColor: "#eee",
+                    border: "2px solid",
+                    borderColor: "primary.main",
+                    backgroundColor: "grey.100",
                   }}
                 />
                 <label htmlFor="upload-photo">
@@ -206,16 +207,16 @@ const TeacherProfile = () => {
                       position: "absolute",
                       bottom: 8,
                       right: 8,
-                      backgroundColor: "#fff",
+                      backgroundColor: "background.paper",
                       borderRadius: "25%",
                       padding: "6px",
                       fontSize: 28,
-                      color: "#1976d2",
+                      color: "primary.main",
                       cursor: "pointer",
                       boxShadow: 1,
                       transition: "0.3s",
                       "&:hover": {
-                        backgroundColor: "#e3f2fd",
+                        backgroundColor: "action.hover",
                       },
                     }}
                   />
@@ -398,23 +399,20 @@ const TeacherProfile = () => {
                       </Typography>
                     </Box>
                     <CardActions sx={{ px: 2, pb: 2 }}>
-  <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
-    <Button
-      variant="contained"
-      color="primary"
-      sx={{ flex: 1 }}
-    >
-      الدفع
-    </Button>
-    <Button
-      variant="outlined"
-      color="primary"
-      sx={{ flex: 1 }}
-    >
-      تفاصيل الكورس
-    </Button>
-  </Box>
-</CardActions>
+                      <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
+
+                        <Button
+                          onClick={() => {
+                            // navigate(`/coursedetalis/${courseId}`);
+                          }}
+                          variant="outlined"
+                          color="primary"
+                          sx={{ flex: 1 }}
+                        >
+                          تفاصيل الكورس
+                        </Button>
+                      </Box>
+                    </CardActions>
 
                   </Box>
                 </Box>

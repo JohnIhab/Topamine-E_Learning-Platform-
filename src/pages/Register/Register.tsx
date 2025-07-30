@@ -17,7 +17,6 @@ import {
     IconButton,
     InputAdornment,
 } from '@mui/material';
-import { styled } from '@mui/system';
 import loginPhoto from '../../assets/images/login.jpg';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import ImageIcon from '@mui/icons-material/Image';
@@ -34,45 +33,7 @@ const governments = [
 const grades = ['الصف الأول الثانوى', 'الصف الثانى الثانوى', 'الصف الثالث الثانوى', 'الثانوية العامة'];
 const materials = ['لغة عربية', 'الرياضيات', 'لغة انجليزية', 'فيزياء', 'كيمياء', 'احياء', 'جيولوجيا', 'فلسفة', 'علم نفس', 'جغرافيا', 'تاريخ'];
 
-const CustomBox = styled(Box)({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f0f2f5',
-});
 
-const LoginContainer = styled(Box)({
-    display: 'flex',
-    width: '100%',
-    maxWidth: '1000px',
-    minHeight: '600px',
-    backgroundColor: '#fff',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-});
-
-const LeftPanel = styled(Box)({
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '40px',
-});
-
-const RightPanel = styled(Box)({
-    flex: 1,
-    backgroundImage: `url(${loginPhoto})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-});
-
-const ScrollableFormBox = styled(Box)({
-    overflowY: 'auto',
-    maxHeight: 'calc(100vh - 120px)',
-    paddingRight: '8px',
-    paddingLeft: '8px',
-});
 
 
 const Register: React.FC = () => {
@@ -276,7 +237,19 @@ const Register: React.FC = () => {
 
     
     const renderForm = () => (
-        <ScrollableFormBox component="form" onSubmit={formik.handleSubmit} noValidate sx={{ direction: 'rtl', mt: 2 }}>
+        <Box 
+            component="form" 
+            onSubmit={formik.handleSubmit} 
+            noValidate 
+            sx={{ 
+                direction: 'rtl', 
+                mt: 2,
+                overflowY: 'auto',
+                maxHeight: 'calc(100vh - 120px)',
+                paddingRight: '8px',
+                paddingLeft: '8px'
+            }}
+        >
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <TextField
@@ -499,14 +472,34 @@ const Register: React.FC = () => {
                     </Link>
                 </Typography>
             </Grid>
-        </ScrollableFormBox>
+        </Box>
     );
 
     return (
-        <CustomBox>
-            <LoginContainer>
-                <LeftPanel>
-                    <Typography variant="h4" fontWeight="bold" gutterBottom>
+        <Box sx={{ 
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            backgroundColor: 'background.default'
+        }}>
+            <Box sx={{
+                display: 'flex',
+                width: '100%',
+                maxWidth: '1000px',
+                minHeight: '600px',
+                backgroundColor: 'background.paper',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.1)'
+            }}>
+                <Box sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '40px'
+                }}>
+                    <Typography variant="h4" fontWeight="bold" gutterBottom color="text.primary">
                         إنشاء حساب
                     </Typography>
                     <Typography variant="body1" color="text.secondary" mb={2}>
@@ -517,9 +510,14 @@ const Register: React.FC = () => {
                         <Tab label="معلم" />
                     </Tabs>
                     {renderForm()}
-                </LeftPanel>
-                <RightPanel />
-            </LoginContainer>
+                </Box>
+                <Box sx={{
+                    flex: 1,
+                    backgroundImage: `url(${loginPhoto})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }} />
+            </Box>
             <Dialog open={showWaitingPopup} onClose={handleCloseDialog}>
                 <DialogTitle>بانتظار المراجعة</DialogTitle>
                 <DialogContent>
@@ -532,7 +530,7 @@ const Register: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-        </CustomBox>
+        </Box>
 
     );
 };
