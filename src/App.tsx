@@ -37,8 +37,16 @@ function App() {
   const { isDarkMode } = useThemeMode();
   const hiddenRoutes = ["/login", "/register", "/ForgetPassword"];
   const hideNavAndFooter = hiddenRoutes.includes(location.pathname);
+  
+  const hideChatbotRoutes = [
+    "/login", 
+    "/register", 
+    "/ForgetPassword", 
+    "/profileTeacher/courseDetails/payment",
+    "/Checkout"
+  ];
+  const hideChatbot = hideChatbotRoutes.includes(location.pathname);
 
-  // Apply theme class to document body
   useEffect(() => {
     document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
@@ -144,7 +152,8 @@ function App() {
           </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
-      <Chatbot />
+      {/* Show chatbot on all pages except login, register, forget password, payment, and checkout */}
+      {!hideChatbot && <Chatbot />}
     </>
   );
 }

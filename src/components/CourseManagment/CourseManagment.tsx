@@ -117,7 +117,7 @@ const CourseManagment: React.FC = () => {
                     </Typography>
                     }
                     {loading?
-                     <Skeleton variant='rectangular' sx={{width:120,height:30, boxShadow: 1 }}/>
+                    <Skeleton variant='rectangular' sx={{width:120,height:30, boxShadow: 1 }}/>
                     :<Button
                       variant="contained"
                       sx={{ borderRadius: 2, backgroundColor: '#2563EB' }}

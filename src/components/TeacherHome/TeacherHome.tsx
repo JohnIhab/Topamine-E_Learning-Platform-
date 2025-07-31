@@ -10,11 +10,11 @@ import {
   Paper,
   Stack,
 } from '@mui/material';
-import Header from '../Header/Header.tsx';
-import ResponsiveDrawer from "../Aside/ResponsiveDrawer.tsx";
-// import Charts from '../Chart.tsx';
-import { collection, onSnapshot, Timestamp, query, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, Timestamp, query, orderBy, limit, where } from 'firebase/firestore';
+// @ts-ignore
 import { db } from '../../firebase';
+// @ts-ignore  
+import { useAuth } from '../../context/AuthContext';
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -24,8 +24,6 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import DashboardHighlight from '../DashboardHighlight/DashboardHighlight.tsx';
-import { Outlet } from 'react-router-dom';
-// import { position } from 'stylis';
 
 interface Course {
   id: string;
@@ -38,16 +36,23 @@ interface Course {
   gradeLevel?: string;
   status?: string;
   createdAt?: Timestamp;
+  teacherId: string;
 }
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 const TeacherHome: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  // @ts-ignore
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user?.uid) {
+      return;
+    }
 
     const coursesQuery = query(
       collection(db, 'courses'),
+      where('teacherId', '==', user.uid),
       orderBy('createdAt', 'desc'),
       limit(5)
     );
@@ -56,19 +61,21 @@ const TeacherHome: React.FC = () => {
       const courseList = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })) as Course[];
+      })) as Course[]
+      
       setCourses(courseList);
     });
 
     return () => unsub();
-  }, []);
+  }, [user?.uid]);
+  console.log(courses)
 
-   const data = {
+  const data = {
     labels: ['الكورسات', 'المدفوعات', 'الطلاب'],
     datasets: [
       {
         label: 'الإحصائيات',
-        data: [12, 59.700, 248],
+        data: [courses.length, 59.700, 248],
         backgroundColor: ['#fff3e0', '#f1f8e9', '#ffe0b2'],
         borderWidth: 1,
       },
@@ -113,22 +120,22 @@ const TeacherHome: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell align="right">عنوان الكورس</TableCell>
-                <TableCell align="right">الوصف</TableCell>
+                {/* <TableCell align="right">الوصف</TableCell> */}
                 <TableCell align="right">الترم</TableCell>
-                <TableCell align="right">السعة</TableCell>
+                {/* <TableCell align="right">السعة</TableCell> */}
                 <TableCell align="right">تاريخ البدء</TableCell>
                 <TableCell align="right">تاريخ الانتهاء</TableCell>
                 <TableCell align="right">المرحلة الدراسية</TableCell>
-                <TableCell align="right">الحالة</TableCell>
+                {/* <TableCell align="right">الحالة</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {courses.map((course) => (
                 <TableRow key={course.id}>
                   <TableCell align="right">{course.title}</TableCell>
-                  <TableCell align="right">{course.subTitle}</TableCell>
+                  {/* <TableCell align="right">{course.subTitle}</TableCell> */}
                   <TableCell align="right">{course.term}</TableCell>
-                  <TableCell align="right">{course.capacity}</TableCell>
+                  {/* <TableCell align="right">{course.capacity}</TableCell> */}
                   <TableCell align="right">
                     {course.startDate && typeof course.startDate.toDate === 'function'
                       ? course.startDate.toDate().toLocaleDateString()
@@ -140,7 +147,7 @@ const TeacherHome: React.FC = () => {
                       : '—'}
                   </TableCell>
                   <TableCell align="right">{course.gradeLevel || '—'}</TableCell>
-                  <TableCell align="right">{course.status || '—'}</TableCell>
+                  {/* <TableCell align="right">{course.status || '—'}</TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

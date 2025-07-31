@@ -20,6 +20,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
+import logo from '../../assets/images/Icon-logo.png';
 
 const theme = createTheme({
   direction: 'rtl',
@@ -58,7 +59,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
   const drawer = (
     <Box dir="rtl" sx={{backgroundColor:'white',minHeight:'100vh',height:'100vh'}}>
       <Stack direction="row" spacing={5} sx={{ mt: 6, mr: 4, alignItems: 'center' }}>
-        <img src="/images/Icon-logo.png" width={70} alt="الشعار" />
+        <img src={logo} width={70} alt="الشعار" />
         <Typography
           sx={{
             fontWeight: 'bold',
