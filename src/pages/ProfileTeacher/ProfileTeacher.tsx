@@ -1,16 +1,13 @@
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-  collection,
   doc,
   getDoc,
-  query,
-  where,
-  getDocs,
   updateDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../src/firebase";
+import { useAuth } from "../../context/AuthContext";
 
 import {
   Avatar,
@@ -35,7 +32,6 @@ import {
   Star,
   Info,
   CalendarMonth,
-  Payment,
   ViewModule,
   Dashboard,
 } from "@mui/icons-material";
@@ -94,8 +90,16 @@ const courses: Course[] = [
 ];
 
 const TeacherProfile = () => {
+  const { role } = useAuth() as { role: string }; // Get the current user's role with proper typing
+  const { teacherId } = useParams<{ teacherId?: string }>(); // Get teacher ID from URL
   const [open, setOpen] = useState(false);
   const [teacherData, setTeacherData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Check if this is the current user's own profile
+  const isOwnProfile = !teacherId || (auth.currentUser && teacherId === auth.currentUser.uid);
+  const canEdit = role === "teacher" && isOwnProfile;
 
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -146,26 +150,73 @@ const TeacherProfile = () => {
 
   useEffect(() => {
     const fetchTeacherProfile = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setTeacherData(docSnap.data());
+      setLoading(true);
+      setError(null);
+      
+      let userId;
+      
+      if (teacherId) {
+        // If teacherId is provided in URL, fetch that teacher's profile
+        userId = teacherId;
       } else {
-        console.log("user not found");
+        // If no teacherId, fetch current user's profile
+        const user = auth.currentUser;
+        if (!user) {
+          setError("User not authenticated");
+          setLoading(false);
+          return;
+        }
+        userId = user.uid;
+      }
+      
+      const docRef = doc(db, "users", userId);
+      try {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          // Verify this is actually a teacher profile
+          if (userData.role === 'teacher') {
+            setTeacherData(userData);
+          } else {
+            setError("User is not a teacher");
+          }
+        } else {
+          setError("Teacher not found");
+        }
+      } catch (error) {
+        console.error("Error fetching teacher profile:", error);
+        setError("Error loading teacher profile");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchTeacherProfile();
-  }, []);
+  }, [teacherId, role]);
 
-  if (!teacherData)
+  if (loading) {
     return (
       <Typography sx={{ color: "blue", textAlign: "center", mt: 5 }}>
         جاري التحميل...
       </Typography>
     );
+  }
+
+  if (error) {
+    return (
+      <Typography sx={{ color: "red", textAlign: "center", mt: 5 }}>
+        {error}
+      </Typography>
+    );
+  }
+
+  if (!teacherData) {
+    return (
+      <Typography sx={{ color: "red", textAlign: "center", mt: 5 }}>
+        المعلم غير موجود
+      </Typography>
+    );
+  }
   return (
     <Box
       sx={{
@@ -229,15 +280,18 @@ const TeacherProfile = () => {
                 />
               </Box>
 
-              <Link to="/teacherdashboard" style={{ textDecoration: "none", width: "100%" }}>
-                <Button
-                  variant="contained"
-                  startIcon={<Dashboard />}
-                  fullWidth
-                >
-                  الذهاب إلى اللوحة
-                </Button>
-              </Link>
+              {/* Dashboard button - only show for teachers viewing their own profile */}
+              {canEdit && (
+                <Link to="/teacherdashboard" style={{ textDecoration: "none", width: "100%" }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<Dashboard />}
+                    fullWidth
+                  >
+                    الذهاب إلى اللوحة
+                  </Button>
+                </Link>
+              )}
             </Box>
           </Grid>
 
@@ -246,9 +300,18 @@ const TeacherProfile = () => {
               <Typography variant="h5" fontWeight="bold">
                 {teacherData.name}
               </Typography>
-              <Button variant="outlined" size="small" sx={{ whiteSpace: "nowrap" }}>
-                متابعة
-              </Button>
+              {/* Follow button - only show for students viewing other teachers */}
+              {role === "student" && teacherId && (
+                <Box display="flex" gap={1}>
+                  <Button 
+                    variant="outlined" 
+                    size="small" 
+                    sx={{ whiteSpace: "nowrap" }}
+                  >
+                    متابعة
+                  </Button>
+                </Box>
+              )}
             </Box>
             <Typography color="text.secondary" gutterBottom>
               {teacherData.subject}
@@ -279,21 +342,25 @@ const TeacherProfile = () => {
               <Typography>{teacherData.info}</Typography>
             </Box>
 
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                mt: 2,
-                cursor: "pointer",
-              }}
-              onClick={handleOpen}
-            >
-              <Edit sx={{ ml: 1 }} />
-              <Typography>تعديل الملف الشخصي</Typography>
-            </Box>
+            {/* Edit profile section - only show for teachers viewing their own profile */}
+            {canEdit && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mt: 2,
+                  cursor: "pointer",
+                }}
+                onClick={handleOpen}
+              >
+                <Edit sx={{ ml: 1 }} />
+                <Typography>تعديل الملف الشخصي</Typography>
+              </Box>
+            )}
 
-            {/* Edit Dialog */}
-            <Dialog open={open} onClose={handleClose}>
+            {/* Edit Dialog - only accessible for teachers viewing their own profile */}
+            {canEdit && (
+              <Dialog open={open} onClose={handleClose}>
               <DialogTitle>تعديل الملف الشخصي</DialogTitle>
               <DialogContent>
                 <TextField
@@ -346,6 +413,7 @@ const TeacherProfile = () => {
                 </Button>
               </DialogActions>
             </Dialog>
+            )}
           </Grid>
         </Grid>
 

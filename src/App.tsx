@@ -21,7 +21,7 @@ import Checkout from "./pages/CheckoutPage";
 import Video from "./pages/VideoPage";
 import PaymentResult from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
-import FullChatPage from "./pages/FullChatPage/FullChatPage";
+// import FullChatPage from "./pages/FullChatPage/FullChatPage";
 import TeacherDashboardLayout from './components/TeacherHome/TeacherDashboardLayout';
 import TeachHome from './components/TeacherHome/TeacherHome';
 import CourseManagment from './components/CourseManagment/CourseManagment';
@@ -87,9 +87,9 @@ function App() {
               }
             />
             <Route
-              path="/profileTeacher"
+              path="/profileTeacher/:teacherId?"
               element={
-                <ProtectedRoute allowedRoles={["teacher"]}>
+                <ProtectedRoute allowedRoles={["teacher", "student"]}>
                   <ProfileTeacher />
                 </ProtectedRoute>
               }
@@ -148,7 +148,7 @@ function App() {
             <Route path="/video" element={<Video />} />
             <Route path="/paymentSuccess" element={<PaymentResult />} />
 
-            <Route path="/chat/:teacherId" element={<FullChatPage />} />
+            {/* <Route path="/chat/:teacherId" element={<FullChatPage />} /> */}
           </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
