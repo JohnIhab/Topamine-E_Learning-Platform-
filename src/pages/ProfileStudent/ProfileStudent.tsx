@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import LinearProgress from "@mui/material/LinearProgress";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   collection,
   doc,
@@ -40,6 +41,7 @@ import image from "../../assets/images/main-removebg.png";
 import React from "react";
 
 type Course = {
+  id?: string;
   title: string;
   subtitle: string;
   image: string;
@@ -48,21 +50,12 @@ type Course = {
   progress: number;
 };
 
-const courses: Course[] = [
-  {
-    title: "التفاضل المتقدم",
-    subtitle: "لطلاب الهندسة",
-    image,
-    start: "سبتمبر 2023",
-    end: "ديسمبر 2023",
-    progress: 70,
-  },
-];
-
 const ProfileStudent = () => {
   const [open, setOpen] = useState(false);
-
   const [studentData, setStudentData] = useState<any>(null);
+  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const navigate = useNavigate();
 
   //Editing
   const [editName, setEditName] = useState("");
@@ -81,6 +74,11 @@ const ProfileStudent = () => {
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
+
+  // Handle course click to navigate to video page
+  const handleCourseClick = (courseId: string) => {
+    navigate('/video', { state: { courseId } });
+  };
 
   //save After Editing
   const handleSave = async () => {
@@ -127,6 +125,66 @@ const ProfileStudent = () => {
     };
     fetchStudentProfile();
   }, []);
+
+  // Fetch enrolled courses based on payments
+  useEffect(() => {
+    const fetchEnrolledCourses = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        setLoadingCourses(false);
+        return;
+      }
+
+      try {
+        setLoadingCourses(true);
+        // Get all payments for this student
+        const paymentsQuery = query(
+          collection(db, 'payments'),
+          where('uid', '==', user.uid),
+          where('paid', '==', true)
+        );
+        
+        const paymentDocs = await getDocs(paymentsQuery);
+        const courseIds = paymentDocs.docs.map(doc => doc.data().courseId);
+        
+        if (courseIds.length > 0) {
+          // Get course details for each paid course
+          const coursesData = await Promise.all(
+            courseIds.map(async (courseId) => {
+              const courseDoc = await getDoc(doc(db, 'courses', courseId));
+              if (courseDoc.exists()) {
+                const courseData = courseDoc.data();
+                return {
+                  id: courseDoc.id,
+                  title: courseData.title || 'كورس بدون عنوان',
+                  subtitle: courseData.subTitle || 'وصف غير متوفر',
+                  image: courseData.imageUrl || image, // fallback to default image
+                  start: courseData.startDate ? new Date(courseData.startDate.seconds * 1000).toLocaleDateString('ar-EG') : 'غير محدد',
+                  end: courseData.endDate ? new Date(courseData.endDate.seconds * 1000).toLocaleDateString('ar-EG') : 'غير محدد',
+                  progress: 0, // You can implement progress tracking later
+                };
+              }
+              return null;
+            })
+          );
+          
+          // Filter out null values and set enrolled courses
+          const validCourses = coursesData.filter(course => course !== null) as Course[];
+          setEnrolledCourses(validCourses);
+        } else {
+          setEnrolledCourses([]);
+        }
+      } catch (error) {
+        console.error('Error fetching enrolled courses:', error);
+        setEnrolledCourses([]);
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+
+    fetchEnrolledCourses();
+  }, []);
+
   if (!studentData)
     return (
       // <Box
@@ -392,10 +450,25 @@ const ProfileStudent = () => {
           </Link>
         </Box>
         <Typography variant="body2" color="text.secondary" mb={2}>
-          {courses.length} كورسات
+          {loadingCourses ? 'جارٍ التحميل...' : `${enrolledCourses.length} كورسات`}
         </Typography>
-        <Grid container spacing={3}>
-          {courses.map((course, index) => (
+        
+        {loadingCourses ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <LinearProgress sx={{ width: '100%', maxWidth: 400 }} />
+          </Box>
+        ) : enrolledCourses.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              لم تشترك في أي كورسات بعد
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              اشترك في الكورسات لتظهر هنا
+            </Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {enrolledCourses.map((course, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
               <motion.div
                 whileHover={{ scale: 1.03 }}
@@ -404,12 +477,19 @@ const ProfileStudent = () => {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Box
+                  onClick={() => handleCourseClick(course.id!)}
                   sx={{
                     borderRadius: 2,
                     overflow: "hidden",
                     boxShadow: 1,
                     bgcolor: "background.paper",
                     width: 330,
+                    cursor: "pointer",
+                    transition: "transform 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: 3,
+                    },
                   }}
                 >
                   <img
@@ -418,41 +498,48 @@ const ProfileStudent = () => {
                     style={{ width: "100%", height: 200, objectFit: "fill" }}
                   />
                   <Box p={2}>
-                    <Typography fontWeight="bold">{course.title}</Typography>
+                    <Typography sx={{marginBottom: "15px"}} fontWeight="bold" textAlign={"center"}>{course.title}</Typography>
                     <Typography
                       sx={{ mb: 3 }}
+                      // textAlign={"center"}
                       variant="body2"
                       color="text.secondary"
                       gutterBottom
                     >
                       {course.subtitle}
                     </Typography>
-                    <Box sx={{ width: "100%", mb: 2 }}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={course.progress}
-                      />
-                    </Box>
+                    
                     <Box
                       display="flex"
                       alignItems="center"
-                      justifyContent="space-between"
+                      justifyContent="center"
                       color="text.secondary"
                       mb={2}
                     >
                       <Typography variant="body2">
                         {course.start} – {course.end}
                       </Typography>
-                      <Typography variant="body2">
-                        {course.progress}% complete
-                      </Typography>
+                      
                     </Box>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      sx={{ textTransform: 'none' }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent box click when button is clicked
+                        handleCourseClick(course.id!);
+                      }}
+                    >
+                      متابعة الدروس
+                    </Button>
                   </Box>
                 </Box>
               </motion.div>
             </Grid>
           ))}
-        </Grid>
+          </Grid>
+        )}
       </Box>
     </Box>
   );
