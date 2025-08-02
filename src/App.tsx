@@ -18,7 +18,7 @@ import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 import { SnackbarProvider } from "notistack";
 import NotFound from "./pages/NotFound/NotFound";
 import Checkout from "./pages/CheckoutPage";
-import Video from "./pages/VideoPage";
+import Video from "./pages/VideoShow/VideoShow";
 import PaymentResult from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 // import FullChatPage from "./pages/FullChatPage/FullChatPage";
@@ -87,7 +87,7 @@ function App() {
               }
             />
             <Route
-              path="/profileTeacher/:teacherId?"
+              path="/profileTeacher/:id?"
               element={
                 <ProtectedRoute allowedRoles={["teacher", "student"]}>
                   <ProfileTeacher />

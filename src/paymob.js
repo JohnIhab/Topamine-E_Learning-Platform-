@@ -66,7 +66,7 @@ export const getPaymentIframe = async (amountCents, userData) => {
             redirect_url:
                 window.location.hostname === "localhost"
                     ? "http://localhost:5174/paymentSuccess?success=true"
-                    : "https://your-production-domain.com/paymentSuccess?success=true",
+                    : "http://localhost:5174/paymentSuccess?success=true",
         }
     );
 

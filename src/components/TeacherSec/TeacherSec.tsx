@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { collection, doc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
+import { useNavigate } from "react-router";
 
 import {
     Card,
@@ -16,6 +17,7 @@ import {
     MenuItem,
     Box,
 } from "@mui/material";
+import { Navigate } from "react-router";
 
 export default function TeacherSec() {
     const [teacherCards, setTeacherCards] = useState([]);
@@ -53,6 +55,8 @@ export default function TeacherSec() {
     const handleSeeMore = () => {
         setVisibleCount((prev) => Math.min(prev + 4, filteredCards.length));
     };
+
+    const navigate = useNavigate();
 
     return (
         <Box sx={{ padding: 3, width: "100%" }}>
@@ -155,7 +159,15 @@ export default function TeacherSec() {
             <Grid container spacing={2} justifyContent="center">
                 {filteredCards.slice(0, visibleCount).map((card, index) => (
                     <Grid item xs={12} sm={6} md={3} key={index}>
-                        <Card sx={{ minWidth: 300, maxHeight: 300, mx: "auto" }}>
+                        <Card
+                            sx={{
+                                minWidth: 300,
+                                maxHeight: 300,
+                                mx: "auto",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => navigate(`/profileTeacher/${ card.id }`)}
+                        >
                             <CardMedia
                                 component="img"
                                 height="200"

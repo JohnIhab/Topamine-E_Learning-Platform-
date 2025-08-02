@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Navigation</title>
+</head>
+<body>
+    <h1>Test Payment Success Navigation</h1>
+    <p>Click the button to simulate a successful payment navigation:</p>
+    <button onclick="testNavigation()">Test Navigation to Video Page</button>
+    
+    <script>
+        function testNavigation() {
+            // Simulate the payment success flow
+            sessionStorage.setItem('amount', '100');
+            sessionStorage.setItem('courseId', 'test-course-123');
+            
+            // Navigate to payment success with success parameter
+            window.location.href = 'http://localhost:5174/paymentSuccess?success=true';
+        }
+    </script>
+</body>
+</html></content>
+</invoke>

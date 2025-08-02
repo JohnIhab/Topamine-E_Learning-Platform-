@@ -59,35 +59,51 @@ const PaymentResult = () => {
 
         if (currentUser && userId) {
             console.log("✅ User found, ID:", userId);
-            console.log("courseId:", courseId);
+            console.log("📋 Course ID:", courseId);
+            console.log("💰 Price:", price);
+            console.log("✔️ Success status:", isSuccess);
 
             if (isSuccess === 'true') {
                 const savePayment = async () => {
                     try {
-                        const paymentsRef = collection(db, 'payments');
-                        await addDoc(paymentsRef, {
+                        console.log("💰 About to save payment with data:", {
                             uid: userId,
                             paid: true,
                             amount: price,
                             courseId: courseId,
                             timestamp: new Date(),
                         });
+                        
+                        const paymentsRef = collection(db, 'payments');
+                        const docRef = await addDoc(paymentsRef, {
+                            uid: userId,
+                            paid: true,
+                            amount: price,
+                            courseId: courseId,
+                            timestamp: new Date(),
+                        });
+                        
+                        console.log("💾 Payment saved successfully with ID:", docRef.id);
+                        
                         sessionStorage.removeItem('amount');
-                        sessionStorage.removeItem('courseId')
+                        sessionStorage.removeItem('courseId');
 
-                        console.log("💾 Payment saved successfully, navigating to video page...");
+                        console.log("� About to navigate to video page with courseId:", courseId);
                         // Navigate to the video page, passing courseId in state
                         navigate('/video', { state: { courseId } });
                     } catch (error) {
-                        console.error('Error saving payment:', error);
-                        navigate('/error'); // Handle error case
+                        console.error('❌ Error saving payment:', error);
+                        // Navigate to home page instead of non-existent error page
+                        alert('حدث خطأ في حفظ بيانات الدفع. سيتم توجيهك للصفحة الرئيسية.');
+                        navigate('/');
                     }
                 };
 
                 savePayment();
             } else {
-                console.log('Payment failed or was canceled.');
-                navigate('/payment-failed'); // Handle failed payment case
+                console.log('❌ Payment failed or was canceled.');
+                alert('فشل في عملية الدفع أو تم إلغاؤها. سيتم توجيهك للصفحة الرئيسية.');
+                navigate('/'); // Navigate to home instead of non-existent payment-failed page
             }
         } else {
             // If not loading and still no user, then redirect to login
