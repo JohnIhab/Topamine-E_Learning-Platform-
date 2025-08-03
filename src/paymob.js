@@ -63,10 +63,12 @@ export const getPaymentIframe = async (amountCents, userData) => {
             currency: "EGP",
             integration_id: INTEGRATION_ID,
             lock_order_when_paid: true,
-            redirect_url:
-                window.location.hostname === "localhost"
-                    ? "http://localhost:5174/paymentSuccess?success=true"
-                    : "http://localhost:5174/paymentSuccess?success=true",
+            redirect_url: (() => {
+                const origin = window.location.origin;
+                const redirectUrl = `${origin}/paymentSuccess?success=true`;
+                console.log("🔗 PayMob redirect URL set to:", redirectUrl);
+                return redirectUrl;
+            })(),
         }
     );
 

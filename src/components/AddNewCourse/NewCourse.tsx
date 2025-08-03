@@ -5,7 +5,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import Header from '../Header/Header';
 import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
-import { collection, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc as docRef, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -59,6 +59,7 @@ const NewCourse: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth() || {};
   console.log("User in NewCourse:", user);
+  const [userData, setUserData] = useState<any>(null);
   const [lectures, setLectures] = useState<Lecture[]>([{ open: false, title: '' }]);
 
   const toggleLecture = (index: number) => {
@@ -219,7 +220,7 @@ const NewCourse: React.FC = () => {
     //   alert("غير مصرح لك بإضافة كورس. هذا الإجراء مخصص للمدرسين فقط.");
     //   return;
     // }
-    const effectiveTeacherName = user && user.name ? user.name : teacherName;
+    const effectiveTeacherName = userData?.name || user?.displayName || teacherName || 'المعلم';
     const effectiveTeacherId = user && user.uid ? user.uid : "guest-user";
 
     const effectiveTeacherEmail = user && user.email ? user.email : "guest@example.com";
@@ -288,9 +289,47 @@ const NewCourse: React.FC = () => {
 
 
   React.useEffect(() => {
-    if (user && user.name) {
-      setTeacherName(user.name);
-    }
+    const fetchUserData = async () => {
+      console.log("User from AuthContext:", user);
+      if (user && user.uid) {
+        try {
+          console.log("Fetching user data for UID:", user.uid);
+          const userDoc = await getDoc(docRef(db, 'users', user.uid));
+          console.log("User document exists:", userDoc.exists());
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            console.log("User document data:", data);
+            setUserData(data);
+            if (data.name) {
+              console.log("Setting teacher name:", data.name);
+              setTeacherName(data.name);
+            } else {
+              console.log("No name field in user document");
+              // Try displayName as fallback
+              if (user.displayName) {
+                setTeacherName(user.displayName);
+              }
+            }
+          } else {
+            console.log('No user document found in Firestore');
+            // استخدام displayName من Firebase Auth كخيار احتياطي
+            if (user.displayName) {
+              setTeacherName(user.displayName);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          // استخدام displayName من Firebase Auth كخيار احتياطي
+          if (user.displayName) {
+            setTeacherName(user.displayName);
+          }
+        }
+      } else {
+        console.log("No user or no UID available");
+      }
+    };
+
+    fetchUserData();
   }, [user]);
 
   return (
@@ -311,14 +350,27 @@ const NewCourse: React.FC = () => {
           <ThemeProvider theme={theme}>
 
             <Box sx={{ m: 2 }}>
+      
 
-              {user && user.name ? (
+              {userData && userData.name ? (
                 <Typography sx={{ fontSize: 18, fontWeight: 'bold', color: '#1976d2', mt: 1 }}>
-                  {user.name}
+                  المعلم: {userData.name}
+                </Typography>
+              ) : user && user.displayName ? (
+                <Typography sx={{ fontSize: 18, fontWeight: 'bold', color: '#1976d2', mt: 1 }}>
+                  المعلم: {user.displayName}
+                </Typography>
+              ) : teacherName ? (
+                <Typography sx={{ fontSize: 18, fontWeight: 'bold', color: '#1976d2', mt: 1 }}>
+                  المعلم: {teacherName}
+                </Typography>
+              ) : user ? (
+                <Typography sx={{ fontSize: 18, fontWeight: '700', color: 'orange', mt: 1, lineHeight: "28px" }}>
+                  تم تسجيل الدخول ولكن لا يوجد اسم متاح - معرف المستخدم: {user.uid}
                 </Typography>
               ) : (
                 <Typography sx={{ fontSize: 18, fontWeight: '700', color: 'black', mt: 1, lineHeight: "28px" }}>
-                  لا يوجد مدرس حاليا
+                  جاري تحميل بيانات المعلم...
                 </Typography>
               )}
             </Box>

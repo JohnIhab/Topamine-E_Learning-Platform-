@@ -69,12 +69,17 @@ const VideoShow: React.FC = () => {
   const location = useLocation();
   const { user }: any = useAuth();
 
-  // Get courseId from navigation state
-  const courseId = location.state?.courseId;
+  // Get courseId from navigation state, URL params, or localStorage fallback
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseIdFromUrl = urlParams.get('courseId');
+  const courseId = location.state?.courseId || courseIdFromUrl || localStorage.getItem('lastAccessedCourse');
 
   console.log("🎥 VideoShow component loaded");
   console.log("📍 Location state:", location.state);
-  console.log("🆔 Course ID from navigation:", courseId);
+  console.log("🆔 Course ID from navigation:", location.state?.courseId);
+  console.log("🆔 Course ID from URL params:", courseIdFromUrl);
+  console.log("🆔 Course ID from localStorage:", localStorage.getItem('lastAccessedCourse'));
+  console.log("🆔 Final courseId:", courseId);
 
   // Check if user has access to this course
   useEffect(() => {
@@ -87,6 +92,12 @@ const VideoShow: React.FC = () => {
         console.log("❌ No courseId provided");
         setHasAccess(false);
         return;
+      }
+
+      // Clean up localStorage if we got courseId from there
+      if (!location.state?.courseId && localStorage.getItem('lastAccessedCourse')) {
+        console.log("🧹 Cleaning up localStorage courseId");
+        localStorage.removeItem('lastAccessedCourse');
       }
 
       if (!user) {

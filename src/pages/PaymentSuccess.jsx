@@ -85,12 +85,42 @@ const PaymentResult = () => {
                         
                         console.log("💾 Payment saved successfully with ID:", docRef.id);
                         
+                        // Store courseId in localStorage as backup before removing from sessionStorage
+                        localStorage.setItem('lastAccessedCourse', courseId);
+                        
                         sessionStorage.removeItem('amount');
                         sessionStorage.removeItem('courseId');
 
-                        console.log("� About to navigate to video page with courseId:", courseId);
-                        // Navigate to the video page, passing courseId in state
-                        navigate('/video', { state: { courseId } });
+                        console.log("🎬 About to navigate to video page with courseId:", courseId);
+                        console.log("🎬 Navigation state will be:", { courseId });
+                        
+                        // Small delay to ensure payment is processed
+                        setTimeout(() => {
+                            console.log("🎬 Executing navigation to /video");
+                            console.log("🎬 Current window location:", window.location.href);
+                            console.log("🎬 Target route: /video");
+                            console.log("🎬 CourseId being passed:", courseId);
+                            
+                            // First try React Router navigation
+                            try {
+                                console.log("🎬 Trying React Router navigation...");
+                                navigate('/video', { 
+                                    state: { courseId },
+                                    replace: true
+                                });
+                                console.log("✅ React Router navigation executed");
+                            } catch (navError) {
+                                console.error("❌ React Router navigation failed:", navError);
+                                console.log("🔄 Trying window.location fallback...");
+                                
+                                // Fallback: use window.location with full URL
+                                const baseUrl = window.location.origin;
+                                const targetUrl = `${baseUrl}/video?courseId=${courseId}`;
+                                console.log("🎬 Redirecting to:", targetUrl);
+                                
+                                window.location.href = targetUrl;
+                            }
+                        }, 1000); // Increased delay to 1 second
                     } catch (error) {
                         console.error('❌ Error saving payment:', error);
                         // Navigate to home page instead of non-existent error page
@@ -111,7 +141,7 @@ const PaymentResult = () => {
             console.log('🔍 Debug - userContext:', userContext);
             console.log('🔍 Debug - authContext:', authContext);
             console.log('🔍 Debug - localStorage user:', localStorage.getItem('user'));
-            navigate('/login'); // Redirect to login page if no user
+            // navigate('/login'); // Redirect to login page if no user
         }
     }, [location.search, navigate, user, isLoading, userContext, authContext]);
 

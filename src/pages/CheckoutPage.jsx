@@ -175,9 +175,9 @@ const CheckoutPage = () => {
             ) : (
                 <>
                     <h2>ادفع {price} جنيه لمشاهدة الكورس</h2>
-                    <p>الطالب: {user.name || user.displayName || user.email}</p>
-                    <p>معرف الكورس: {courseId}</p>
-                    <p>السعر: {price} (نوع البيانات: {typeof price})</p>
+                    {/* <p>الطالب: {user.name || user.displayName || user.email}</p> */}
+                    {/* <p>معرف الكورس: {courseId}</p> */}
+                    {/* <p>السعر: {price} (نوع البيانات: {typeof price})</p> */}
                     {iframeUrl ? (
                         <iframe
                             src={iframeUrl}

@@ -66,6 +66,7 @@ interface Course {
   endDate: any;
   gradeLevel: string;
   teacherName: string;
+  teacherId?: string;
   price: number;
   lectures?: Lecture[];
 }
@@ -86,6 +87,7 @@ const CourseDetails = () => {
   const { user: authUser, role } = useAuth() || {};
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [courseData, setCourseData] = useState<Course | null>(null);
+  const [teacherData, setTeacherData] = useState<any>(null);
   const [openLectures, setOpenLectures] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -95,6 +97,11 @@ const CourseDetails = () => {
   console.log("UserContext user:", user);
   console.log("AuthContext user:", authUser);
   console.log("AuthContext role:", role);
+  console.log("CourseData:", courseData);
+  console.log("CourseData teacherName:", courseData?.teacherName);
+  console.log("CourseData teacherId:", courseData?.teacherId);
+  console.log("TeacherData:", teacherData);
+  console.log("TeacherData name:", teacherData?.name);
   console.log("==================================");
 
   useEffect(() => {
@@ -116,6 +123,23 @@ const CourseDetails = () => {
           const courseLectures = data.lectures || [];
           setLectures(courseLectures);
           setOpenLectures(Array.from({ length: courseLectures.length }, () => false));
+
+          // Fetch teacher data if teacherId exists
+          if (data.teacherId) {
+            try {
+              const teacherRef = doc(db, 'users', data.teacherId);
+              const teacherSnap = await getDoc(teacherRef);
+              if (teacherSnap.exists()) {
+                const teacherInfo = teacherSnap.data();
+                console.log('Teacher data fetched:', teacherInfo);
+                setTeacherData(teacherInfo);
+              } else {
+                console.log('Teacher document not found');
+              }
+            } catch (teacherError) {
+              console.error('Error fetching teacher data:', teacherError);
+            }
+          }
         } else {
           setError('لم يتم العثور على بيانات الكورس.');
           setLectures([]);
@@ -314,7 +338,7 @@ const CourseDetails = () => {
                         fontFamily: 'Tajawal'
                       }}
                     >
-                      {courseData.teacherName || user?.name || 'غير محدد'}
+                      {teacherData?.name || courseData.teacherName || authUser?.displayName || 'غير محدد'}
                     </Typography>
                   </Box>
                 </Stack>
