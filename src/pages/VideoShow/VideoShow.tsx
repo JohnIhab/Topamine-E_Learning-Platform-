@@ -27,6 +27,8 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
 // @ts-ignore
 import { db } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
+import NotFound from '../NotFound/NotFound';
 
 type Video = {
   title: string;
@@ -63,7 +65,9 @@ const VideoShow: React.FC = () => {
   const [courseData, setCourseData] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentProgress, setCurrentProgress] = useState(0);
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const location = useLocation();
+  const { user }: any = useAuth();
 
   // Get courseId from navigation state
   const courseId = location.state?.courseId;
@@ -71,6 +75,70 @@ const VideoShow: React.FC = () => {
   console.log("🎥 VideoShow component loaded");
   console.log("📍 Location state:", location.state);
   console.log("🆔 Course ID from navigation:", courseId);
+
+  // Check if user has access to this course
+  useEffect(() => {
+    const checkAccess = async () => {
+      console.log("🔍 Checking access...");
+      console.log("📋 CourseId:", courseId);
+      console.log("👤 User:", user);
+      
+      if (!courseId) {
+        console.log("❌ No courseId provided");
+        setHasAccess(false);
+        return;
+      }
+
+      if (!user) {
+        console.log("❌ No user authenticated");
+        setHasAccess(false);
+        return;
+      }
+
+      // TEMPORARY: Allow all authenticated users to access videos
+      console.log("✅ Temporarily allowing all authenticated users");
+      setHasAccess(true);
+      return;
+
+      /*
+      try {
+        // Check if user has purchased this course
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const purchasedCourses = userData.purchasedCourses || [];
+          
+          console.log("📚 User's purchased courses:", purchasedCourses);
+          
+          // Check if the courseId is in the user's purchased courses
+          const hasPurchased = purchasedCourses.some((course: any) => 
+            course.courseId === courseId || course.id === courseId
+          );
+          
+          console.log("✅ Has purchased course:", hasPurchased);
+          
+          // Allow access if user has purchased the course OR if it's a teacher/admin
+          // For testing purposes, also allow if user role is teacher or admin
+          const userRole = userData.role;
+          console.log("👤 User role:", userRole);
+          
+          const hasValidAccess = hasPurchased || userRole === 'teacher' || userRole === 'admin';
+          console.log("🔑 Final access decision:", hasValidAccess);
+          
+          setHasAccess(hasValidAccess);
+        } else {
+          console.log("❌ User document not found");
+          setHasAccess(false);
+        }
+      } catch (error) {
+        console.error('❌ Error checking course access:', error);
+        setHasAccess(false);
+      }
+      */
+    };
+
+    checkAccess();
+  }, [courseId, user]);
 
   // Helper function to handle file downloads
   const handleDownload = (url: string, filename: string) => {
@@ -130,6 +198,28 @@ const VideoShow: React.FC = () => {
       txtUrl: lecture.txtUrl || ''
     })).filter((video: Video) => video.url)
     : videoList;
+
+  // Show loading while checking access
+  if (hasAccess === null) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          bgcolor: "#f5f7fa",
+        }}
+      >
+        <Typography variant="h6">جاري التحقق من الوصول...</Typography>
+      </Box>
+    );
+  }
+
+  // If no access, show NotFound page
+  if (!hasAccess) {
+    return <NotFound />;
+  }
 
   return (
     <Box

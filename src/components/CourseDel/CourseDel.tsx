@@ -34,6 +34,7 @@ import createCache from '@emotion/cache';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { UserContext } from '../../context/UserContext';
+import { useAuth } from '../../context/AuthContext';
 // import {userCon}
 
 const theme = createTheme({ 
@@ -81,11 +82,20 @@ const CourseDetails = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
   const { user } = useContext(UserContext) || {};
+  // @ts-ignore
+  const { user: authUser, role } = useAuth() || {};
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [courseData, setCourseData] = useState<Course | null>(null);
   const [openLectures, setOpenLectures] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Debug logging to see the context values
+  console.log("=== CourseDetails Context Debug ===");
+  console.log("UserContext user:", user);
+  console.log("AuthContext user:", authUser);
+  console.log("AuthContext role:", role);
+  console.log("==================================");
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -892,199 +902,17 @@ const CourseDetails = () => {
                             p: { xs: 2, md: 3 },
                             backgroundColor: 'white'
                           }}>
-                            <Stack spacing={3}>
-                              {/* Video Section */}
-                              {lecture.videoUrl && (
-                                <Box>
-                                  <Typography
-                                    variant="h6"
-                                    sx={{
-                                      mb: 2,
-                                      fontWeight: 'bold',
-                                      color: '#2c3e50',
-                                      fontFamily: 'Tajawal',
-                                      fontSize: { xs: 16, md: 18 }
-                                    }}
-                                  >
-                                    🎥 فيديو المحاضرة
-                                  </Typography>
-                                  <Box sx={{
-                                    borderRadius: 2,
-                                    overflow: 'hidden',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                                  }}>
-                                    <video
-                                      src={lecture.videoUrl}
-                                      controls
-                                      style={{
-                                        width: '100%',
-                                        maxWidth: '100%',
-                                        display: 'block'
-                                      }}
-                                      onError={e => (e.currentTarget.poster = '')}
-                                    />
-                                  </Box>
-                                </Box>
-                              )}
-
-                              {/* Files Section */}
-                              {(lecture.pdfUrl || lecture.txtUrl || lecture.docUrl) && (
-                                <Box>
-                                  <Typography
-                                    variant="h6"
-                                    sx={{
-                                      mb: 2,
-                                      fontWeight: 'bold',
-                                      color: '#2c3e50',
-                                      fontFamily: 'Tajawal',
-                                      fontSize: { xs: 16, md: 18 }
-                                    }}
-                                  >
-                                    📁 الملفات المرفقة
-                                  </Typography>
-                                  <Stack spacing={2}>
-                                    {lecture.pdfUrl && (
-                                      <Box sx={{
-                                        p: 2,
-                                        border: '1px solid #e0e0e0',
-                                        borderRadius: 2,
-                                        backgroundColor: '#f8f9fa',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                          backgroundColor: '#e9ecef',
-                                          borderColor: '#667eea'
-                                        }
-                                      }}>
-                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                          <Stack direction="row" spacing={2} alignItems="center">
-                                            <Typography sx={{ color: '#e74c3c', fontSize: 20 }}>📄</Typography>
-                                            <Typography sx={{
-                                              fontWeight: 'bold',
-                                              fontFamily: 'Tajawal'
-                                            }}>
-                                              ملف PDF
-                                            </Typography>
-                                          </Stack>
-                                          {getDownloadUrl(lecture.pdfUrl) ? (
-                                            <Button
-                                              variant="contained"
-                                              size="small"
-                                              href={getDownloadUrl(lecture.pdfUrl)}
-                                              download
-                                              sx={{
-                                                backgroundColor: '#667eea',
-                                                '&:hover': { backgroundColor: '#5a6fd8' },
-                                                fontFamily: 'Tajawal',
-                                                fontWeight: 'bold'
-                                              }}
-                                            >
-                                              تحميل
-                                            </Button>
-                                          ) : (
-                                            <Typography color="error.main" sx={{ fontFamily: 'Tajawal' }}>
-                                              لا يمكن تحميل الملف
-                                            </Typography>
-                                          )}
-                                        </Stack>
-                                      </Box>
-                                    )}
-
-                                    {lecture.txtUrl && (
-                                      <Box sx={{
-                                        p: 2,
-                                        border: '1px solid #e0e0e0',
-                                        borderRadius: 2,
-                                        backgroundColor: '#f8f9fa',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                          backgroundColor: '#e9ecef',
-                                          borderColor: '#667eea'
-                                        }
-                                      }}>
-                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                          <Stack direction="row" spacing={2} alignItems="center">
-                                            <Typography sx={{ color: '#27ae60', fontSize: 20 }}>📝</Typography>
-                                            <Typography sx={{
-                                              fontWeight: 'bold',
-                                              fontFamily: 'Tajawal'
-                                            }}>
-                                              ملف نصي
-                                            </Typography>
-                                          </Stack>
-                                          <Button
-                                            variant="contained"
-                                            size="small"
-                                            href={getDownloadUrl(lecture.txtUrl)}
-                                            sx={{
-                                              backgroundColor: '#667eea',
-                                              '&:hover': { backgroundColor: '#5a6fd8' },
-                                              fontFamily: 'Tajawal',
-                                              fontWeight: 'bold'
-                                            }}
-                                          >
-                                            تحميل
-                                          </Button>
-                                        </Stack>
-                                      </Box>
-                                    )}
-
-                                    {lecture.docUrl && (
-                                      <Box sx={{
-                                        p: 2,
-                                        border: '1px solid #e0e0e0',
-                                        borderRadius: 2,
-                                        backgroundColor: '#f8f9fa',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                          backgroundColor: '#e9ecef',
-                                          borderColor: '#667eea'
-                                        }
-                                      }}>
-                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                          <Stack direction="row" spacing={2} alignItems="center">
-                                            <Typography sx={{ color: '#3498db', fontSize: 20 }}>📋</Typography>
-                                            <Typography sx={{
-                                              fontWeight: 'bold',
-                                              fontFamily: 'Tajawal'
-                                            }}>
-                                              ملف Word
-                                            </Typography>
-                                          </Stack>
-                                          <Button
-                                            variant="contained"
-                                            size="small"
-                                            href={getDownloadUrl(lecture.docUrl)}
-                                            download
-                                            sx={{
-                                              backgroundColor: '#667eea',
-                                              '&:hover': { backgroundColor: '#5a6fd8' },
-                                              fontFamily: 'Tajawal',
-                                              fontWeight: 'bold'
-                                            }}
-                                          >
-                                            تحميل
-                                          </Button>
-                                        </Stack>
-                                      </Box>
-                                    )}
-                                  </Stack>
-                                </Box>
-                              )}
-
-                              {/* No Content Message */}
-                              {!lecture.videoUrl && !lecture.pdfUrl && !lecture.txtUrl && !lecture.docUrl && (
-                                <Alert
-                                  severity="info"
-                                  sx={{
-                                    width: '100%',
-                                    borderRadius: 2,
-                                    fontFamily: 'Tajawal'
-                                  }}
-                                >
-                                  لا يوجد محتوى متاح لهذه المحاضرة حالياً.
-                                </Alert>
-                              )}
-                            </Stack>
+                            <Typography
+                              sx={{
+                                color: '#6c757d',
+                                fontSize: { xs: 14, md: 16 },
+                                fontFamily: 'Tajawal',
+                                textAlign: 'center',
+                                fontStyle: 'italic'
+                              }}
+                            >
+                              محتوى المحاضرة متاح بعد الحجز
+                            </Typography>
                           </Box>
                         </MUICollapse>
                       </Box>
@@ -1105,40 +933,45 @@ const CourseDetails = () => {
             gap: { xs: 2, md: 3 },
             flexWrap: 'wrap'
           }}>
-            <Button
-              onClick={() => {
-                console.log("=== CourseDel Navigation Debug ===");
-                console.log("courseData:", courseData);
-                console.log("courseData.price:", courseData?.price);
-                console.log("courseId:", courseId);
-                console.log("Price type:", typeof courseData?.price);
-                console.log("CourseId type:", typeof courseId);
-                console.log("=====================================");
-                
-                navigate("/Checkout", {
-                  state: { 
-                    price: courseData?.price, 
-                    courseId: courseId 
+            {/* Only show booking button for students and guests, hide for teachers */}
+            {role !== 'teacher' && (
+              <Button
+                onClick={() => {
+                  console.log("=== CourseDel Navigation Debug ===");
+                  console.log("courseData:", courseData);
+                  console.log("courseData.price:", courseData?.price);
+                  console.log("courseId:", courseId);
+                  console.log("Price type:", typeof courseData?.price);
+                  console.log("CourseId type:", typeof courseId);
+                  console.log("User role:", role);
+                  console.log("Auth user:", authUser);
+                  console.log("=====================================");
+                  
+                  navigate("/Checkout", {
+                    state: { 
+                      price: courseData?.price, 
+                      courseId: courseId 
+                    },
+                  });
+                }}
+                variant="contained"
+                sx={{
+                  minWidth: { xs: 140, md: 160 },
+                  height: { xs: 48, md: 52 },
+                  fontFamily: "Tajawal",
+                  fontWeight: "bold",
+                  fontSize: { xs: 14, md: 16 },
+                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
                   },
-                });
-              }}
-              variant="contained"
-              sx={{
-                minWidth: { xs: 140, md: 160 },
-                height: { xs: 48, md: 52 },
-                fontFamily: "Tajawal",
-                fontWeight: "bold",
-                fontSize: { xs: 14, md: 16 },
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                "&:hover": {
-                  background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
-                },
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
-              }}
-            >
-              حجز الكورس
-            </Button>
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                }}
+              >
+                حجز الكورس
+              </Button>
+            )}
 
 
             <Button

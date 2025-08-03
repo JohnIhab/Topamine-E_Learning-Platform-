@@ -138,17 +138,28 @@ function App() {
             />
             <Route
               path="/profileTeacher/courseDetails"
-              element={<CourseDetalis />}
+              element={
+                <ProtectedRoute allowedRoles={["teacher", "student"]}>
+                  <CourseDetalis />
+                </ProtectedRoute>
+            }
             />
             <Route path="*" element={<NotFound />} />
             <Route
             path="/Checkout" 
-            element={<Checkout />} 
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <Checkout />
+              </ProtectedRoute>
+          } 
             />
             <Route path="/video" element={<Video />} />
-            <Route path="/paymentSuccess" element={<PaymentResult />} />
 
-            {/* <Route path="/chat/:teacherId" element={<FullChatPage />} /> */}
+            <Route path="/paymentSuccess" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <PaymentResult />
+              </ProtectedRoute>
+            } />
           </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
