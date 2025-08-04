@@ -71,6 +71,8 @@ function App() {
               </Route>
               <Route path="students" element={<StudentsComponent />} />
             </Route>
+            <Route path="/profileTeacher/courseDetails/:courseId" element={<CourseDetalis />} />
+             {/* <Route path="/coursedetalis/:id" element={<CourseDetalis />} /> */}
             <Route path="coursedetalis/:courseId" element={<CourseDetalis />} />
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />

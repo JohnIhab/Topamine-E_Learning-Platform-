@@ -303,9 +303,9 @@
 //               {/* Follow button - only show for students viewing other teachers */}
 //               {role === "student" && teacherId && (
 //                 <Box display="flex" gap={1}>
-//                   <Button 
-//                     variant="outlined" 
-//                     size="small" 
+//                   <Button
+//                     variant="outlined"
+//                     size="small"
 //                     sx={{ whiteSpace: "nowrap" }}
 //                   >
 //                     متابعة
@@ -502,11 +502,14 @@ import {
   collection,
   doc,
   getDoc,
-  query,
-  where,
   getDocs,
+  query,
+  setDoc,
+  deleteDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../../src/firebase";
 
 import {
@@ -523,6 +526,7 @@ import {
   DialogActions,
   CardActions,
 } from "@mui/material";
+
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import {
   Email,
@@ -541,12 +545,14 @@ const TeacherProfile = () => {
   const [open, setOpen] = useState(false);
   const [teacherData, setTeacherData] = useState<any>(null);
   const [courseData, setcourseData] = useState<any[]>([]);
-
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editSubject, setEditSubject] = useState("");
   const [editExperiance, setEditExperiance] = useState("");
   const [editInfo, setEditInfo] = useState("");
+  const [student, setStudent] = useState<any>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+
   let navigate = useNavigate();
 
   const handleOpen = () => {
@@ -566,6 +572,7 @@ const TeacherProfile = () => {
     const user = auth.currentUser;
     if (!user) return;
     const docRef = doc(db, "users", user.uid);
+
     try {
       await updateDoc(docRef, {
         name: editName,
@@ -622,6 +629,25 @@ const TeacherProfile = () => {
 
     fetchTeacherProfile();
   }, []);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user && id) {
+        const studentData = {
+          id: user.uid,
+          name: user.displayName || "طالب",
+          email: user.email,
+        };
+        setStudent(studentData);
+        console.log(user.displayName);
+        console.log("user", user);
+        console.log(user.email);
+        const followDocRef = doc(db, "users", id, "followers", user.uid);
+        const followSnap = await getDoc(followDocRef);
+        setIsFollowing(followSnap.exists());
+      }
+    });
+  }, [id]);
 
   if (!teacherData)
     return (
@@ -708,14 +734,61 @@ const TeacherProfile = () => {
               <Typography variant="h5" fontWeight="bold">
                 {teacherData.name}
               </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{ whiteSpace: "nowrap" }}
-              >
-                متابعة
-              </Button>
+
+              {student && (
+                <>
+                  {isFollowing ? (
+                    <>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        onClick={async () => {
+                          const ref = doc(
+                            db,
+                            "users",
+                            id!,
+                            "followers",
+                            student.id
+                          );
+                          await deleteDoc(ref);
+                          setIsFollowing(false);
+                        }}
+                      >
+                        إلغاء المتابعة
+                      </Button>
+                      <Button variant="contained" size="small" sx={{ ml: 1 }}>
+                        مراسلة
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={async () => {
+                        const ref = doc(
+                          db,
+                          "users",
+                          id!,
+                          "followers",
+                          student.id
+                        );
+                        await setDoc(ref, {
+                          studentId: student.id,
+                          studentName: student.name,
+                          studentEmail: student.email,
+                          followedAt: new Date(),
+                        });
+                        setIsFollowing(true);
+                      }}
+                    >
+                      متابعة
+                    </Button>
+                  )}
+                </>
+              )}
             </Box>
+
             <Typography color="text.secondary" gutterBottom>
               {teacherData.subject}
             </Typography>
@@ -741,7 +814,7 @@ const TeacherProfile = () => {
             </Box>
 
             <Box display="flex" alignItems="center" mb={1}>
-              <Info sx={{ ml: 1, maxWidth: 200 }} />
+              <Info sx={{ ml: 1 }} />
               <Typography>{teacherData.info}</Typography>
             </Box>
 
@@ -900,16 +973,18 @@ const TeacherProfile = () => {
                         >
                           <CalendarMonth fontSize="small" sx={{ ml: 0.5 }} />
                           <Typography variant="body2">
-                            {course.start} – {course.end}
+                            {course?.startDate?.toDate().toLocaleDateString()} –{" "}
+                            {course?.endDate?.toDate().toLocaleDateString()}
                           </Typography>
                         </Box>
                         <CardActions sx={{ px: 2, pb: 2 }}>
                           <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
-
                             <Button
-                              onClick={() => {
-                                // navigate(`/coursedetalis/${courseId}`);
-                              }}
+                              onClick={() =>
+                                navigate(
+                                  `/profileTeacher/courseDetails/${course.id}`
+                                )
+                              }
                               variant="outlined"
                               color="primary"
                               sx={{ flex: 1 }}
