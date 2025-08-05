@@ -215,11 +215,6 @@ const NewCourse: React.FC = () => {
   };
 
   const handleCreate = async () => {
-
-    // if (!user || user.role !== "teacher") {
-    //   alert("غير مصرح لك بإضافة كورس. هذا الإجراء مخصص للمدرسين فقط.");
-    //   return;
-    // }
     const effectiveTeacherName = userData?.name || user?.displayName || teacherName || 'المعلم';
     const effectiveTeacherId = user && user.uid ? user.uid : "guest-user";
 
@@ -305,21 +300,18 @@ const NewCourse: React.FC = () => {
               setTeacherName(data.name);
             } else {
               console.log("No name field in user document");
-              // Try displayName as fallback
               if (user.displayName) {
                 setTeacherName(user.displayName);
               }
             }
           } else {
             console.log('No user document found in Firestore');
-            // استخدام displayName من Firebase Auth كخيار احتياطي
             if (user.displayName) {
               setTeacherName(user.displayName);
             }
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
-          // استخدام displayName من Firebase Auth كخيار احتياطي
           if (user.displayName) {
             setTeacherName(user.displayName);
           }
@@ -540,11 +532,7 @@ const NewCourse: React.FC = () => {
                         border: '1px solid gray',
                         borderRadius: 2,
                         cursor: 'pointer',
-
                         width: "88vw",
-                        // mr:15
-
-
                       }}
                     >
                       <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -568,7 +556,6 @@ const NewCourse: React.FC = () => {
 
                   <Collapse in={lecture.open}>
                     <Box sx={{ mt: 1, pl: 2 }}>
-
                       <TextField
                         label="عنوان المحاضرة"
                         value={lecture.title || ''}
@@ -576,11 +563,9 @@ const NewCourse: React.FC = () => {
                         sx={{ width: '59vw', mb: 2, mt: 2 }}
                       />
                       <List>
-
                         <ListItem>
                           <Stack direction={'column'} spacing={1} >
                             <Box sx={{ m: 2, ml: 17 }}>
-
                               <InputLabel sx={{ fontSize: "24px", fontWeight: '700', mb: 1 }}>
                                 فيديو توضيحي
                               </InputLabel>
@@ -590,7 +575,6 @@ const NewCourse: React.FC = () => {
                                 sx={{
                                   fontFamily: 'Tajawal',
                                   fontWeight: 700,
-                                  //  ml: 7,
                                   fontSize: '16px',
                                   height: '48px',
                                   width: 150
@@ -643,8 +627,6 @@ const NewCourse: React.FC = () => {
                                 sx={{
                                   fontFamily: 'Tajawal',
                                   fontWeight: 'bold',
-                                  //  ml: 7,
-
                                   fontSize: '16px',
                                   height: '48px',
                                   display: 'inline-block',
@@ -702,8 +684,6 @@ const NewCourse: React.FC = () => {
                                 sx={{
                                   fontFamily: 'Tajawal',
                                   fontWeight: 'bold',
-                                  //  ml: 7,
-
                                   fontSize: '16px',
                                   height: '48px',
                                   width: 150

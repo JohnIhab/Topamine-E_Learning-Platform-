@@ -12,7 +12,6 @@ const PaymentResult = () => {
     const userContext = useContext(UserContext);
     const authContext = useAuth();
 
-    // Try to get user from UserContext first, then fallback to AuthContext
     const user = userContext?.user || authContext?.user;
     const isLoading = authContext?.loading;
 
@@ -24,7 +23,6 @@ const PaymentResult = () => {
     console.log("==========================");
 
     useEffect(() => {
-        // Don't proceed if AuthContext is still loading
         if (isLoading) {
             console.log("🔄 AuthContext still loading, waiting...");
             return;
@@ -35,22 +33,20 @@ const PaymentResult = () => {
         const price = parseFloat(sessionStorage.getItem('amount'));
         const courseId = sessionStorage.getItem('courseId');
 
-        console.log("🔍 Payment params:", { isSuccess, price, courseId });
+        console.log("Payment params:", { isSuccess, price, courseId });
 
-        // Check for user in contexts or localStorage as fallback
         let currentUser = user;
         let userId = null;
 
         if (currentUser) {
             userId = currentUser.id || currentUser.uid;
         } else {
-            // Fallback: check localStorage for user data
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
                 try {
                     currentUser = JSON.parse(storedUser);
                     userId = currentUser.id || currentUser.uid;
-                    console.log("📦 Found user in localStorage:", currentUser);
+                    console.log("Found user in localStorage:", currentUser);
                 } catch (error) {
                     console.error("Error parsing stored user:", error);
                 }
@@ -58,15 +54,15 @@ const PaymentResult = () => {
         }
 
         if (currentUser && userId) {
-            console.log("✅ User found, ID:", userId);
-            console.log("📋 Course ID:", courseId);
-            console.log("💰 Price:", price);
-            console.log("✔️ Success status:", isSuccess);
+            console.log("User found, ID:", userId);
+            console.log("Course ID:", courseId);
+            console.log("Price:", price);
+            console.log(" Success status:", isSuccess);
 
             if (isSuccess === 'true') {
                 const savePayment = async () => {
                     try {
-                        console.log("💰 About to save payment with data:", {
+                        console.log("About to save payment with data:", {
                             uid: userId,
                             paid: true,
                             amount: price,
@@ -83,47 +79,39 @@ const PaymentResult = () => {
                             timestamp: new Date(),
                         });
                         
-                        console.log("💾 Payment saved successfully with ID:", docRef.id);
+                        console.log("Payment saved successfully with ID:", docRef.id);
                         
-                        // Store courseId in localStorage as backup before removing from sessionStorage
                         localStorage.setItem('lastAccessedCourse', courseId);
                         
                         sessionStorage.removeItem('amount');
                         sessionStorage.removeItem('courseId');
 
-                        console.log("🎬 About to navigate to video page with courseId:", courseId);
-                        console.log("🎬 Navigation state will be:", { courseId });
+                        console.log("About to navigate to video page with courseId:", courseId);
+                        console.log("Navigation state will be:", { courseId });
                         
-                        // Small delay to ensure payment is processed
                         setTimeout(() => {
-                            console.log("🎬 Executing navigation to /video");
-                            console.log("🎬 Current window location:", window.location.href);
-                            console.log("🎬 Target route: /video");
-                            console.log("🎬 CourseId being passed:", courseId);
+
                             
-                            // First try React Router navigation
                             try {
-                                console.log("🎬 Trying React Router navigation...");
+                                console.log("Trying React Router navigation...");
                                 navigate('/video', { 
                                     state: { courseId },
                                     replace: true
                                 });
-                                console.log("✅ React Router navigation executed");
+                                console.log("React Router navigation executed");
                             } catch (navError) {
-                                console.error("❌ React Router navigation failed:", navError);
-                                console.log("🔄 Trying window.location fallback...");
+                                console.error("React Router navigation failed:", navError);
+                                console.log("Trying window.location fallback...");
                                 
-                                // Fallback: use window.location with full URL
                                 const baseUrl = window.location.origin;
                                 const targetUrl = `${baseUrl}/video?courseId=${courseId}`;
-                                console.log("🎬 Redirecting to:", targetUrl);
+                                console.log(" Redirecting to:", targetUrl);
                                 
                                 window.location.href = targetUrl;
                             }
-                        }, 1000); // Increased delay to 1 second
+                        }, 1000);
                     } catch (error) {
-                        console.error('❌ Error saving payment:', error);
-                        // Navigate to home page instead of non-existent error page
+                        console.error('Error saving payment:', error);
                         alert('حدث خطأ في حفظ بيانات الدفع. سيتم توجيهك للصفحة الرئيسية.');
                         navigate('/');
                     }
@@ -131,17 +119,15 @@ const PaymentResult = () => {
 
                 savePayment();
             } else {
-                console.log('❌ Payment failed or was canceled.');
+                console.log('Payment failed or was canceled.');
                 alert('فشل في عملية الدفع أو تم إلغاؤها. سيتم توجيهك للصفحة الرئيسية.');
-                navigate('/'); // Navigate to home instead of non-existent payment-failed page
+                navigate('/');
             }
         } else {
-            // If not loading and still no user, then redirect to login
-            console.log('⛔ No user found in any context or localStorage after loading completed.');
-            console.log('🔍 Debug - userContext:', userContext);
-            console.log('🔍 Debug - authContext:', authContext);
-            console.log('🔍 Debug - localStorage user:', localStorage.getItem('user'));
-            // navigate('/login'); // Redirect to login page if no user
+            console.log('No user found in any context or localStorage after loading completed.');
+            console.log('Debug - userContext:', userContext);
+            console.log('Debug - authContext:', authContext);
+            console.log('Debug - localStorage user:', localStorage.getItem('user'));
         }
     }, [location.search, navigate, user, isLoading, userContext, authContext]);
 

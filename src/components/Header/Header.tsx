@@ -29,7 +29,6 @@ const Header: React.FC = () => {
       return;
     }
 
-    // Get teacher's courses
     const coursesQuery = query(
       collection(db, 'courses'),
       where('teacherId', '==', user.uid)
@@ -38,11 +37,9 @@ const Header: React.FC = () => {
     const unsub = onSnapshot(coursesQuery, async (snapshot) => {
       setCourseCount(snapshot.docs.length);
       
-      // Get course IDs for payment filtering
       const courseIds = snapshot.docs.map(doc => doc.id);
       
       if (courseIds.length > 0) {
-        // If more than 10 courses, we need to batch the queries
         if (courseIds.length <= 10) {
           const paymentsQuery = query(
             collection(db, 'payments'),
@@ -61,7 +58,6 @@ const Header: React.FC = () => {
             paymentsUnsub();
           };
         } else {
-          // For more than 10 courses, we'll get all payments and filter client-side
           const paymentsQuery = collection(db, 'payments');
           const paymentsUnsub = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
             const total = paymentsSnapshot.docs.reduce((sum, doc) => {

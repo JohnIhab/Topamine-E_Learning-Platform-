@@ -5,7 +5,6 @@ import { AppBar, Typography, Toolbar, Box, Stack, Button, Dialog, DialogTitle, D
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
 
-// Images
 import coursesIcon from "../../assets/images/book.png";
 import teacherIcon from "../../assets/images/board.png";
 import studentIcon from "../../assets/images/hatGrad.png";
@@ -73,7 +72,6 @@ export default function PrimarySearchAppBar() {
       <Stack
         sx={{ display: "flex", flexDirection: "row", fontFamily: "Tajawal" }}
       >
-        {/* right side */}
         <Box sx={{ width: "200px" }}>
           <Stack>
             <AppBar
@@ -234,7 +232,6 @@ export default function PrimarySearchAppBar() {
             borderRight: "1px solid rgba(157, 180, 206, 0.57)",
           }}
         >
-          {/* AppBar */}
           <AppBar
             position="static"
             sx={{
@@ -246,7 +243,6 @@ export default function PrimarySearchAppBar() {
           >
             <Toolbar>
               <Typography
-                // variant="h5"
                 noWrap
                 component="div"
                 sx={{
@@ -264,7 +260,6 @@ export default function PrimarySearchAppBar() {
             </Toolbar>
           </AppBar>
 
-          {/*Dashboard*/}
           <Stack
             sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
           >

@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import Header from '../Header/Header';
 import ResponsiveDrawer from "../Aside/ResponsiveDrawer";
-// import Charts from '../Chart.tsx';
 import { collection, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase.ts';
 import { Doughnut } from 'react-chartjs-2';
@@ -51,7 +50,7 @@ const Home: React.FC = () => {
     return () => unsub();
   }, []);
 
-   const data = {
+  const data = {
     labels: ['الكورسات', 'المدفوعات', 'الطلاب'],
     datasets: [
       {

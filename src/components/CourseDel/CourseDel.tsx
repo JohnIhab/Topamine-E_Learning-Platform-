@@ -16,14 +16,10 @@ import {
   Divider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-// import FolderIcon from '@mui/icons-material/Folder';
-// import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import { useParams } from 'react-router-dom';
-
-// import CustomCollapse from '../Collapse/Collapse';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
@@ -35,7 +31,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { UserContext } from '../../context/UserContext';
 import { useAuth } from '../../context/AuthContext';
-// import {userCon}
 
 const theme = createTheme({ 
   direction: 'rtl',
@@ -92,18 +87,6 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Debug logging to see the context values
-  console.log("=== CourseDetails Context Debug ===");
-  console.log("UserContext user:", user);
-  console.log("AuthContext user:", authUser);
-  console.log("AuthContext role:", role);
-  console.log("CourseData:", courseData);
-  console.log("CourseData teacherName:", courseData?.teacherName);
-  console.log("CourseData teacherId:", courseData?.teacherId);
-  console.log("TeacherData:", teacherData);
-  console.log("TeacherData name:", teacherData?.name);
-  console.log("==================================");
-
   useEffect(() => {
     const fetchCourseData = async () => {
       if (!courseId) {
@@ -124,7 +107,6 @@ const CourseDetails = () => {
           setLectures(courseLectures);
           setOpenLectures(Array.from({ length: courseLectures.length }, () => false));
 
-          // Fetch teacher data if teacherId exists
           if (data.teacherId) {
             try {
               const teacherRef = doc(db, 'users', data.teacherId);
@@ -187,8 +169,6 @@ const CourseDetails = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            // background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)',
-            // background: 'linear-gradient(135deg, rgba(161, 196, 253, 0.8) 0%, rgba(194, 233, 251, 0.8) 100%)',
             backgroundPosition: 'fill',
 
 
@@ -239,8 +219,6 @@ const CourseDetails = () => {
 
       <Box sx={{
         width: '60%',
-        // maxWidth: '1200px',
-        // margin: '40px auto',
         mr: 3,
         backgroundColor: '#ffffff',
         borderRadius: 3,
@@ -250,16 +228,12 @@ const CourseDetails = () => {
       }}>
 
         <Box sx={{
-          // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           backgroundColor: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)'
           ,
           color: 'gray',
           p: { xs: 3, md: 4 },
-          // textAlign: 'center'
         }}>
-          {/* <Skeleton variant="rectangular" sx={{ width: 250, height: 7}} /> */}
-          {/* <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mt:1}} /> */}
-          {/* <Skeleton variant="rectangular" sx={{ width: 100, height: 7,mt:1}} /> */}
+
           <Skeleton variant="rectangular" sx={{ width: 150, height: 7, mb: 1, mt: 1 }} />
           <Typography
             sx={{
@@ -281,7 +255,6 @@ const CourseDetails = () => {
             معلومات شاملة عن الكورس
           </Typography>
           <Skeleton variant="rectangular" sx={{ width: 150, height: 7, mb: 1, mt: 1 }} />
-          {/* <Skeleton variant="rectangular" sx={{ width: 150, height: 7,mt:1}} /> */}
           <Skeleton variant="rectangular" sx={{ width: 250, height: 7, mt: 1 }} />
         </Box>
 
@@ -692,7 +665,6 @@ const CourseDetails = () => {
 
           <Box sx={{
             width: '95vw',
-            // maxWidth: '1200px',
             margin: '40px auto',
             ml: 3,
             backgroundColor: '#ffffff',
@@ -703,10 +675,8 @@ const CourseDetails = () => {
           }}>
 
             <Box sx={{
-              // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'gray',
               p: 4,
-              // textAlign: 'center'
             }}>
               <Skeleton variant="rectangular" sx={{ width: 300, height: 7, mt: 1 }} />
               <Typography
@@ -783,7 +753,6 @@ const CourseDetails = () => {
                 </Box>
               ) : (
                 <>
-                  {/* Progress Summary */}
                   <Box sx={{
                     p: 3,
                     backgroundColor: '#f8f9fa',
@@ -919,8 +888,6 @@ const CourseDetails = () => {
                             </Box>
                           </Stack>
                         </Box>
-
-                        {/* Lecture Content */}
                         <MUICollapse in={openLectures[index]}>
                           <Box sx={{
                             p: { xs: 2, md: 3 },
@@ -947,7 +914,6 @@ const CourseDetails = () => {
             </Box>
           </Box>
 
-          {/* Action Buttons - Improved Design */}
           <Box sx={{
             width: '90%',
             maxWidth: '1200px',
@@ -957,7 +923,6 @@ const CourseDetails = () => {
             gap: { xs: 2, md: 3 },
             flexWrap: 'wrap'
           }}>
-            {/* Only show booking button for students and guests, hide for teachers */}
             {role !== 'teacher' && (
               <Button
                 onClick={() => {

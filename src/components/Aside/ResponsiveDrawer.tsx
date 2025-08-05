@@ -15,6 +15,7 @@ import { Stack, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
+import MessageIcon from '@mui/icons-material/Message';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
@@ -51,13 +52,14 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
   };
 
   const drawerItems = [
-    { text: 'الرئيسية', path: '/teacherdashboard', icon: <HomeIcon  /> },
+    { text: 'الرئيسية', path: '/teacherdashboard', icon: <HomeIcon /> },
     { text: 'إدارة الكورسات', path: '/teacherdashboard/courses', icon: <SchoolIcon /> },
     { text: 'الطلاب', path: '/teacherdashboard/students', icon: <PeopleIcon /> },
+    { text: 'الرسائل', path: '/teacherdashboard/messages', icon: <MessageIcon /> },
   ];
 
   const drawer = (
-    <Box dir="rtl" sx={{backgroundColor:'white',minHeight:'100vh',height:'100vh'}}>
+    <Box dir="rtl" sx={{ backgroundColor: 'white', minHeight: '100vh', height: '100vh' }}>
       <Stack direction="row" spacing={5} sx={{ mt: 6, mr: 4, alignItems: 'center' }}>
         <img src={logo} width={70} alt="الشعار" />
         <Typography
@@ -72,7 +74,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
         </Typography>
       </Stack>
 
-      <Box sx={{ mt: 8}}>
+      <Box sx={{ mt: 8 }}>
         <Divider />
       </Box>
 
@@ -142,8 +144,8 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
         aria-label="open drawer"
         edge="end"
         onClick={handleDrawerToggle}
-        sx={{ 
-          m: 2, 
+        sx={{
+          m: 2,
           display: { sm: 'none' },
           position: 'fixed',
           top: 0,
@@ -163,7 +165,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { 
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
             backgroundColor: '#f5f5f5'
           },
@@ -177,7 +179,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
         anchor="right"
         sx={{
           display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { 
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
             backgroundColor: '#f5f5f5',
             border: 'none',

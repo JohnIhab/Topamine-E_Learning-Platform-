@@ -22,7 +22,6 @@ const TeacherDashboardLayout: React.FC = () => {
           <ResponsiveDrawer />
         </Box>
         
-        {/* Main Content Area */}
         <Box sx={{ 
           flex: 1,
           width: { xs: '100%', sm: `calc(100% - ${drawerWidth}px)` },

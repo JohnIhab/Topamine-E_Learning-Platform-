@@ -58,12 +58,12 @@ const Chatbot: React.FC = () => {
 
             const data = await response.json();
             const botReply =
-                data.candidates?.[0]?.content?.parts?.[0]?.text || '❗ لم يتم الحصول على رد.';
+                data.candidates?.[0]?.content?.parts?.[0]?.text || 'لم يتم الحصول على رد.';
 
             const botMessage: Message = { text: botReply, sender: 'bot' };
             setMessages(prev => [...prev, botMessage]);
         } catch (error) {
-            setMessages(prev => [...prev, { text: '❌ حدث خطأ في الاتصال', sender: 'bot' }]);
+            setMessages(prev => [...prev, { text: 'حدث خطأ في الاتصال', sender: 'bot' }]);
         }
 
         setLoading(false);

@@ -73,7 +73,6 @@ export default function Navbar() {
                     </Box>
                 </Link>
 
-                {/* Desktop Links */}
                 {!isMobile && (
                     <Box display="flex" gap={4}>
                         {navLinks.map((item, index) => (
@@ -99,7 +98,6 @@ export default function Navbar() {
 
                 {!isMobile && (
                     <Box display="flex" alignItems="center" gap={1}>
-                        {/* Theme Toggle */}
                         <ThemeToggle />
                         
                         {!user ? (

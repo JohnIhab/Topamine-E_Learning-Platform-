@@ -19,13 +19,11 @@ export const useThemeMode = () => {
   return context;
 };
 
-// Define custom color palette
 const getDesignTokens = (mode: PaletteMode) => ({
   palette: {
     mode,
     ...(mode === 'light'
       ? {
-          // Light mode colors
           primary: {
             main: '#2563EB',
             light: '#60A5FA',
@@ -60,7 +58,6 @@ const getDesignTokens = (mode: PaletteMode) => ({
           },
         }
       : {
-          // Dark mode colors
           primary: {
             main: '#60A5FA',
             light: '#93C5FD',
@@ -193,7 +190,6 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [mode, setMode] = useState<PaletteMode>(() => {
-    // Get saved theme from localStorage or default to 'light'
     const savedMode = localStorage.getItem('themeMode') as PaletteMode;
     return savedMode || 'light';
   });

@@ -85,10 +85,6 @@ const CustomCollapse: React.FC<CustomCollapseProps> = ({
     </Box>
   </ListItem>
 )}
-
-
-
-       
             {pdfUrl && (
               <ListItem>
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -107,7 +103,6 @@ const CustomCollapse: React.FC<CustomCollapseProps> = ({
               </ListItem>
             )}
 
-         
             {txtUrl && (
               <ListItem>
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -126,7 +121,7 @@ const CustomCollapse: React.FC<CustomCollapseProps> = ({
               </ListItem>
             )}
 
-         
+
             <ListItem>
               <Stack direction="row" spacing={1}>
                 <ListItemText primary="عدد المشاهدات" />
@@ -134,7 +129,7 @@ const CustomCollapse: React.FC<CustomCollapseProps> = ({
               </Stack>
             </ListItem>
 
-         
+
             <ListItem>
               <Stack direction="row" spacing={1}>
                 <ListItemText primary="إجمالي وقت المشاهدة" />

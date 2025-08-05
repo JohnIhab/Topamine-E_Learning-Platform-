@@ -32,8 +32,8 @@ interface CourseCardProps {
   startDate: Timestamp;
   endDate: Timestamp;
   gradeLevel: string;
-  teacherName?: string; // Make optional since we'll get it from context
-  teacherId?: string; // Add teacherId to fetch teacher info
+  teacherName?: string;
+  teacherId?: string;
   price: number;
 }
 
@@ -61,16 +61,13 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const [editOpen, setEditOpen] = useState(false);
   const [teacherName, setTeacherName] = useState<string>(propTeacherName || '');
 
-  // Fetch teacher name from context or Firebase
   useEffect(() => {
     const fetchTeacherName = async () => {
-      // If teacherName is already provided as prop, use it
       if (propTeacherName) {
         setTeacherName(propTeacherName);
         return;
       }
 
-      // If current user is a teacher, use their name
       if (user && role === 'teacher') {
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -83,7 +80,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
           setTeacherName('المعلم');
         }
       } 
-      // If teacherId is provided, fetch teacher info
       else if (teacherId) {
         try {
           const teacherDoc = await getDoc(doc(db, 'users', teacherId));
@@ -96,7 +92,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
           setTeacherName('المعلم');
         }
       }
-      // Default fallback
       else {
         setTeacherName('المعلم');
       }

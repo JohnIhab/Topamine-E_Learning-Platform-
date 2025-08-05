@@ -105,7 +105,6 @@ const TeacherHome: React.FC = () => {
 
   return (
     <>
-      {/* Dashboard content for /teacherdashboard */}
       <Stack direction={'row'} sx={{ flexWrap: 'wrap', gap: 2,justifyContent:"space-around" }}>
         <Box sx={{ backgroundColor: 'white', width: { xs: '100%', md: '40%' }, height: 300, p: 2, borderRadius: 2, boxShadow: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', mt: 4, }}>
           <Doughnut data={data} options={options} />
@@ -120,22 +119,17 @@ const TeacherHome: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell align="right">عنوان الكورس</TableCell>
-                {/* <TableCell align="right">الوصف</TableCell> */}
                 <TableCell align="right">الترم</TableCell>
-                {/* <TableCell align="right">السعة</TableCell> */}
                 <TableCell align="right">تاريخ البدء</TableCell>
                 <TableCell align="right">تاريخ الانتهاء</TableCell>
                 <TableCell align="right">المرحلة الدراسية</TableCell>
-                {/* <TableCell align="right">الحالة</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {courses.map((course) => (
                 <TableRow key={course.id}>
                   <TableCell align="right">{course.title}</TableCell>
-                  {/* <TableCell align="right">{course.subTitle}</TableCell> */}
                   <TableCell align="right">{course.term}</TableCell>
-                  {/* <TableCell align="right">{course.capacity}</TableCell> */}
                   <TableCell align="right">
                     {course.startDate && typeof course.startDate.toDate === 'function'
                       ? course.startDate.toDate().toLocaleDateString()
@@ -147,7 +141,6 @@ const TeacherHome: React.FC = () => {
                       : '—'}
                   </TableCell>
                   <TableCell align="right">{course.gradeLevel || '—'}</TableCell>
-                  {/* <TableCell align="right">{course.status || '—'}</TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

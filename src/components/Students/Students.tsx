@@ -1,236 +1,707 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-import React, { useState } from 'react';
 import {
-  Box, Typography, Table, TableBody, TableCell,
-  TableHead, TableRow, Paper, Avatar, LinearProgress, Stack, TextField,Button,
-  Select, FormControl, InputLabel, MenuItem
-} from '@mui/material';
-import TableContainer from '@mui/material/TableContainer';
-import type { SelectChangeEvent } from '@mui/material/Select';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Header from '../Header/Header';
-import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import rtlPlugin from 'stylis-plugin-rtl';
-import { prefixer } from 'stylis';
-import { CacheProvider } from '@emotion/react';
-import createCache from '@emotion/cache';
-import { useNavigate } from 'react-router';
+  AppBar,
+  Typography,
+  Toolbar,
+  Box,
+  Stack,
+  TextField,
+  Autocomplete,
+  
+} from "@mui/material";
+
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../../../theme";
 
 
-const StaticProgress: React.FC<{ value?: number }> = ({ value = 50 }) => {
-  let barColor: 'success' | 'warning' | 'error' = 'error';
-  let label = 'ضعيف';
+import SearchIcon from "@mui/icons-material/search";
+import InputAdornment from "@mui/material/InputAdornment";
 
-  if (value >= 80) {
-    barColor = 'success';
-    label = 'ممتاز';
-  } else if (value >= 60) {
-    barColor = 'warning';
-    label = 'جيد';
-  }
+import blockIcon from "../../assets/images/blockIcon.png";
 
-  return (
-    <Stack spacing={1} sx={{ minWidth: 100 }}>
-      <LinearProgress
-        variant="determinate"
-        value={value}
-        color={barColor}
-        sx={{ height: 10, borderRadius: 5 }}
-      />
-      <Typography variant="body2" color="text.secondary" textAlign="center">
-        {value}% - {label}
-      </Typography>
-    </Stack>
-  );
-}; 
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableContainer,
+  Paper,
+  // Button,
+  Avatar,
+  // Chip,
+  LinearProgress,
+} from "@mui/material";
+import { useState, useEffect } from "react";
+import { collection, getDocs,deleteDoc,doc } from "firebase/firestore";
+import { db } from '../../firebase';
+import { toast } from 'react-toastify';
 
-interface StudentRow {
-  الاسم: string;
-  البريد: string;
-  'تاريخ التسجيل': string;
-  التقدم: number;
-  الدرجة: string;
-  'آخر دخول': string;
+interface Student {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  grade?: string;
+  governorate?: string;
+  phone?: string;
+  createdAt?: any;
+  role: string;
+  
 }
 
-const Students: React.FC = () => {
-  const navigate=useNavigate()
-  const theme = createTheme({ 
-    direction: 'rtl',
-    typography: {
-      fontFamily: `'Tajawal', 'sans-serif'`,
-    },
-  });
-  const cacheRtl = createCache({
-    key: 'muirtl',
-    stylisPlugins: [prefixer, rtlPlugin],
-  });
+interface Course {
+  id: string;
+  title: string;
+  subTitle: string;
+  teacherName: string;
+  price: number;
+  gradeLevel: string;
+  term: string;
+ 
+}
 
-  const rows1: StudentRow[] = [
-    {
-      الاسم: 'أحمد محمد',
-      البريد: 'ahmed@gmail.com',
-      'تاريخ التسجيل': '١ سبتمبر ٢٠٢٣',
-      التقدم: 85,
-      الدرجة: 'A',
-      'آخر دخول': 'منذ ساعتين',
-    },
-    {
-      الاسم: 'ليلى علي',
-      البريد: 'ahmed@gmail.com',
-      'تاريخ التسجيل': '١٥ أغسطس ٢٠٢٣',
-      التقدم: 60,
-      الدرجة: 'B',
-      'آخر دخول': 'منذ يوم',
-    },
-    {
-      الاسم: 'سارة حسن',
-      البريد: 'ahmed@gmail.com',
-      'تاريخ التسجيل': '١٠ يوليو ٢٠٢٣',
-      التقدم: 92,
-      الدرجة: 'A',
-      'آخر دخول': 'منذ ٣ ساعات',
-    },
-    {
-      الاسم: 'أحمد يوسف',
-      البريد: 'ahmed@gmail.com',
-      'تاريخ التسجيل': '١ سبتمبر ٢٠٢٣',
-      التقدم: 50,
-      الدرجة: 'C',
-      'آخر دخول': 'منذ ٥ دقائق',
-    },
-    {
-      الاسم: 'نورا خالد',
-      البريد: 'ahmed@gmail.com',
-      'تاريخ التسجيل': '٢٠ يونيو ٢٠٢٣',
-      التقدم: 75,
-      الدرجة: 'B',
-      'آخر دخول': 'منذ ٤ أيام',
-    },
-  ];
+interface Enrollment {
+  id: string;
+  userId: string;
+  courseId: string;
+  // enrollmentDate: any;
+ timestamp:any;
+  userEmail: string;
+  // status: 'active' | 'completed' | 'cancelled';
+  progress: number;
+  student?: Student;
+  course?: Course;
+}
 
-  const [filterBy, setFilterBy] = useState<string>('');
-  const [searchText, setSearchText] = useState<string>('');
-  const [filterData, setFilterData] = useState<StudentRow[]>(rows1);
+export default function PrimarySearchAppBar() {
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [selectedItem, setSelectedItem] = useState("dashboard");
+  const [searchValue, setSearchValue] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [studentsData, setStudentsData] = useState<Student[]>([]);
+  const [success, setSuccess] = useState(false);
+const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
-  const handleFilterChange = (e: SelectChangeEvent) => {
-    const value = e.target.value as string;
-    setFilterBy(value);
-    if (value === '') {
-      setFilterData(rows1);
-    } else if (value === 'grade') {
-      setFilterData(rows1.filter(item => item.الدرجة === 'A'));
-    } else if (value === 'name') {
-      setFilterData(rows1.filter(item => item.الاسم.includes('أحمد')));
-    } else if (value === 'email') {
-      setFilterData(rows1.filter(item => item.البريد.includes('@')));
-    } else if (value === 'progress') {
-      setFilterData(rows1.filter(item => item.التقدم >= 70));
-    } else if (value === 'enrollment') {
-      setFilterData([...rows1].sort((a, b) =>
-        new Date(a['تاريخ التسجيل']).getTime() - new Date(b['تاريخ التسجيل']).getTime()
-      ));
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  async function fetchData() {
+    try {
+      setLoading(true);
+      
+      const [studentsQuery, coursesQuery, enrollmentsQuery] = await Promise.all([
+        getDocs(collection(db, "users")),
+        getDocs(collection(db, "courses")),
+        getDocs(collection(db, "enrollments")),
+      ]);
+
+      const studentsData = studentsQuery.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })).filter((user: any) => user.role === "student") as Student[];
+
+      const coursesData = coursesQuery.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Course[];
+
+      const enrollmentsData = enrollmentsQuery.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Enrollment[];
+
+      const enrichedEnrollments = enrollmentsData.map((enrollment) => {
+       const student = studentsData.find(s => s.id === enrollment.userId);
+        const course = coursesData.find(c => c.id === enrollment.courseId);
+        return {
+          ...enrollment,
+          student,
+          course,
+        };
+      });
+
+      setEnrollments(enrichedEnrollments);
+      setStudentsData(studentsData);
+      
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const filteredEnrollments = enrollments.filter((enrollment) => {
+    if (!searchValue) return true;
+    
+    const searchLower = searchValue.toLowerCase();
+    return (
+      enrollment.student?.name?.toLowerCase().includes(searchLower) ||
+      enrollment.student?.email?.toLowerCase().includes(searchLower) ||
+      enrollment.course?.title?.toLowerCase().includes(searchLower) ||
+      enrollment.course?.teacherName?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const getProgressColor = (progress: number) => {
+    if (progress >= 80) return 'success';
+    if (progress >= 60) return 'warning';
+    return 'error';
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchText(value);
-    if (value === '') {
-      setFilterData(rows1);
-    } else {
-      const lowerValue = value.toLowerCase();
-      setFilterData(
-        rows1.filter(item =>
-          item.الاسم.toLowerCase().includes(lowerValue) ||
-          item.البريد.toLowerCase().includes(lowerValue) 
-        )
-      );
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case 'active': return 'primary';
+  //     case 'completed': return 'success';
+  //     case 'cancelled': return 'error';
+  //     default: return 'default';
+  //   }
+  // };
+
+ const handleDelete = async (id: string) => {
+  if (window.confirm('هل أنت متأكد من حذف الطالب؟')) {
+    try {
+      await deleteDoc(doc(db, 'users', id));
+      toast.success('تم حذف الطالب بنجاح', {
+        position: "top-left",
+        autoClose: 2000,
+      });
+
+      setStudentsData(prev => prev.filter(student => student.id !== id)); 
+      setSuccess(true);
+    } catch (err) {
+      setError(true);
+      console.error('حدث خطأ أثناء حذف الطالب:', err);
     }
-  };
-
-
-  return (
-    <Box sx={{ width: '100%', overflowX: 'hidden' }}>
-      <CacheProvider value={cacheRtl}>
-        <ThemeProvider theme={theme}>
-          <Box
-            sx={{
-              width: '100%',
-              borderRadius: 3,
-              display: 'flex',
-              justifyContent: 'space-between',
-              p: 2,
-              backgroundColor: 'white',
-              mb: 2
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-              الطلاب المسجلين
-            </Typography>
-            <Box sx={{ minWidth: 300 }}>
-              <TextField
-                fullWidth
-                dir="rtl"
-                variant="outlined"
-                placeholder="ابحث بالاسم أو البريد الإلكتروني"
-                value={searchText}
-                onChange={handleSearchChange}
-                size="small"
-              />
-            </Box>
-          </Box>
-            <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 600, overflow: 'auto', borderRadius: 3,width:'100%'}}>
-              <Table dir="rtl" stickyHeader>
-                <TableHead>
-                  <TableRow >
-                    <TableCell align="center" sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>البريد الإلكتروني</TableCell>
-                    <TableCell align="center" sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>اسم الطالب</TableCell>
-                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>تاريخ التسجيل</TableCell>
-                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>التقدُّم</TableCell>
-                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>الدرجة</TableCell>
-                    <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>آخر دخول</TableCell>
-                     <TableCell align="center"sx={{fontSize:'16px',fontWeight:'600',lineHeight:'24px',color:'#4B5563'}}>آجراء</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filterData.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell align="center">
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mr: 7 }}>
-                          <Avatar src={'https://via.placeholder.com/40?text=S'} sx={{ width: 32, height: 32 }} />
-                          <Typography sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['البريد']}</Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell align="center" sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['الاسم']}</TableCell>
-                      <TableCell align="center" sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['تاريخ التسجيل']}</TableCell>
-                      <TableCell align="center">
-                        <StaticProgress value={row['التقدم']} />
-                      </TableCell>
-                      <TableCell align="center" sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['الدرجة']}</TableCell>
-                      <TableCell align="center"sx={{fontSize:'16px',fontWeight:'400',lineHeight:'24px',color:'#4B5563'}}>{row['آخر دخول']}</TableCell>
-          <TableCell>
-  <Box sx={{ display: 'flex', gap: 1 }}>
-    <VisibilityIcon sx={{ fontSize: 20, color: '#2563EB', cursor: 'pointer' }} />
-    <DeleteIcon sx={{ fontSize: 20, color: '#DC2626', cursor: 'pointer' }} />
-  </Box>
-</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-              <Button onClick={() => navigate('/')} variant="outlined"
-      component="label" sx={{ mt: 3, mb: 3,fontFamily: 'Tajawal', fontWeight: '700' ,width:180,float:'right'}}>
-              الرجوع للصفحة الرئيسية
-            </Button>
-          </ThemeProvider>
-        </CacheProvider>
-      </Box>
-    // </Box>
-  );
+  }
 };
 
-export default Students;
+  return (
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          minHeight: "100vh",
+        }}
+      >
+        <AppBar
+          position="static"
+          sx={{
+            backgroundColor: "#FFFFFF",
+            borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
+            boxShadow: "none",
+            padding: "0.5%",
+            width:'75vw',
+            mx:"auto",
+            borderRadius: "20px"
+          }}
+        >
+          <Toolbar>
+            <Typography
+              noWrap
+              component="div"
+              sx={{
+                display: {
+                  xs: "none",
+                  sm: "block",
+                  fontWeight: "600",
+                  fontSize: "20px",
+                  color: "#111827",
+                },
+              }}
+            >
+              إدارة الطلاب المسجلين
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        <TableContainer
+          component={Paper}
+          sx={{ mt: 4, borderRadius: "20px", margin: "2%", width: "96%" }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "43%",
+              padding: "2%",
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold" sx={{ p: 2 }}>
+              الطلاب المسجلين في الكورسات
+            </Typography>
+            <Stack
+              spacing={2}
+              sx={{
+                width: 300,
+              }}
+            >
+              <Autocomplete
+                freeSolo
+                id="free-solo-2-demo"
+                disableClearable
+                options={enrollments.map((enrollment) => enrollment.student?.name || "")}
+                onInputChange={(_event, newInputValue) => {
+                  setSearchValue(newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    placeholder="ابحث عن طالب  ..."
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: "gray" }} />
+                        </InputAdornment>
+                      ),
+                      inputProps: {
+                        ...params.inputProps,
+                        type: "search",
+                      },
+                    }}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        height: "50px",
+                        borderRadius: "10px",
+                        border: "1px solid rgba(134, 145, 160, 0.57)",
+                        color: "#4F46E5",
+                        paddingX: 1,
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "gray",
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "gray",
+                      },
+                    }}
+                  />
+                )}
+              />
+            </Stack>
+          </Box>
+
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  الطالب
+                </TableCell>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  الايميل
+                </TableCell>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  الكورس المسجل
+                </TableCell>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  المدرس
+                </TableCell>
+                 <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  المستوى الدراسي
+                </TableCell>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  المحافظة
+                </TableCell>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  تاريخ التسجيل
+                </TableCell>
+                <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                  الاجراءات
+                </TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ textAlign: "center", py: 4 }}>
+                    جاري التحميل...
+                  </TableCell>
+                </TableRow>
+              ) : filteredEnrollments.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ textAlign: "center", py: 4 }}>
+                    لا يوجد طلاب مسجلين في الكورسات
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredEnrollments.map((enrollment, index) => (
+                  <TableRow key={enrollment.id || index}>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, justifyContent: "center" }}>
+                        <Avatar 
+                          src={enrollment.student?.avatar} 
+                          sx={{ width: 32, height: 32 }}
+                        >
+                          {enrollment.student?.name?.charAt(0) || ''}
+                        </Avatar>
+                        <Typography variant="body2">
+                          {enrollment.student?.name || 'غير محدد'}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      {enrollment.student?.email || 'غير محدد'}
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      <Typography variant="body2" fontWeight="bold">
+                        {enrollment.course?.title || 'غير محدد'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {enrollment.course?.subTitle || ''}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      {enrollment.course?.teacherName || 'غير محدد'}
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      {enrollment.course?.gradeLevel || 'غير محدد'}
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                        <LinearProgress
+                          variant="determinate"
+                          value={enrollment.progress || 0}
+                          color={getProgressColor(enrollment.progress || 0)}
+                          sx={{ width: "100%", height: 8, borderRadius: 4 }}
+                        />
+                        <Typography variant="caption">
+                          {enrollment.progress || 0}%
+                        </Typography>
+                       
+                      </Box> */}
+                       <Typography>
+                          {enrollment.student?.governorate || 'غير محدد'}
+                        </Typography>
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      {enrollment.timestamp && typeof enrollment.timestamp.toDate === 'function'
+                        ? enrollment.timestamp.toDate().toLocaleDateString('ar-EG')
+                        : enrollment.timestamp instanceof Date
+                        ? enrollment.timestamp.toLocaleDateString('ar-EG')
+                        : 'غير محدد'}
+                    </TableCell>
+                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                      <img src={blockIcon} alt="Block" style={{ cursor: "pointer" }} onClick={handleDelete} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </ThemeProvider>
+  );
+}
+
+
+
+
+// StudentInfo.tsx
+// import React, { useEffect, useState } from 'react';
+// import { doc, getDoc } from 'firebase/firestore';
+// import { db } from '../../firebase';
+// // import React from "react";
+// import { useNavigate } from "react-router-dom";
+
+// import {
+//   AppBar,
+//   Typography,
+//   Toolbar,
+//   Box,
+//   Stack,
+//   TextField,
+//   Autocomplete,
+  
+// } from "@mui/material";
+
+// import { ThemeProvider } from "@mui/material/styles";
+// import theme from "../../../theme";
+
+
+// import SearchIcon from "@mui/icons-material/search";
+// import InputAdornment from "@mui/material/InputAdornment";
+
+// import blockIcon from "../../assets/images/blockIcon.png";
+
+// import {
+//   Table,
+//   TableHead,
+//   TableRow,
+//   TableCell,
+//   TableBody,
+//   TableContainer,
+//   Paper,
+//   // Button,
+//   Avatar,
+//   // Chip,
+//   LinearProgress,
+// } from "@mui/material";
+// // import { useState, useEffect } from "react";
+// // import { collection, getDocs } from "firebase/firestore";
+// // import { db } from '../../firebase';
+
+// interface Student {
+//   id: string;
+//   name: string;
+//   email: string;
+//   avatar?: string;
+//   grade?: string;
+//   governorate?: string;
+//   phone?: string;
+//   createdAt?: any;
+//   role: string;
+// }
+
+// const StudentInfo = ({ studentId }: { studentId: string }) => {
+//   const [student, setStudent] = useState<any>(null);
+
+//   useEffect(() => {
+//     const fetchStudent = async () => {
+//       try {
+//         const docRef = doc(db, 'users', studentId);
+//         const docSnap = await getDoc(docRef);
+
+//         if (docSnap.exists()) {
+//           setStudent(docSnap.data());
+//         } else {
+//           console.log('No such document!');
+//         }
+//       } catch (error) {
+//         console.error('Error fetching student:', error);
+//       }
+//     };
+
+//     if (studentId) fetchStudent();
+//   }, [studentId]);
+
+//   return (
+//     <ThemeProvider theme={theme}>
+  
+      
+      
+//        <Box
+//           sx={{
+//             flexGrow: 1,
+//             // backgroundColor: "#eeeeee",
+//             minHeight: "100vh",
+//             // borderRight: "1px solid rgba(157, 180, 206, 0.57)",
+//           }}
+//         >
+        
+//           <AppBar
+//             position="static"
+//             sx={{
+//               backgroundColor: "#FFFFFF",
+//               borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
+//               boxShadow: "none",
+//               padding: "0.5%",
+//               width:'75vw',
+//               mx:"auto",
+//               borderRadius: "20px"
+
+//             }}
+//           >
+//             <Toolbar>
+//               <Typography
+//                 noWrap
+//                 component="div"
+//                 sx={{
+//                   display: {
+//                     xs: "none",
+//                     sm: "block",
+//                     fontWeight: "600",
+//                     fontSize: "20px",
+//                     color: "#111827",
+//                   },
+//                 }}
+//               >
+//                 إدارة الطلاب المسجلين
+//               </Typography>
+//             </Toolbar>
+//           </AppBar>
+
+        
+
+//           <TableContainer
+//             component={Paper}
+//             sx={{ mt: 4, borderRadius: "20px", margin: "2%", width: "96%" }}
+//           >
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 flexDirection: "row",
+//                 gap: "43%",
+//                 padding: "2%",
+//               }}
+//             >
+//               <Typography variant="h6" fontWeight="bold" sx={{ p: 2 }}>
+//                 الطلاب المسجلين في الكورسات
+//               </Typography>
+//               <Stack
+//                 spacing={2}
+//                 sx={{
+//                   width: 300,
+//                 }}
+//               >
+//                 <Autocomplete
+//                   freeSolo
+//                   id="free-solo-2-demo"
+//                   disableClearable
+//                   options={enrollments.map((enrollment) => enrollment.student?.name || "")}
+//                   onInputChange={(_event, newInputValue) => {
+//                     setSearchValue(newInputValue);
+//                   }}
+//                   renderInput={(params) => (
+//                     <TextField
+//                       {...params}
+//                       placeholder="ابحث عن طالب  ..."
+//                       InputProps={{
+//                         ...params.InputProps,
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <SearchIcon sx={{ color: "gray" }} />
+//                           </InputAdornment>
+//                         ),
+//                         inputProps: {
+//                           ...params.inputProps,
+//                           type: "search",
+//                         },
+//                       }}
+//                       sx={{
+//                         "& .MuiInputBase-root": {
+//                           height: "50px",
+//                           borderRadius: "10px",
+//                           border: "1px solid rgba(134, 145, 160, 0.57)",
+//                           color: "#4F46E5",
+//                           paddingX: 1,
+//                         },
+//                         "& .MuiInputBase-input": {
+//                           color: "gray",
+//                         },
+//                         "& .MuiInputLabel-root": {
+//                           color: "gray",
+//                         },
+//                       }}
+//                     />
+//                   )}
+//                 />
+//               </Stack>
+//             </Box>
+
+//             <Table>
+//               <TableHead>
+//                 <TableRow>
+//                   <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                     الطالب
+//                   </TableCell>
+//                   <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                     الايميل
+//                   </TableCell>
+//                   <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                     الكورس المسجل
+//                   </TableCell>
+//                   <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                     المدرس
+//                   </TableCell>
+//                   <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                     التقدم
+//                   </TableCell>
+                 
+//                   <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                     الاجراءات
+//                   </TableCell>
+//                 </TableRow>
+//               </TableHead>
+
+//               <TableBody>
+//                 {loading ? (
+//                   <TableRow>
+//                     <TableCell colSpan={8} sx={{ textAlign: "center", py: 4 }}>
+//                       جاري التحميل...
+//                     </TableCell>
+//                   </TableRow>
+//                 ) : filteredEnrollments.length === 0 ? (
+//                   <TableRow>
+//                     <TableCell colSpan={8} sx={{ textAlign: "center", py: 4 }}>
+//                       لا يوجد طلاب مسجلين في الكورسات
+//                     </TableCell>
+//                   </TableRow>
+//                 ) : (
+//                   filteredEnrollments.map((enrollment, index) => (
+//                     <TableRow key={enrollment.id || index}>
+//                       <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, justifyContent: "center" }}>
+//                           <Avatar 
+//                             src={enrollment.student?.avatar} 
+//                             sx={{ width: 32, height: 32 }}
+//                           >
+//                             {enrollment.student?.name?.charAt(0) || ''}
+//                           </Avatar>
+//                           <Typography variant="body2">
+//                             {enrollment.student?.name || 'غير محدد'}
+//                           </Typography>
+//                         </Box>
+//                       </TableCell>
+//                       <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                         {enrollment.student?.email || 'غير محدد'}
+//                       </TableCell>
+//                       <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                         <Typography variant="body2" fontWeight="bold">
+//                           {enrollment.course?.title || 'غير محدد'}
+//                         </Typography>
+//                         <Typography variant="caption" color="text.secondary">
+//                           {enrollment.course?.subTitle || ''}
+//                         </Typography>
+//                       </TableCell>
+//                       <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                         {enrollment.course?.teacherName || 'غير محدد'}
+//                       </TableCell>
+//                       <TableCell sx={{ width: "15%", textAlign: "center" }}>
+//                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+//                           <LinearProgress
+//                             variant="determinate"
+//                             value={enrollment.progress || 0}
+//                             color={getProgressColor(enrollment.progress || 0)}
+//                             sx={{ width: "100%", height: 8, borderRadius: 4 }}
+//                           />
+//                           <Typography variant="caption">
+//                             {enrollment.progress || 0}%
+//                           </Typography>
+//                         </Box>
+//                       </TableCell>
+                     
+//                       <TableCell sx={{ width: "10%", textAlign: "center" }}>
+//                         {enrollment.enrollmentDate && typeof enrollment.enrollmentDate.toDate === 'function'
+//                           ? enrollment.enrollmentDate.toDate().toLocaleDateString('ar-EG')
+//                           : enrollment.enrollmentDate instanceof Date
+//                           ? enrollment.enrollmentDate.toLocaleDateString('ar-EG')
+//                           : 'غير محدد'}
+//                       </TableCell>
+//                       <TableCell sx={{ width: "5%", textAlign: "center" }}>
+//                         <img src={blockIcon} alt="Block" style={{ cursor: "pointer" }} />
+//                       </TableCell>
+//                     </TableRow>
+//                   ))
+//                 )}
+//               </TableBody>
+//             </Table>
+//           </TableContainer>
+       
+//         </Box>
+//       {/* </Stack> */}
+//     </ThemeProvider>
+//   );
+// };
+
+// export default StudentInfo;
+

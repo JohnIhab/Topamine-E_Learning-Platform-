@@ -47,13 +47,11 @@ const CourseManagment: React.FC = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // Only fetch courses if user is logged in and is a teacher
         if (!user || !user.uid) {
           setLoading(false);
           return;
         }
 
-        // Use a simpler query to avoid index requirement
         const coursesQuery = query(
           collection(db, 'courses'),
           where('teacherId', '==', user.uid)
@@ -65,11 +63,10 @@ const CourseManagment: React.FC = () => {
             ...doc.data()
           })) as Course[];
           
-          // Sort by createdAt in memory instead of in the query
           courseList = courseList.sort((a, b) => {
             const aDate = a.createdAt?.toDate() || new Date(0);
             const bDate = b.createdAt?.toDate() || new Date(0);
-            return bDate.getTime() - aDate.getTime(); // desc order
+            return bDate.getTime() - aDate.getTime();
           });
           
           setData(courseList);
@@ -98,7 +95,6 @@ const CourseManagment: React.FC = () => {
       <CacheProvider value={cacheRtl}>
           <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
             <Box sx={{ width: '100%', backgroundColor: 'white', borderRadius: 5, p: 4, mt: 4, overflowX: 'hidden' }}>
-              {/* Render nested route content if on /add */}
               {location.pathname.endsWith('/add') ? (
                 <Outlet />
               ) : (
