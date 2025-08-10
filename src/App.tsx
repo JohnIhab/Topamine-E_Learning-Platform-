@@ -57,7 +57,6 @@ function App() {
     <>
       {!hideNavAndFooter && <Navbar />}
       <SnackbarProvider maxSnack={3}>
-
           <Routes>
             <Route 
               path="/teacherdashboard" 
