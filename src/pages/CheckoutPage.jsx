@@ -1,4 +1,3 @@
-// CheckoutPage.jsx
 import React, { useEffect, useState, useContext } from "react";
 import { getPaymentIframe } from "../paymob";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,9 +11,8 @@ const CheckoutPage = () => {
     const [iframeUrl, setIframeUrl] = useState(null);
     const location = useLocation();
     const userContext = useContext(UserContext);
-    const authContext = useAuth(); // Fallback to AuthContext
+    const authContext = useAuth(); 
     
-    // More graceful handling of missing UserContext
     if (!userContext) {
         console.error("UserContext is not available. Make sure UserProvider is wrapping your app.");
         return (
@@ -26,12 +24,10 @@ const CheckoutPage = () => {
         );
     }
     
-    // Try to get user from UserContext first, then fallback to AuthContext
     const user = userContext.user || authContext?.user;
     const price = location.state?.price; 
     const courseId = location.state?.courseId;
 
-    // Debug logging
     useEffect(() => {
         console.log("=== CheckoutPage Debug Info ===");
         console.log("Location state:", location.state);
@@ -41,7 +37,6 @@ const CheckoutPage = () => {
         console.log("=============================");
     }, [location.state, price, courseId, user]);
 
-    // Redirect to login if no user is found
     useEffect(() => {
         if (!user) {
             console.warn("No user found in context, redirecting to login");
@@ -51,20 +46,18 @@ const CheckoutPage = () => {
         
         if (!price || !courseId) {
             console.error("Missing price or courseId in location state");
-            navigate("/courses"); // Redirect to courses page
+            navigate("/courses");
             return;
         }
     }, [user, price, courseId, navigate]);
 
     useEffect(() => {
         const fetchIframe = async () => {
-            // Validate inputs before proceeding
             if (!price || !courseId || !user) {
                 console.error("Missing required data for payment:", { price, courseId, user: !!user });
                 return;
             }
 
-            // Use user data from UserContext or AuthContext, with fallback values
             const userName = user?.name || user?.displayName || "Student User";
             const userEmail = user?.email || "student@example.com";
             
@@ -72,7 +65,7 @@ const CheckoutPage = () => {
                 first_name: userName.split(' ')[0] || "Student",
                 last_name: userName.split(' ')[1] || "User",
                 email: userEmail,
-                phone: "+201234567890", // You might want to add phone to UserContext
+                phone: "+201234567890", 
             };
             sessionStorage.setItem("courseId", courseId);
             sessionStorage.setItem("amount", price.toString());
@@ -97,14 +90,11 @@ const CheckoutPage = () => {
                     }
 
                     try {
-                        // Validate data before saving
                         const userId = user.id || user.uid;
                         const userName = user.name || user.displayName || user.email;
                         
-                        // Ensure price is a valid number
                         const validPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
                         
-                        // Ensure courseId is not null/undefined
                         const validCourseId = courseId || 'unknown';
                         
                         console.log("=== Payment Data Validation ===");
@@ -132,19 +122,16 @@ const CheckoutPage = () => {
                             status: "completed"
                         };
 
-                        // Add to payments collection
                         const paymentsRef = collection(db, "payments");
                         const docRef = await addDoc(paymentsRef, paymentData);
                         
                         console.log("Payment saved successfully with ID:", docRef.id);
                         console.log("Final payment data:", paymentData);
 
-                        // Navigate to video page with courseId
                         navigate("/video", { state: { courseId: validCourseId } });
                         
                     } catch (error) {
                         console.error("Error saving payment to Firestore:", error);
-                        // Still navigate but log the error
                         navigate("/video", { state: { courseId: courseId || 'unknown' } });
                     }
                 }

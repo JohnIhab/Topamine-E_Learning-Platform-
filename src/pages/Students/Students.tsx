@@ -355,10 +355,7 @@ export default function PrimarySearchAppBar() {
                     الايميل
                   </TableCell>
 
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                    {" "}
-                    الكورسات
-                  </TableCell>
+                  
 
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الاجراءات
@@ -381,9 +378,7 @@ export default function PrimarySearchAppBar() {
                       <TableCell sx={{ width: "20%", textAlign: "center" }}>
                         {student.email}
                       </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                        {student.courses || 0}
-                      </TableCell>
+                      
                       <TableCell sx={{ width: "20%", textAlign: "center" }}>
                         <Button
                           variant="outlined"

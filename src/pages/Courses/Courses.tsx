@@ -306,9 +306,7 @@ export default function PrimarySearchAppBar() {
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     السعر
                   </TableCell>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                    الحاله
-                  </TableCell>
+                  
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الاجراءات
                   </TableCell>
@@ -327,9 +325,7 @@ export default function PrimarySearchAppBar() {
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
                       {course.price}
                     </TableCell>
-                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
-                      {course.status}
-                    </TableCell>
+                    
                     <TableCell sx={{ width: "20%", textAlign: "center" }}>
                       <Button
                         color="error"

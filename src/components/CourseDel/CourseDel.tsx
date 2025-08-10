@@ -964,7 +964,7 @@ const CourseDetails = () => {
 
 
             <Button
-              onClick={() => navigate('/courseMangement')}
+              onClick={() => navigate('/profileTeacher')}
               variant="outlined"
               sx={{
                 minWidth: { xs: 140, md: 160 },

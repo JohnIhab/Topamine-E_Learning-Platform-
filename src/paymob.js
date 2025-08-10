@@ -1,4 +1,3 @@
-// paymob.js
 import axios from "axios";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
@@ -27,18 +26,7 @@ export const getPaymentIframe = async (amountCents, userData) => {
 
     const orderId = orderRes.id;
 
-    // ✅ تخزين الطلب بشكل مبدأي مع merge
-    // await setDoc(doc(db, "payments", `${orderId}`), {
-    //     uid: userData.uid || null,
-    //     first_name: userData.first_name,
-    //     last_name: userData.last_name,
-    //     email: userData.email,
-    //     phone: userData.phone,
-    //     amountCents,
-    //     order_id: orderId,
-    //     status: "pending",
-    //     timestamp: new Date(),
-    // }, { merge: true });
+
 
     const { data: payKeyRes } = await axios.post(
         "https://accept.paymob.com/api/acceptance/payment_keys",

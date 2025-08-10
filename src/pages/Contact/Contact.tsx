@@ -70,21 +70,18 @@ const ContactUs = () => {
                     >
                         <Paper elevation={4} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: '#f5f9ff ' }}>
                             <Typography variant="h6" gutterBottom>معلومات الاتصال</Typography>
-                            <Box display="flex" alignItems="center" mb={2}>
-                                <LocationOn color="primary" sx={{ ml: 1 }} />
-                                <Typography>123 شارع التعليم، حي الأكاديمية، نيويورك 10001</Typography>
-                            </Box>
+                            
                             <Box display="flex" alignItems="center" mb={2}>
                                 <Email color="primary" sx={{ ml: 1 }} />
-                                <Typography>contact@eduplatform.com</Typography>
+                                <Typography>johnihab.01@gmail.com</Typography>
                             </Box>
                             <Box display="flex" alignItems="center" mb={2}>
                                 <Phone color="primary" sx={{ ml: 1 }} />
-                                <Typography>+1 (555) 123-4567</Typography>
+                                <Typography>+20 111 0797 455</Typography>
                             </Box>
                             <Box display="flex" alignItems="center">
                                 <AccessTime color="primary" sx={{ ml: 1 }} />
-                                <Typography>الاثنين - الجمعة: 9:00 صباحًا - 6:00 مساءً</Typography>
+                                <Typography>اي وقت</Typography>
                             </Box>
                         </Paper>
                     </motion.div>

@@ -322,7 +322,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <Typography color="black" sx={{ fontSize: '18px', fontWeight: 700 }}>
               <PaymentsIcon sx={{ fontSize: 20, verticalAlign: 'middle' }} /> {price} ج
             </Typography>
-            <Button variant="outlined" size="small" onClick={() => navigate(`/coursedetalis/${id}`)}>
+            <Button variant="outlined" size="small" onClick={() => navigate(`/profileTeacher/courseDetails/${id}`)}>
               عرض التفاصيل
             </Button>
           </Stack>

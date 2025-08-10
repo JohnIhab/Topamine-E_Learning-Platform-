@@ -69,89 +69,42 @@ const VideoShow: React.FC = () => {
   const location = useLocation();
   const { user }: any = useAuth();
 
-  // Get courseId from navigation state, URL params, or localStorage fallback
   const urlParams = new URLSearchParams(window.location.search);
   const courseIdFromUrl = urlParams.get('courseId');
   const courseId = location.state?.courseId || courseIdFromUrl || localStorage.getItem('lastAccessedCourse');
 
-  console.log("🎥 VideoShow component loaded");
-  console.log("📍 Location state:", location.state);
-  console.log("🆔 Course ID from navigation:", location.state?.courseId);
-  console.log("🆔 Course ID from URL params:", courseIdFromUrl);
-  console.log("🆔 Course ID from localStorage:", localStorage.getItem('lastAccessedCourse'));
-  console.log("🆔 Final courseId:", courseId);
 
-  // Check if user has access to this course
+
   useEffect(() => {
     const checkAccess = async () => {
-      console.log("🔍 Checking access...");
-      console.log("📋 CourseId:", courseId);
-      console.log("👤 User:", user);
+
       
       if (!courseId) {
-        console.log("❌ No courseId provided");
+        console.log("No courseId provided");
         setHasAccess(false);
         return;
       }
 
-      // Clean up localStorage if we got courseId from there
       if (!location.state?.courseId && localStorage.getItem('lastAccessedCourse')) {
-        console.log("🧹 Cleaning up localStorage courseId");
+        console.log("Cleaning up localStorage courseId");
         localStorage.removeItem('lastAccessedCourse');
       }
 
       if (!user) {
-        console.log("❌ No user authenticated");
+        console.log("No user authenticated");
         setHasAccess(false);
         return;
       }
 
-      // TEMPORARY: Allow all authenticated users to access videos
       console.log("✅ Temporarily allowing all authenticated users");
       setHasAccess(true);
       return;
 
-      /*
-      try {
-        // Check if user has purchased this course
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const purchasedCourses = userData.purchasedCourses || [];
-          
-          console.log("📚 User's purchased courses:", purchasedCourses);
-          
-          // Check if the courseId is in the user's purchased courses
-          const hasPurchased = purchasedCourses.some((course: any) => 
-            course.courseId === courseId || course.id === courseId
-          );
-          
-          console.log("✅ Has purchased course:", hasPurchased);
-          
-          // Allow access if user has purchased the course OR if it's a teacher/admin
-          // For testing purposes, also allow if user role is teacher or admin
-          const userRole = userData.role;
-          console.log("👤 User role:", userRole);
-          
-          const hasValidAccess = hasPurchased || userRole === 'teacher' || userRole === 'admin';
-          console.log("🔑 Final access decision:", hasValidAccess);
-          
-          setHasAccess(hasValidAccess);
-        } else {
-          console.log("❌ User document not found");
-          setHasAccess(false);
-        }
-      } catch (error) {
-        console.error('❌ Error checking course access:', error);
-        setHasAccess(false);
-      }
-      */
     };
 
     checkAccess();
   }, [courseId, user]);
 
-  // Helper function to handle file downloads
   const handleDownload = (url: string, filename: string) => {
     if (url) {
       const link = document.createElement('a');
@@ -173,7 +126,6 @@ const VideoShow: React.FC = () => {
             const course = courseDoc.data();
             setCourseData(course);
 
-            // If course has lectures, use them instead of hardcoded videos
             if (course.lectures && course.lectures.length > 0) {
               const courseVideos = course.lectures.map((lecture: any, index: number) => ({
                 title: lecture.title || `الدرس ${index + 1}`,
@@ -198,7 +150,6 @@ const VideoShow: React.FC = () => {
     fetchCourseData();
   }, [courseId]);
 
-  // Use course lectures if available, otherwise fall back to hardcoded videos
   const videosToShow = courseData?.lectures
     ? courseData.lectures.map((lecture: any, index: number) => ({
       title: lecture.title || `الدرس ${index + 1}`,
@@ -210,7 +161,6 @@ const VideoShow: React.FC = () => {
     })).filter((video: Video) => video.url)
     : videoList;
 
-  // Show loading while checking access
   if (hasAccess === null) {
     return (
       <Box
@@ -227,7 +177,6 @@ const VideoShow: React.FC = () => {
     );
   }
 
-  // If no access, show NotFound page
   if (!hasAccess) {
     return <NotFound />;
   }
@@ -241,7 +190,6 @@ const VideoShow: React.FC = () => {
         py: 3,
       }}
     >
-      {/* Header Section */}
       <Box sx={{ mb: 4, px: 3 }}>
         <Typography
           variant="h4"
@@ -280,7 +228,6 @@ const VideoShow: React.FC = () => {
       </Box>
 
       <Grid container spacing={3} sx={{ px: 3 }}>
-        {/* Video Playlist */}
         <Grid size={{ xs: 12, lg: 4 }}>
           <Card
             elevation={8}
@@ -410,7 +357,6 @@ const VideoShow: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* Video Player */}
         <Grid size={{ xs: 12, lg: 8 }}>
           <Card
             elevation={8}
@@ -421,7 +367,6 @@ const VideoShow: React.FC = () => {
             }}
           >
             <CardContent sx={{ p: 0 }}>
-              {/* Video Title Bar */}
               <Box sx={{
                 p: 3,
                 background: "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)",
@@ -448,7 +393,6 @@ const VideoShow: React.FC = () => {
                 </Box>
               </Box>
 
-              {/* Video Container */}
               <Box
                 sx={{
                   position: "relative",
@@ -486,7 +430,6 @@ const VideoShow: React.FC = () => {
                       left: 0,
                       width: "100%",
                       height: "100%",
-                      // pointerEvents: "none", // Prevents pause/seek
                     }}
                     onEnded={() => {
                       const video = document.getElementById("safeVideo") as HTMLVideoElement;
@@ -519,7 +462,6 @@ const VideoShow: React.FC = () => {
                 )}
               </Box>
 
-              {/* Download Section */}
               {(selectedVideo.docUrl || selectedVideo.txtUrl) && (
                 <Box sx={{ p: 3, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                   <Divider sx={{ mb: 3, bgcolor: "rgba(255,255,255,0.1)" }} />

@@ -139,7 +139,7 @@ export default function TeacherSec() {
                         onChange={(e) => setNameFilter(e.target.value)}
                         fullWidth
                     />
-                    <TextField
+                    {/* <TextField
                         label="فلترة بالمادة"
                         select
                         value={subjectFilter}
@@ -147,12 +147,13 @@ export default function TeacherSec() {
                         fullWidth
                     >
                         <MenuItem value="">الكل</MenuItem>
+                        <MenuItem value="فيزياء">فيزياء</MenuItem>
                         {uniqueSubjects.map((subject, i) => (
                             <MenuItem key={i} value={subject}>
                                 {subject}
                             </MenuItem>
                         ))}
-                    </TextField>
+                    </TextField> */}
                 </Box>
             </Box>
 

@@ -484,6 +484,7 @@ const ProfileStudent = () => {
                     boxShadow: 1,
                     bgcolor: "background.paper",
                     width: 330,
+                    height: 420,
                     cursor: "pointer",
                     transition: "transform 0.2s ease-in-out",
                     "&:hover": {

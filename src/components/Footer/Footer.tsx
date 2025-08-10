@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Link } from '@mui/material';
+import { Box, Container, Typography, Grid, Link  } from '@mui/material';
 import backgroundSvg from "../../assets/images/footer.png";
+import { Link as RouterLink } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -12,7 +13,7 @@ const Footer = () => {
             backgroundSize: "fill",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            
+
         }}>
             <Container maxWidth="lg">
                 <Grid container spacing={4}>
@@ -26,21 +27,18 @@ const Footer = () => {
                     </Grid>
 
                     <Grid item xs={12} sm={4}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ color: '#fff' }}>
                             روابط سريعة
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            <Link href="#" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/home" sx={{ color: '#fff', textDecoration: 'none' }}>
                                 الرئيسية
                             </Link>
-                            <Link href="#" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/home" sx={{ color: '#fff', textDecoration: 'none' }}>
                                 المعلمون
                             </Link>
-                            <Link href="#" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/contact" sx={{ color: '#fff', textDecoration: 'none' }}>
                                 تواصل معنا
-                            </Link>
-                            <Link href="#" color="inherit" underline="hover">
-                                الشروط والأحكام
                             </Link>
                         </Box>
                     </Grid>
@@ -49,9 +47,8 @@ const Footer = () => {
                         <Typography variant="h6" gutterBottom>
                             تواصل معنا
                         </Typography>
-                        <Typography variant="body2">البريد الإلكتروني: support@example.com</Typography>
-                        <Typography variant="body2">الهاتف: +20 123 456 7890</Typography>
-                        <Typography variant="body2">العنوان: القاهرة، مصر</Typography>
+                        <Typography variant="body2">البريد الإلكتروني: johnihab.01@gmail.com</Typography>
+                        <Typography variant="body2">الهاتف: +20 111 0797 455</Typography>
                     </Grid>
                 </Grid>
 

@@ -39,11 +39,11 @@ function App() {
   const { isDarkMode } = useThemeMode();
   const hiddenRoutes = ["/login", "/register", "/ForgetPassword"];
   const hideNavAndFooter = hiddenRoutes.includes(location.pathname);
-
+  
   const hideChatbotRoutes = [
-    "/login",
-    "/register",
-    "/ForgetPassword",
+    "/login", 
+    "/register", 
+    "/ForgetPassword", 
     "/profileTeacher/courseDetails/payment",
     "/Checkout"
   ];
@@ -58,114 +58,114 @@ function App() {
       {!hideNavAndFooter && <Navbar />}
       <SnackbarProvider maxSnack={3}>
 
-        <Routes>
-          <Route
-            path="/teacherdashboard"
-            element={
-              <ProtectedRoute allowedRoles={["teacher"]}>
-                <TeacherDashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<TeachHome />} />
-            <Route path="courses" element={<CourseManagment />}>
-              <Route path="add" element={<AddNewCourse />} />
+          <Routes>
+            <Route 
+              path="/teacherdashboard" 
+              element={
+                <ProtectedRoute allowedRoles={["teacher"]}>
+                  <TeacherDashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<TeachHome />} />
+              <Route path="courses" element={<CourseManagment />}>
+                <Route path="add" element={<AddNewCourse />} />
+              </Route>
+              <Route path="students" element={<StudentsComponent />} />
+              <Route path="messages" element={<Messages />} />
             </Route>
-            <Route path="students" element={<StudentsComponent />} />
-            <Route path="messages" element={<Messages />} />
-          </Route>
-          <Route path="/profileTeacher/courseDetails/:courseId" element={<CourseDetalis />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/theme-test" element={<ThemeTestPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/ForgetPassword" element={<ForgetPassword />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/profileStd"
-            element={
-              <ProtectedRoute allowedRoles={["student"]}>
-                <ProfileStudent />
-              </ProtectedRoute>
+            <Route path="/profileTeacher/courseDetails/:courseId" element={<CourseDetalis />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/theme-test" element={<ThemeTestPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/ForgetPassword" element={<ForgetPassword />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/profileStd"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <ProfileStudent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profileTeacher/:id?"
+              element={
+                <ProtectedRoute allowedRoles={["teacher", "student"]}>
+                  <ProfileTeacher />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route
+              path="/profileTeacher/courseDetails/payment"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <Payment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard1 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Courses"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Courses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Teachers"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Teachers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Students"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Students />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profileTeacher/courseDetails"
+              element={
+                <ProtectedRoute allowedRoles={["teacher", "student"]}>
+                  <CourseDetalis />
+                </ProtectedRoute>
             }
-          />
-          <Route
-            path="/profileTeacher/:id?"
-            element={
-              <ProtectedRoute allowedRoles={["teacher", "student"]}>
-                <ProfileTeacher />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          <Route
-            path="/profileTeacher/courseDetails/payment"
-            element={
-              <ProtectedRoute allowedRoles={["student"]}>
-                <Payment />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminDashboard1 />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Courses"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Courses />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Teachers"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Teachers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Students"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Students />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profileTeacher/courseDetails"
-            element={
-              <ProtectedRoute allowedRoles={["teacher", "student"]}>
-                <CourseDetalis />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-          <Route
-            path="/Checkout"
+            />
+            <Route path="*" element={<NotFound />} />
+            <Route
+            path="/Checkout" 
             element={
               <ProtectedRoute allowedRoles={["student"]}>
                 <Checkout />
               </ProtectedRoute>
-            }
-          />
-          <Route path="/video" element={<Video />} />
-          <Route path="/chat/:chatId" element={<Chat />} />
-          <Route path="/chats" element={<ChatList />} />
+          } 
+            />
+            <Route path="/video" element={<Video />} />
+            <Route path="/chat/:chatId" element={<Chat />} />
+            <Route path="/chats" element={<ChatList />} />
 
-          <Route path="/paymentSuccess" element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <PaymentResult />
-            </ProtectedRoute>
-          } />
-        </Routes>
+            <Route path="/paymentSuccess" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <PaymentResult />
+              </ProtectedRoute>
+            } />
+          </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
       {!hideChatbot && <Chatbot />}

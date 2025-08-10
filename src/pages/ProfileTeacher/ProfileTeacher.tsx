@@ -493,8 +493,8 @@ const TeacherProfile = () => {
                         overflow: "hidden",
                         boxShadow: 2,
                         bgcolor: "background.paper",
-                        width: "100%",
-                        maxWidth: 330,
+                        width: 330,
+                        height: 420,
                       }}
                     >
                       <img
@@ -529,7 +529,7 @@ const TeacherProfile = () => {
                             {course?.endDate?.toDate().toLocaleDateString()}
                           </Typography>
                         </Box>
-                        <CardActions sx={{ px: 2, pb: 2 }}>
+                        <CardActions sx={{ px: 2}}>
                           <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
                             <Button
                               onClick={() =>
