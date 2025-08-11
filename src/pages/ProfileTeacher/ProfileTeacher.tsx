@@ -16,6 +16,8 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../../src/firebase";
+import axios from "axios";
+import { useThemeMode } from "../../context/ThemeContext";
 
 import {
   Avatar,
@@ -30,6 +32,7 @@ import {
   TextField,
   DialogActions,
   CardActions,
+  CircularProgress,
 } from "@mui/material";
 
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
@@ -47,6 +50,9 @@ import {
 
 const TeacherProfile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isDarkMode } = useThemeMode();
+  
   const [open, setOpen] = useState(false);
   const [teacherData, setTeacherData] = useState<any>(null);
   const [courseData, setcourseData] = useState<any[]>([]);
@@ -57,8 +63,14 @@ const TeacherProfile = () => {
   const [editInfo, setEditInfo] = useState("");
   const [student, setStudent] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [uploadedImgUrl, setUploadedImgUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
-  let navigate = useNavigate();
+  // Check if this is the current user's profile
+  const isOwnProfile = !id || id === auth.currentUser?.uid;
 
   const handleOpen = () => {
     if (teacherData) {
@@ -143,6 +155,67 @@ const TeacherProfile = () => {
     }
   };
 
+  const uploadFile = async (
+    type: "image",
+    file: File
+  ): Promise<string | null> => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    const uploadPreset = "images";
+    formData.append("upload_preset", uploadPreset);
+    formData.append("folder", uploadPreset);
+    formData.append("context", `display_name=${file.name}`);
+
+    try {
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      
+      const res = await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      
+      return res.data.secure_url;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return null;
+    }
+  };
+
+  const handlePhotoUpload = async (file: File) => {
+    try {
+      setIsUploadingPhoto(true);
+      const uploadedUrl = await uploadFile("image", file);
+      if (uploadedUrl) {
+        setUploadedImgUrl(uploadedUrl);
+        setImageUrl(uploadedUrl);
+        
+        // Update the teacher's avatar in the database
+        const user = auth.currentUser;
+        if (user) {
+          const docRef = doc(db, "users", user.uid);
+          await updateDoc(docRef, {
+            avatar: uploadedUrl,
+          });
+          
+          // Update local state
+          setTeacherData((prev: any) => ({
+            ...prev,
+            avatar: uploadedUrl,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("خطأ في رفع الصورة:", error);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
   useEffect(() => {
     const fetchTeacherProfile = async () => {
       const uid = id || auth.currentUser?.uid;
@@ -178,15 +251,36 @@ const TeacherProfile = () => {
   }, []);
 
   useEffect(() => {
+    const fetchCurrentUserRole = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            setCurrentUserRole(userData.role || null);
+            console.log("Current user role:", userData.role);
+          }
+        } catch (error) {
+          console.error("خطأ في جلب دور المستخدم", error);
+        }
+      }
+    };
+
+    fetchCurrentUserRole();
+  }, []);
+
+  useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user && id) {
         const studentData = {
           id: user.uid,
-          name: user.name || "طالب",
+          name: user.displayName || "طالب",
           email: user.email,
         };
         setStudent(studentData);
-        console.log(user.name);
+        console.log(user.displayName);
         console.log("user", user);
         console.log(user.email);
         const followDocRef = doc(db, "users", id, "followers", user.uid);
@@ -198,7 +292,11 @@ const TeacherProfile = () => {
 
   if (!teacherData)
     return (
-      <Typography sx={{ color: "blue", textAlign: "center", mt: 5 }}>
+      <Typography sx={{ 
+        color: isDarkMode ? "#90caf9" : "blue", 
+        textAlign: "center", 
+        mt: 5 
+      }}>
         جاري التحميل...
       </Typography>
     );
@@ -210,12 +308,19 @@ const TeacherProfile = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: isDarkMode ? "#121212" : "#f9f9f9",
         direction: "rtl",
         p: 2,
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 1500, p: 4 }}>
+      <Box sx={{ 
+        width: "100%", 
+        maxWidth: 1500, 
+        p: 4,
+        backgroundColor: isDarkMode ? "#1e1e1e" : "transparent",
+        borderRadius: 2,
+        boxShadow: isDarkMode ? "0 4px 20px rgba(0,0,0,0.3)" : "none",
+      }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={3}>
             <Box
@@ -233,46 +338,81 @@ const TeacherProfile = () => {
                   sx={{
                     width: 150,
                     height: 150,
-                    border: "2px solid #1976d2",
-                    backgroundColor: "#eee",
+                    border: isDarkMode ? "2px solid #90caf9" : "2px solid #1976d2",
+                    backgroundColor: isDarkMode ? "#333" : "#eee",
+                    cursor: isOwnProfile ? "pointer" : "default",
+                    transition: "0.3s",
+                    "&:hover": {
+                      opacity: isOwnProfile ? 0.8 : 1,
+                    },
+                    opacity: isUploadingPhoto ? 0.5 : 1,
                   }}
+                  onClick={() => isOwnProfile && !isUploadingPhoto && document.getElementById('upload-photo')?.click()}
                 />
-                <label htmlFor="upload-photo">
-                  <AddAPhotoIcon
+                {isUploadingPhoto && (
+                  <CircularProgress
+                    size={40}
                     sx={{
                       position: "absolute",
-                      bottom: 8,
-                      right: 8,
-                      backgroundColor: "#fff",
-                      borderRadius: "25%",
-                      padding: "6px",
-                      fontSize: 28,
-                      color: "#1976d2",
-                      cursor: "pointer",
-                      boxShadow: 1,
-                      transition: "0.3s",
-                      "&:hover": {
-                        backgroundColor: "#e3f2fd",
-                      },
+                      top: "50%",
+                      left: "50%",
+                      marginTop: "-20px",
+                      marginLeft: "-20px",
                     }}
                   />
-                </label>
-                <input
-                  type="file"
-                  id="upload-photo"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                />
+                )}
+                {isOwnProfile && (
+                  <>
+                    <label htmlFor="upload-photo">
+                      <AddAPhotoIcon
+                        sx={{
+                          position: "absolute",
+                          bottom: 8,
+                          right: 8,
+                          backgroundColor: isDarkMode ? "#333" : "#fff",
+                          borderRadius: "25%",
+                          padding: "6px",
+                          fontSize: 28,
+                          color: isDarkMode ? "#90caf9" : "#1976d2",
+                          cursor: "pointer",
+                          boxShadow: 1,
+                          transition: "0.3s",
+                          "&:hover": {
+                            backgroundColor: isDarkMode ? "#444" : "#e3f2fd",
+                          },
+                        }}
+                      />
+                    </label>
+                    <input
+                      type="file"
+                      id="upload-photo"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setImage(file);
+                        await handlePhotoUpload(file);
+                      }}
+                    />
+                  </>
+                )}
               </Box>
 
-              <Link
-                to="/teacherdashboard"
-                style={{ textDecoration: "none", width: "100%" }}
-              >
-                <Button variant="contained" startIcon={<Dashboard />} fullWidth>
-                  الذهاب إلى اللوحة
-                </Button>
-              </Link>
+              {(() => {
+                console.log("Button condition check - currentUserRole:", currentUserRole);
+                console.log("Should show button:", currentUserRole !== "student" && currentUserRole !== null);
+                return currentUserRole !== "student" && currentUserRole !== null;
+              })() && (
+                <Link
+                  to="/teacherdashboard"
+                  style={{ textDecoration: "none", width: "100%" }}
+                >
+                  <Button variant="contained" startIcon={<Dashboard />} fullWidth>
+                    الذهاب إلى اللوحة
+                  </Button>
+                </Link>
+              )}
             </Box>
           </Grid>
 
@@ -285,7 +425,7 @@ const TeacherProfile = () => {
               {student && (
                 <>
                   {isFollowing ? (
-                    <>
+                    <> 
                       <Button
                         variant="outlined"
                         size="small"
@@ -376,12 +516,28 @@ const TeacherProfile = () => {
                   display: "flex",
                   alignItems: "center",
                   mt: 2,
+                  p: 1.5,
+                  borderRadius: 1,
                   cursor: "pointer",
+                  backgroundColor: isDarkMode ? "rgba(144, 202, 249, 0.1)" : "rgba(25, 118, 210, 0.1)",
+                  border: isDarkMode ? "1px solid rgba(144, 202, 249, 0.3)" : "1px solid rgba(25, 118, 210, 0.3)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: isDarkMode ? "rgba(144, 202, 249, 0.2)" : "rgba(25, 118, 210, 0.2)",
+                  },
                 }}
                 onClick={handleOpen}
               >
-                <Edit sx={{ ml: 1 }} />
-                <Typography>تعديل الملف الشخصي</Typography>
+                <Edit sx={{ 
+                  ml: 1, 
+                  color: isDarkMode ? "#90caf9" : "#1976d2" 
+                }} />
+                <Typography sx={{ 
+                  color: isDarkMode ? "#90caf9" : "#1976d2",
+                  fontWeight: 500 
+                }}>
+                  تعديل الملف الشخصي
+                </Typography>
               </Box>
             )}
 
@@ -511,6 +667,13 @@ const TeacherProfile = () => {
                           {course.title}
                         </Typography>
                         <Typography
+                        sx={{
+                          mb: 3,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2, 
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
                           variant="body2"
                           color="text.secondary"
                           gutterBottom

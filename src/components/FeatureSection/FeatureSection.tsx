@@ -70,12 +70,13 @@ export default function FeatureSection() {
                 <Paper
                   elevation={4}
                   sx={{
-                    backgroundColor: "#cffafe",
+                    backgroundColor: "#7dbcbcb6",
                     border: "2px solid #38bdf8",
                     borderRadius: "16px",
                     px: 3,
                     py: 2,
                     textAlign: "right",
+                    color: '#fff'
                   }}
                 >
                   <Typography fontWeight="bold" fontSize="1.2rem">

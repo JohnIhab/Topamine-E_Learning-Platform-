@@ -75,8 +75,8 @@ const getDesignTokens = (mode: PaletteMode) => ({
             paper: '#1E293B',
           },
           text: {
-            primary: '#F8FAFC',
-            secondary: '#CBD5E1',
+            primary: '#f1f6f9ff',
+            secondary: '#676c71ff',
           },
           grey: {
             50: '#F8FAFC',
