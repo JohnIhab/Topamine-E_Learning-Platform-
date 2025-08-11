@@ -73,7 +73,7 @@ function App() {
             </Route>
             <Route path="/profileTeacher/courseDetails/:courseId" element={<CourseDetalis />} />
              {/* <Route path="/coursedetalis/:id" element={<CourseDetalis />} /> */}
-            <Route path="coursedetalis/:courseId" element={<CourseDetalis />} />
+            {/* <Route path="coursedetalis/:courseId" element={<CourseDetalis />} /> */}
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/theme-test" element={<ThemeTestPage />} />
@@ -98,6 +98,7 @@ function App() {
             />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            {/* <Route path="/profileTeacher/courseDetails/:id" element={<courseDetails/id/>}/> */}
             <Route
               path="/profileTeacher/courseDetails/payment"
               element={
