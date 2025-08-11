@@ -366,8 +366,6 @@ const EditPopover: React.FC<EditPopoverProps> = ({
                 onChange={(e) => setTitle(e.target.value)}
                 fullWidth
                 sx={{ direction: 'ltr' }}
-
-
               />
             </Box>
 

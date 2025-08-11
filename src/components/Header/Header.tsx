@@ -21,6 +21,7 @@ const cacheRtl = createCache({
 const Header: React.FC = () => {
   const [courseCount, setCourseCount] = useState<number>(0);
   const [totalPayments, setTotalPayments] = useState<number>(0);
+  const [studentCount, setStudentCount] = useState<number>(0);
   // @ts-ignore
   const { user } = useAuth();
 
@@ -36,6 +37,7 @@ const Header: React.FC = () => {
 
     const unsub = onSnapshot(coursesQuery, async (snapshot) => {
       setCourseCount(snapshot.docs.length);
+      
       
       const courseIds = snapshot.docs.map(doc => doc.id);
       
@@ -141,7 +143,7 @@ const Header: React.FC = () => {
             </Stack>
           </Box>
           
-          <Box
+          {/* <Box
             sx={{
               width: { xs: '100%', sm: '260px' },
               height: "140px",
@@ -160,7 +162,7 @@ const Header: React.FC = () => {
                 مجموع الطلاب
               </Typography>
             </Stack>
-          </Box>
+          </Box> */}
         </Stack>
       </Box>
 

@@ -3,9 +3,7 @@ import {
   Box, TextField, Typography, Stack, InputLabel, Button, MenuItem, List, ListItem, Collapse, LinearProgress
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Header from '../Header/Header';
-import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
-import { collection, addDoc, updateDoc, doc as docRef, getDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc as docRef, getDoc, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -83,6 +81,7 @@ const NewCourse: React.FC = () => {
   });
   const [endDate, setEndDate] = useState<string>('');
   const [teacherName, setTeacherName] = useState<string>('');
+  const [subject, setSubject] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
@@ -217,6 +216,7 @@ const NewCourse: React.FC = () => {
   const handleCreate = async () => {
     const effectiveTeacherName = userData?.name || user?.displayName || teacherName || 'المعلم';
     const effectiveTeacherId = user && user.uid ? user.uid : "guest-user";
+    const effectiveSubject = userData?.subject || subject || '';
 
     const effectiveTeacherEmail = user && user.email ? user.email : "guest@example.com";
     if (
@@ -261,6 +261,7 @@ const NewCourse: React.FC = () => {
         teacherEmail: effectiveTeacherEmail,
         imageUrl,
         createdAt: new Date(),
+        subject: effectiveSubject,
         lectures: lectures.map((lecture) => ({
           title: lecture.title || '',
           videoUrl: lecture.videoUrl || '',
@@ -269,6 +270,30 @@ const NewCourse: React.FC = () => {
         }))
       });
       await updateDoc(docRef, { id: docRef.id });
+
+          // الإشعارات
+          const followersRef = collection(
+              db,
+              "users",
+              effectiveTeacherId,
+              "followers"
+          );
+          const followersSnap = await getDocs(followersRef);
+      
+          const notificationsBatch = followersSnap.docs.map(async (docSnap) => {
+              const studentId = docSnap.id;
+              const notifRef = collection(db, "users", studentId, "notifications");
+              await addDoc(notifRef, {
+                  title: `تم إضافة كورس جديد من ${effectiveTeacherName}`,
+                  message: `تم إضافة الكورس "${title}"، تحقق من الدروس الجديدة!`,
+                  courseId: docRef.id,
+                  read: false,
+                  createdAt: new Date(),
+              });
+      });
+      
+      await Promise.all(notificationsBatch);
+      
       toast.success("تم اضافة الكورس بنجاح", {
         position: 'top-left',
         autoClose: 2000,
@@ -303,6 +328,11 @@ const NewCourse: React.FC = () => {
               if (user.displayName) {
                 setTeacherName(user.displayName);
               }
+            }
+            // Set teacher subject if available
+            if (data.subject) {
+              console.log("Setting teacher subject:", data.subject);
+              setSubject(data.subject);
             }
           } else {
             console.log('No user document found in Firestore');
@@ -365,9 +395,16 @@ const NewCourse: React.FC = () => {
                   جاري تحميل بيانات المعلم...
                 </Typography>
               )}
+              
+              {/* Display teacher subject */}
+              {(userData?.subject || subject) && (
+                <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: '#2196f3', mt: 0.5 }}>
+                  المادة: {userData?.subject || subject}
+                </Typography>
+              )}
             </Box>
             <Box sx={{ m: 2, width: '100%' }}>
-              <InputLabel sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>عنوان الكورس</InputLabel>
+              <InputLabel sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>عنوان الكورس</InputLabel>
               <TextField
                 label="ادخل عنوان الكورس"
                 value={title}
@@ -377,7 +414,7 @@ const NewCourse: React.FC = () => {
             </Box>
 
             <Box sx={{ m: 2 }}>
-              <InputLabel sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>وصف الكورس</InputLabel>
+              <InputLabel sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>وصف الكورس</InputLabel>
               <TextField
                 label="ادخل وصف الكورس"
                 value={subTitle}
@@ -387,7 +424,7 @@ const NewCourse: React.FC = () => {
             </Box>
 
             <Box sx={{ m: 2 }}>
-              <Typography sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>الصف الدراسي</Typography>
+              <Typography sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>الصف الدراسي</Typography>
               <TextField
                 select
                 value={gradeLevel}
@@ -401,7 +438,7 @@ const NewCourse: React.FC = () => {
               </TextField>
             </Box>
             <Box sx={{ m: 2 }}>
-              <Typography sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>
+              <Typography sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>
                 تحميل صورة الكورس
               </Typography>
 
@@ -428,10 +465,6 @@ const NewCourse: React.FC = () => {
                 />
               </Button>
             </Box>
-
-
-
-
             {uploadedImgUrl && (
               <Box sx={{ mt: 2, m: 2 }}>
 
@@ -449,7 +482,7 @@ const NewCourse: React.FC = () => {
             )}
 
             <Box sx={{ m: 2 }}>
-              <Typography sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>السعر</Typography>
+              <Typography sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>السعر</Typography>
               <TextField
                 label=" 0.00ج"
                 type="number"
@@ -459,12 +492,12 @@ const NewCourse: React.FC = () => {
               />
             </Box>
 
-            <Typography sx={{ fontSize: "24px", fontWeight: '700', mt: 2, mb: 2, color: '#374151' }}>الجدول الزمني</Typography>
+            <Typography sx={{ fontSize: "22px", fontWeight: '700', mt: 2, mb: 2, color: '#374151' }}>الجدول الزمني</Typography>
             <Stack direction="row" spacing={1} sx={{ m: 2 }}>
               <CacheProvider value={cacheRtl}>
                 <ThemeProvider theme={theme}>
                   <Box sx={{ m: 1, flex: 1 }}>
-                    <Typography sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mb: 1, mt: 1 }}>تاريخ البداية</Typography>
+                    <Typography sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mb: 1, mt: 1 }}>تاريخ البداية</Typography>
                     <TextField
                       type="date"
                       value={startDate}
@@ -479,7 +512,7 @@ const NewCourse: React.FC = () => {
               <CacheProvider value={cacheRtl}>
                 <ThemeProvider theme={theme}>
                   <Box sx={{ m: 1, flex: 1 }}>
-                    <Typography sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>تاريخ النهاية</Typography>
+                    <Typography sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mt: 1, mb: 2 }}>تاريخ النهاية</Typography>
                     <TextField
                       type="date"
                       value={endDate}
@@ -497,7 +530,7 @@ const NewCourse: React.FC = () => {
 
 
             <Box sx={{ m: 2 }}>
-              <Typography sx={{ fontSize: "25px", fontWeight: 500, color: '#374151', lineHeight: "20px", mb: 2, mt: 1 }}>الترم</Typography>
+              <Typography sx={{ fontSize: "22px", fontWeight: 500, color: '#374151', lineHeight: "20px", mb: 2, mt: 1 }}>الترم</Typography>
               <TextField
                 select
                 value={term}
@@ -552,8 +585,6 @@ const NewCourse: React.FC = () => {
                       </Button>
                     </Box>
                   </Stack>
-
-
                   <Collapse in={lecture.open}>
                     <Box sx={{ mt: 1, pl: 2 }}>
                       <TextField
