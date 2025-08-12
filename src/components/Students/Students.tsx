@@ -13,7 +13,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
 
 
-import SearchIcon from "@mui/icons-material/search";
+import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from "@mui/material/InputAdornment";
 
 import blockIcon from "../../assets/images/blockIcon.png";

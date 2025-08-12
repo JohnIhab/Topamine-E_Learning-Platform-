@@ -19,7 +19,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
 
 //icon
-import SearchIcon from "@mui/icons-material/search";
+import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from "@mui/material/InputAdornment";
 //images
 import dashboardIcon from "../../assets/images/dashboardIcon.png";

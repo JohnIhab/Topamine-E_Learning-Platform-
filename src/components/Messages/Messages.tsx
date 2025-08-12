@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
-import SearchIcon from "@mui/icons-material/search";
+import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from "@mui/material/InputAdornment";
 import ChatIcon from "@mui/icons-material/Chat";
 import { collection, getDocs, query, where, onSnapshot, doc as firestoreDoc, getDoc } from "firebase/firestore";
