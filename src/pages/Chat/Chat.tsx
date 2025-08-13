@@ -13,6 +13,7 @@ import {
     List,
     ListItem,
     CircularProgress,
+    useTheme,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -29,6 +30,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 
 interface Message {
     id: string;
@@ -43,6 +45,8 @@ const Chat: React.FC = () => {
     const { chatId } = useParams<{ chatId: string }>();
     const navigate = useNavigate();
     const { user } = useAuth() as any;
+    const theme = useTheme();
+    const { isDarkMode } = useThemeMode();
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -160,10 +164,24 @@ const Chat: React.FC = () => {
     }
 
     return (
-        <Box sx={{ height: '90vh', display: 'flex', flexDirection: 'column', direction: 'rtl', background: 'linear-gradient(135deg, #EEF2FF, #C7D2FE)' }}>
+        <Box sx={{ 
+            height: '90vh', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            direction: 'rtl', 
+            background: isDarkMode 
+                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
+                : 'linear-gradient(135deg, #EEF2FF, #C7D2FE)'
+        }}>
 
             {/* Header */}
-            <AppBar position="static" elevation={0} sx={{ background: 'rgba(79, 70, 229, 0.8)', backdropFilter: 'blur(8px)' }}>
+            <AppBar position="static" elevation={0} sx={{ 
+                background: isDarkMode 
+                    ? 'rgba(30, 41, 59, 0.95)' 
+                    : 'rgba(79, 70, 229, 0.8)', 
+                backdropFilter: 'blur(8px)',
+                borderBottom: `1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`
+            }}>
                 <Toolbar>
                     <IconButton
                         edge="start"
@@ -185,7 +203,10 @@ const Chat: React.FC = () => {
                         <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'white' }}>
                             {otherParticipant?.name || 'جاري التحميل...'}
                         </Typography>
-                        <Typography variant="caption" sx={{ opacity: 0.8, color: '#e0e7ff' }}>
+                        <Typography variant="caption" sx={{ 
+                            opacity: 0.8, 
+                            color: isDarkMode ? '#cbd5e1' : '#e0e7ff' 
+                        }}>
                             {otherParticipant?.role === 'teacher' ? 'معلم' : 'طالب'}
                         </Typography>
                     </Box>
@@ -193,7 +214,26 @@ const Chat: React.FC = () => {
             </AppBar>
 
             {/* Messages */}
-            <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2, backdropFilter: 'blur(6px)', background: 'rgba(255,255,255,0.5)' }}>
+            <Box sx={{ 
+                flex: 1, 
+                overflowY: 'auto', 
+                px: 3, 
+                py: 2, 
+                backdropFilter: 'blur(6px)', 
+                background: isDarkMode 
+                    ? 'rgba(15, 23, 42, 0.3)' 
+                    : 'rgba(255,255,255,0.5)',
+                '&::-webkit-scrollbar': {
+                    width: '6px',
+                },
+                '&::-webkit-scrollbar-track': {
+                    background: isDarkMode ? 'rgba(30, 41, 59, 0.3)' : 'rgba(241, 245, 249, 0.5)',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                    background: isDarkMode ? 'rgba(148, 163, 184, 0.5)' : 'rgba(203, 213, 225, 0.8)',
+                    borderRadius: '3px',
+                },
+            }}>
                 <List sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {messages.map((message) => {
                         const isSender = message.createdBy === user?.uid;
@@ -210,9 +250,15 @@ const Chat: React.FC = () => {
                                         p: 2,
                                         maxWidth: '75%',
                                         borderRadius: '20px',
-                                        bgcolor: isSender ? '#4F46E5' : '#ffffff',
-                                        color: isSender ? '#ffffff' : '#111827',
-                                        boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+                                        bgcolor: isSender 
+                                            ? theme.palette.primary.main 
+                                            : (isDarkMode ? 'rgba(55, 65, 81, 0.8)' : '#ffffff'),
+                                        color: isSender 
+                                            ? '#ffffff' 
+                                            : theme.palette.text.primary,
+                                        boxShadow: isDarkMode 
+                                            ? '0 4px 14px rgba(0,0,0,0.3)' 
+                                            : '0 4px 14px rgba(0,0,0,0.1)',
                                     }}
                                 >
                                     <Typography variant="body1" sx={{ fontSize: '1rem' }}>
@@ -236,10 +282,19 @@ const Chat: React.FC = () => {
             </Box>
 
             {/* Divider */}
-            <Divider sx={{ borderColor: '#E0E0E0' }} />
+            <Divider sx={{ 
+                borderColor: isDarkMode ? 'rgba(148, 163, 184, 0.2)' : '#E0E0E0' 
+            }} />
 
             {/* Message Input */}
-            <Box sx={{ p: 2, backgroundColor: '#f9fafb', boxShadow: '0 -1px 4px rgba(0,0,0,0.05)' }}>
+            <Box sx={{ 
+                p: 2, 
+                backgroundColor: theme.palette.background.paper, 
+                boxShadow: isDarkMode 
+                    ? '0 -1px 4px rgba(0,0,0,0.2)' 
+                    : '0 -1px 4px rgba(0,0,0,0.05)',
+                borderTop: `1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(229, 231, 235, 0.8)'}`
+            }}>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
                     <TextField
                         fullWidth
@@ -253,26 +308,42 @@ const Chat: React.FC = () => {
                         sx={{
                             '& .MuiOutlinedInput-root': {
                                 borderRadius: '20px',
-                                backgroundColor: 'white',
+                                backgroundColor: theme.palette.background.default,
                                 px: 2,
+                                '& fieldset': {
+                                    borderColor: isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(229, 231, 235, 0.8)',
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: theme.palette.primary.main,
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: theme.palette.primary.main,
+                                },
                             },
+                            '& .MuiInputBase-input': {
+                                color: theme.palette.text.primary,
+                            },
+                            '& .MuiInputBase-input::placeholder': {
+                                color: theme.palette.text.secondary,
+                                opacity: 1,
+                            }
                         }}
                     />
                     <IconButton
                         onClick={sendMessage}
                         disabled={!newMessage.trim()}
                         sx={{
-                            backgroundColor: '#4F46E5',
+                            backgroundColor: theme.palette.primary.main,
                             color: 'white',
                             borderRadius: '50%',
                             width: 50,
                             height: 50,
                             '&:hover': {
-                                backgroundColor: '#4338ca',
+                                backgroundColor: theme.palette.primary.dark,
                             },
                             '&:disabled': {
-                                backgroundColor: '#e5e7eb',
-                                color: '#9ca3af',
+                                backgroundColor: isDarkMode ? 'rgba(75, 85, 99, 0.5)' : '#e5e7eb',
+                                color: isDarkMode ? 'rgba(156, 163, 175, 0.7)' : '#9ca3af',
                             },
                         }}
                     >

@@ -17,12 +17,14 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useTheme } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase'; 
 import ThemeToggle from '../ThemeToggle/ThemeToggle'; 
 
 export default function Navbar() {
     const theme = useTheme();
+    const { isDarkMode } = useThemeMode();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const { user, role } = useAuth();
@@ -56,17 +58,17 @@ export default function Navbar() {
         <AppBar
             position="static"
             sx={{
-                backgroundColor: '#ffffff',
-                color: '#000',
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
                 direction: 'rtl',
                 boxShadow: 'none',
-                borderBottom: '1px solid #e0e0e0',
+                borderBottom: `1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : '#e0e0e0'}`,
             }}
         >
             <Toolbar sx={{ justifyContent: 'space-between' }}>
                 <Link style={{ textDecoration: 'none' }} to="/">
                     <Box display="flex" alignItems="center" sx={{ cursor: 'pointer' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#60a5fa' }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: theme.palette.primary.main }}>
                             توبامين
                         </Typography>
                         <img width="50" src={logo} loading="lazy" alt="Topamine" />

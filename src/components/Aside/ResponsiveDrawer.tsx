@@ -11,7 +11,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Divider from '@mui/material/Divider';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
-import { Stack, Typography } from '@mui/material';
+import { Stack, Typography, useTheme } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
@@ -22,6 +22,7 @@ import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import logo from '../../assets/images/Icon-logo.png';
+import { useThemeMode } from '../../context/ThemeContext';
 
 const theme = createTheme({
   direction: 'rtl',
@@ -46,6 +47,8 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const globalTheme = useTheme();
+  const { isDarkMode } = useThemeMode();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -59,14 +62,19 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
   ];
 
   const drawer = (
-    <Box dir="rtl" sx={{ backgroundColor: 'white', minHeight: '100vh', height: '100vh' }}>
+    <Box dir="rtl" sx={{ 
+      backgroundColor: globalTheme.palette.background.paper, 
+      minHeight: '100vh', 
+      height: '100vh',
+      borderRight: isDarkMode ? '1px solid rgba(148, 163, 184, 0.2)' : '1px solid rgba(229, 231, 235, 0.8)'
+    }}>
       <Stack direction="row" spacing={5} sx={{ mt: 6, mr: 4, alignItems: 'center' }}>
         <img src={logo} width={70} alt="الشعار" />
         <Typography
           sx={{
             fontWeight: 'bold',
             fontSize: 30,
-            color: '#1976d2',
+            color: globalTheme.palette.primary.main,
             fontFamily: 'Tajawal',
           }}
         >
@@ -75,7 +83,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
       </Stack>
 
       <Box sx={{ mt: 8 }}>
-        <Divider />
+        <Divider sx={{ borderColor: isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(229, 231, 235, 0.8)' }} />
       </Box>
 
       <CacheProvider value={cacheRtl}>
@@ -88,7 +96,9 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
                   style={({ isActive }) => ({
                     textDecoration: 'none',
                     width: '100%',
-                    background: isActive ? '#F3F4FF' : 'transparent',
+                    background: isActive 
+                      ? (isDarkMode ? 'rgba(79, 70, 229, 0.2)' : '#F3F4FF') 
+                      : 'transparent',
                     display: 'flex',
                     alignItems: 'center',
                   })}
@@ -97,16 +107,18 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
                     selected={location.pathname === item.path}
                     sx={{
                       '&:hover .MuiTypography-root': {
-                        color: '#3f51b5',
+                        color: globalTheme.palette.primary.main,
                       },
                       '&:hover .MuiSvgIcon-root': {
-                        color: '#3f51b5',
+                        color: globalTheme.palette.primary.main,
                       },
                     }}
                   >
                     <ListItemIcon
                       sx={{
-                        color: location.pathname === item.path ? '#3f51b5' : 'gray',
+                        color: location.pathname === item.path 
+                          ? globalTheme.palette.primary.main 
+                          : globalTheme.palette.text.secondary,
                         minWidth: '35px',
                       }}
                     >
@@ -116,7 +128,9 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
                       primary={item.text}
                       primaryTypographyProps={{
                         sx: {
-                          color: location.pathname === item.path ? '#3f51b5' : 'gray',
+                          color: location.pathname === item.path 
+                            ? globalTheme.palette.primary.main 
+                            : globalTheme.palette.text.secondary,
                           fontWeight: 500,
                           fontSize: "16px",
                           fontFamily: 'Tajawal',
@@ -136,7 +150,12 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
   const container = window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: '#f5f5f5', direction: 'rtl', height: '100%' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      backgroundColor: globalTheme.palette.background.default, 
+      direction: 'rtl', 
+      height: '100%' 
+    }}>
       <CssBaseline />
 
       <IconButton
@@ -150,7 +169,8 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
           position: 'fixed',
           top: 0,
           right: 0,
-          zIndex: 1300
+          zIndex: 1300,
+          color: globalTheme.palette.text.primary
         }}
       >
         <MenuIcon />
@@ -167,7 +187,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
           display: { xs: 'block', sm: 'none' },
           '& .MuiDrawer-paper': {
             width: drawerWidth,
-            backgroundColor: '#f5f5f5'
+            backgroundColor: globalTheme.palette.background.default
           },
         }}
       >
@@ -181,7 +201,7 @@ const SideDrawerOnly: React.FC<SideDrawerOnlyProps> = (props) => {
           display: { xs: 'none', sm: 'block' },
           '& .MuiDrawer-paper': {
             width: drawerWidth,
-            backgroundColor: '#f5f5f5',
+            backgroundColor: globalTheme.palette.background.default,
             border: 'none',
             position: 'relative'
           },
