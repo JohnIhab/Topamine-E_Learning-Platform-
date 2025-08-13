@@ -16,11 +16,8 @@ import { useThemeMode } from "../../context/ThemeContext";
 import ThemeToggle from "../../components/ThemeToggle/ThemeToggle";
 
 //icon
-<<<<<<< HEAD
 import SearchIcon from '@mui/icons-material/Search';
-=======
-import SearchIcon from "@mui/icons-material/Search";
->>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
+
 import InputAdornment from "@mui/material/InputAdornment";
 //images
 import dashboardIcon from "../../assets/images/dashboardIcon.png";

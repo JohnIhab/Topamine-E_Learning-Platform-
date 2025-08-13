@@ -20,11 +20,6 @@ import {
     Badge,
     useTheme,
 } from "@mui/material";
-<<<<<<< HEAD
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "../../../theme";
-=======
->>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from "@mui/material/InputAdornment";
 import ChatIcon from "@mui/icons-material/Chat";

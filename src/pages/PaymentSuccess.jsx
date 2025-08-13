@@ -18,11 +18,7 @@ const PaymentResult = () => {
     const isLoading = authContext?.loading;
 
     useEffect(() => {
-<<<<<<< HEAD
-        if (hasRun.current) return;
-=======
         if (hasRun.current) return; 
->>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
         hasRun.current = true;
 
         if (isLoading) return;

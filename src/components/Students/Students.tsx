@@ -11,11 +11,7 @@ import { useTheme } from "@mui/material/styles";
 import { useThemeMode } from "../../context/ThemeContext";
 
 
-<<<<<<< HEAD
 import SearchIcon from '@mui/icons-material/Search';
-=======
-import SearchIcon from "@mui/icons-material/Search";
->>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
 import InputAdornment from "@mui/material/InputAdornment";
 
 import blockIcon from "../../assets/images/blockIcon.png";
@@ -35,7 +31,6 @@ import { collection, getDocs,deleteDoc,doc } from "firebase/firestore";
 // @ts-ignore
 import { db } from '../../firebase';
 import { toast } from 'react-toastify';
-// @ts-ignore
 import { useAuth } from '../../context/AuthContext';
 
 interface Student {
