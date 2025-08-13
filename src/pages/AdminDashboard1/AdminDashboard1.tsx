@@ -1,9 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { AppBar, Typography, Toolbar, Box, Stack, Button, Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
+import { AppBar, Typography, Toolbar, Box, Stack, useTheme } from "@mui/material";
 
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "../../../theme";
+import { useThemeMode } from "../../context/ThemeContext";
 
 import coursesIcon from "../../assets/images/book.png";
 import teacherIcon from "../../assets/images/board.png";
@@ -24,9 +23,10 @@ export default function PrimarySearchAppBar() {
   const [studentsCount, setStudentsCount] = React.useState(0);
   const [teachersCount, setTeachersCount] = React.useState(0);
   const [coursesCount, setCoursesCount] = React.useState(0);
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [totalRevenue, setTotalRevenue] = React.useState(0);
+  const { isDarkMode } = useThemeMode();
+  const theme = useTheme();
+
 
   const navigate = useNavigate();
 
@@ -59,25 +59,44 @@ export default function PrimarySearchAppBar() {
       console.error("Error fetching courses:", error);
     }
   }
+
+  async function fetchTotalRevenue() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "enrollments"));
+      const enrollments = querySnapshot.docs.map(doc => doc.data());
+      
+      const total = enrollments.reduce((sum, enrollment) => {
+
+        const price = enrollment.price || enrollment.amount || enrollment.totalPrice || 0;
+        return sum + (typeof price === 'number' ? price : parseFloat(price) || 0);
+      }, 0);
+      
+      setTotalRevenue(total);
+      console.log("Total Revenue:", total);
+      console.log("Enrollments:", enrollments);
+    } catch (error) {
+      console.error("Error fetching enrollments:", error);
+    }
+  }
   React.useEffect(() => {
     document.documentElement.lang = "ar";
     document.documentElement.dir = "rtl";
     fetchData();
     fetchCourses();
+    fetchTotalRevenue();
   }, []);
 
 
   return (
-    <ThemeProvider theme={theme}>
       <Stack
         sx={{ display: "flex", flexDirection: "row", fontFamily: "Tajawal" }}
       >
-        <Box sx={{ width: "200px" }}>
+        <Box sx={{ width: "200px", backgroundColor: theme.palette.background.paper, borderLeft: `1px solid ${theme.palette.divider}` }}>
           <Stack>
             <AppBar
               position="static"
               sx={{
-                backgroundColor: "#FFFFFF",
+                backgroundColor: theme.palette.background.paper,
                 marginTop: "4%",
                 boxShadow: "none",
                 textAlign: "center",
@@ -99,7 +118,7 @@ export default function PrimarySearchAppBar() {
                     display: {
                       xs: "none",
                       sm: "block",
-                      color: "black",
+                      color: theme.palette.text.primary,
                       fontWeight: "700",
                       fontSize: "30",
                       marginLeft: "20px",
@@ -124,9 +143,13 @@ export default function PrimarySearchAppBar() {
                 gap: "10%",
                 cursor: "pointer",
                 backgroundColor:
-                  selectedItem === "Dashboard" ? "#F3F4FF" : "transparent",
-                color: selectedItem === "Dashboard" ? "#4F46E5" : "gray",
+                  selectedItem === "Dashboard" ? theme.palette.primary.main + "20" : "transparent",
+                color: selectedItem === "Dashboard" ? theme.palette.primary.main : theme.palette.text.secondary,
                 transition: "0.3s background-color ease",
+                '&:hover': {
+                  
+                  backgroundColor: theme.palette.primary.main + "10",
+                },
               }}
             >
               <img
@@ -152,9 +175,12 @@ export default function PrimarySearchAppBar() {
                 marginTop: "2%",
 
                 backgroundColor:
-                  selectedItem === "Courses" ? "#F3F4FF" : "transparent",
-                color: selectedItem === "Courses" ? "#4F46E5" : "gray",
+                  selectedItem === "Courses" ? theme.palette.primary.main + "20" : "transparent",
+                color: selectedItem === "Courses" ? theme.palette.primary.main : theme.palette.text.secondary,
                 transition: "0.3s background-color ease",
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.main + "10",
+                },
               }}
             >
               <img
@@ -181,9 +207,12 @@ export default function PrimarySearchAppBar() {
                 marginTop: "2%",
 
                 backgroundColor:
-                  selectedItem === "Teachers" ? "#F3F4FF" : "transparent",
-                color: selectedItem === "Teachers" ? "#4F46E5" : "gray",
+                  selectedItem === "Teachers" ? theme.palette.primary.main + "20" : "transparent",
+                color: selectedItem === "Teachers" ? theme.palette.primary.main : theme.palette.text.secondary,
                 transition: "0.3s background-color ease",
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.main + "10",
+                },
               }}
             >
               <img
@@ -208,9 +237,12 @@ export default function PrimarySearchAppBar() {
                 marginTop: "2%",
 
                 backgroundColor:
-                  selectedItem === "Students" ? "#F3F4FF" : "transparent",
-                color: selectedItem === "Students" ? "#4F46E5" : "gray",
+                  selectedItem === "Students" ? theme.palette.primary.main + "20" : "transparent",
+                color: selectedItem === "Students" ? theme.palette.primary.main : theme.palette.text.secondary,
                 transition: "0.3s background-color ease",
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.main + "10",
+                },
               }}
             >
               <img
@@ -227,16 +259,16 @@ export default function PrimarySearchAppBar() {
         <Box
           sx={{
             flexGrow: 1,
-            backgroundColor: "#eeeeee",
+            backgroundColor: theme.palette.background.default,
             minHeight: "100vh",
-            borderRight: "1px solid rgba(157, 180, 206, 0.57)",
+            borderRight: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <AppBar
+          {/* <AppBar
             position="static"
             sx={{
-              backgroundColor: "#FFFFFF",
-              borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
+              backgroundColor: theme.palette.background.paper,
+              borderBottom: `1px solid ${theme.palette.divider}`,
               boxShadow: "none",
               padding: "0.5%",
             }}
@@ -251,14 +283,16 @@ export default function PrimarySearchAppBar() {
                     sm: "block",
                     fontWeight: "600",
                     fontSize: "20px",
-                    color: "#111827",
+                    color: theme.palette.text.primary,
                   },
+                  flexGrow: 1,
                 }}
               >
                 لوحه التحكم
               </Typography>
+              <ThemeToggle />
             </Toolbar>
-          </AppBar>
+          </AppBar> */}
 
           <Stack
             sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
@@ -270,14 +304,14 @@ export default function PrimarySearchAppBar() {
                 padding: "40px",
                 margin: "10px ",
                 borderRadius: "20px",
-                backgroundColor: "#F3F4FF",
+                backgroundColor: isDarkMode ? theme.palette.primary.dark + "30" : "#F3F4FF",
                 fontFamily: "Tajawal",
               }}
             >
               <img src={studentIcon} alt="الطلاب" />
-              <Typography sx={{ color: "gray" }}>الطلاب </Typography>
-              <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                {studentsCount}
+              <Typography sx={{ color: theme.palette.text.secondary }}>الطلاب </Typography>
+              <Typography sx={{ fontSize: "30px", fontWeight: "bold", color: theme.palette.text.primary }}>
+                {studentsCount} طالب
               </Typography>
             </Box>
 
@@ -288,14 +322,14 @@ export default function PrimarySearchAppBar() {
                 padding: "40px",
                 margin: "10px",
                 borderRadius: "20px",
-                backgroundColor: "#F0FDF4",
+                backgroundColor: isDarkMode ? "#10B981" + "30" : "#F0FDF4",
                 fontFamily: "Tajawal",
               }}
             >
               <img src={teacherIcon} alt="المعلمون" />
-              <Typography sx={{ color: "gray" }}>المعلمون </Typography>
-              <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                {teachersCount}
+              <Typography sx={{ color: theme.palette.text.secondary }}>المعلمون </Typography>
+              <Typography sx={{ fontSize: "30px", fontWeight: "bold", color: theme.palette.text.primary }}>
+                {teachersCount} معلم
               </Typography>
             </Box>
 
@@ -306,14 +340,14 @@ export default function PrimarySearchAppBar() {
                 padding: "40px",
                 margin: "10px",
                 borderRadius: "20px",
-                backgroundColor: "#FFF7ED",
+                backgroundColor: isDarkMode ? "#F59E0B" + "30" : "#FFF7ED",
                 fontFamily: "Tajawal",
               }}
             >
               <img src={coursesIcon} alt="الدورات" />
-              <Typography sx={{ color: "gray" }}>عدد الكورسات</Typography>
-              <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                {coursesCount}
+              <Typography sx={{ color: theme.palette.text.secondary }}>عدد الكورسات</Typography>
+              <Typography sx={{ fontSize: "30px", fontWeight: "bold", color: theme.palette.text.primary }}>
+                {coursesCount} كورس
               </Typography>
             </Box>
 
@@ -324,19 +358,18 @@ export default function PrimarySearchAppBar() {
                 padding: "40px",
                 margin: "10px ",
                 borderRadius: "20px",
-                backgroundColor: "#F5F3FF",
+                backgroundColor: isDarkMode ? theme.palette.secondary.dark + "30" : "#F5F3FF",
                 fontFamily: "Tajawal",
               }}
             >
               <img src={payments} alt="الإيرادات" />
-              <Typography sx={{ color: "gray" }}>الإيرادات الكلية</Typography>
-              <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-                10.200
+              <Typography sx={{ color: theme.palette.text.secondary }}>الإيرادات الكلية</Typography>
+              <Typography sx={{ fontSize: "30px", fontWeight: "bold", color: theme.palette.text.primary }}>
+                {totalRevenue} جنيه
               </Typography>
             </Box>
           </Stack>
         </Box>
       </Stack>
-    </ThemeProvider>
   );
 }

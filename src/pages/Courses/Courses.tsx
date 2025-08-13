@@ -22,8 +22,8 @@ import {
   DialogActions,
 } from "@mui/material";
 
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "../../../theme";
+import { useThemeMode } from "../../context/ThemeContext";
+import ThemeToggle from "../../components/ThemeToggle/ThemeToggle";
 //icon
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -44,6 +44,7 @@ export default function PrimarySearchAppBar() {
   const [selectedItem, setSelectedItem] = React.useState("dashboard");
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [selectedCourseId, setSelectedCourseId] = React.useState(null);
+  const { isDarkMode } = useThemeMode();
   const navigate = useNavigate();
 
   const [courses, setCourses] = React.useState([]);
@@ -87,7 +88,6 @@ export default function PrimarySearchAppBar() {
 };
 
   return (
-    <ThemeProvider theme={theme}>
       <Stack sx={{ display: "flex", flexDirection: "row" }}>
         {/* right side */}
         <Box sx={{ width: "200px" }}>
@@ -241,14 +241,14 @@ export default function PrimarySearchAppBar() {
         <Box
           sx={{
             flexGrow: 1,
-            backgroundColor: "#eeeeee",
+            // backgroundColor: "#eeeeee",
             minHeight: "100vh",
             borderRight: "1px solid rgba(157, 180, 206, 0.57)",
           }}
         >
           {/* AppBar */}
 
-          <AppBar
+          {/* <AppBar
             position="static"
             sx={{
               backgroundColor: "#FFFFFF",
@@ -269,12 +269,14 @@ export default function PrimarySearchAppBar() {
                     fontSize: "20px",
                     color: "#111827",
                   },
+                  flexGrow: 1,
                 }}
               >
                 لوحه التحكم
               </Typography>
+              <ThemeToggle />
             </Toolbar>
-          </AppBar>
+          </AppBar> */}
 
           {/* Courses Manegement */}
           <TableContainer
@@ -364,6 +366,5 @@ export default function PrimarySearchAppBar() {
 </Dialog>
         </Box>
       </Stack>
-    </ThemeProvider>
   );
 }

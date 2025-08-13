@@ -18,7 +18,11 @@ const PaymentResult = () => {
     const isLoading = authContext?.loading;
 
     useEffect(() => {
+<<<<<<< HEAD
         if (hasRun.current) return;
+=======
+        if (hasRun.current) return; 
+>>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
         hasRun.current = true;
 
         if (isLoading) return;
@@ -47,10 +51,11 @@ const PaymentResult = () => {
             if (isSuccess === 'true') {
                 const savePayment = async () => {
                     try {
-                        const paymentsRef = collection(db, 'payments');
+                        const paymentsRef = collection(db, 'enrollments');
                         const docRef = await addDoc(paymentsRef, {
                             uid: userId,
-                            paid: true,
+                            paid: "enrolled",
+                            statusProgress: "completed",
                             amount: price,
                             courseId: courseId,
                             timestamp: new Date(),

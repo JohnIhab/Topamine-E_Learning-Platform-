@@ -9,12 +9,14 @@ import {
   TableRow,
   Paper,
   Stack,
+  useTheme,
 } from '@mui/material';
 import { collection, onSnapshot, Timestamp, query, orderBy, limit, where } from 'firebase/firestore';
 // @ts-ignore
 import { db } from '../../firebase';
 // @ts-ignore  
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -44,6 +46,8 @@ const TeacherHome: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   // @ts-ignore
   const { user } = useAuth();
+  const theme = useTheme();
+  const { isDarkMode } = useThemeMode();
 
   useEffect(() => {
     if (!user?.uid) {
@@ -76,7 +80,12 @@ const TeacherHome: React.FC = () => {
       {
         label: 'الإحصائيات',
         data: [courses.length, 59.700, 248],
-        backgroundColor: ['#fff3e0', '#f1f8e9', '#ffe0b2'],
+        backgroundColor: isDarkMode 
+          ? ['rgba(139, 92, 246, 0.3)', 'rgba(34, 197, 94, 0.3)', 'rgba(251, 146, 60, 0.3)']
+          : ['#fff3e0', '#f1f8e9', '#ffe0b2'],
+        borderColor: isDarkMode 
+          ? ['rgba(139, 92, 246, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(251, 146, 60, 0.8)']
+          : ['#f57c00', '#689f38', '#ff9800'],
         borderWidth: 1,
       },
     ],
@@ -87,6 +96,9 @@ const TeacherHome: React.FC = () => {
     plugins: {
       legend: {
         position: 'bottom' as const,
+        labels: {
+          color: theme.palette.text.primary,
+        },
       },
       datalabels: {
         formatter: (value: number, context: any) => {
@@ -94,7 +106,7 @@ const TeacherHome: React.FC = () => {
           const percentage = ((value / total) * 100).toFixed(1) + '%';
           return percentage;
         },
-        color: '#000',
+        color: theme.palette.text.primary,
         font: {
           weight: 'bold' as const,
           size: 14,
@@ -106,7 +118,18 @@ const TeacherHome: React.FC = () => {
   return (
     <>
       <Stack direction={'row'} sx={{ flexWrap: 'wrap', gap: 2,justifyContent:"space-around" }}>
-        <Box sx={{ backgroundColor: 'white', width: { xs: '100%', md: '40%' }, height: 300, p: 2, borderRadius: 2, boxShadow: 2, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', mt: 4, }}>
+        <Box sx={{ 
+          backgroundColor: theme.palette.background.paper, 
+          width: { xs: '100%', md: '40%' }, 
+          height: 300, 
+          p: 2, 
+          borderRadius: 2, 
+          boxShadow: 2, 
+          display: 'flex', 
+          justifyContent: 'center', 
+          flexWrap: 'wrap', 
+          mt: 4, 
+        }}>
           <Doughnut data={data} options={options} />
         </Box>
         <Box sx={{ mt: { xs: 2, md: 10 }, width: { xs: '100%', md: 'auto' } }}>
@@ -114,33 +137,37 @@ const TeacherHome: React.FC = () => {
         </Box>
       </Stack>
       <Box sx={{ p: 3, width: '100%', overflowX: 'auto' }}>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ backgroundColor: theme.palette.background.paper }}>
           <Table dir="rtl">
             <TableHead>
-              <TableRow>
-                <TableCell align="right">عنوان الكورس</TableCell>
-                <TableCell align="right">الترم</TableCell>
-                <TableCell align="right">تاريخ البدء</TableCell>
-                <TableCell align="right">تاريخ الانتهاء</TableCell>
-                <TableCell align="right">المرحلة الدراسية</TableCell>
+              <TableRow sx={{ backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.3)' : 'rgba(243, 244, 246, 0.8)' }}>
+                <TableCell align="right" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>عنوان الكورس</TableCell>
+                <TableCell align="right" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>الترم</TableCell>
+                <TableCell align="right" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>تاريخ البدء</TableCell>
+                <TableCell align="right" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>تاريخ الانتهاء</TableCell>
+                <TableCell align="right" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>المرحلة الدراسية</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {courses.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell align="right">{course.title}</TableCell>
-                  <TableCell align="right">{course.term}</TableCell>
-                  <TableCell align="right">
+                <TableRow key={course.id} sx={{
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.2)' : 'rgba(0, 0, 0, 0.04)',
+                  }
+                }}>
+                  <TableCell align="right" sx={{ color: theme.palette.text.primary }}>{course.title}</TableCell>
+                  <TableCell align="right" sx={{ color: theme.palette.text.primary }}>{course.term}</TableCell>
+                  <TableCell align="right" sx={{ color: theme.palette.text.primary }}>
                     {course.startDate && typeof course.startDate.toDate === 'function'
                       ? course.startDate.toDate().toLocaleDateString()
                       : '—'}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" sx={{ color: theme.palette.text.primary }}>
                     {course.endDate && typeof course.endDate.toDate === 'function'
                       ? course.endDate.toDate().toLocaleDateString()
                       : '—'}
                   </TableCell>
-                  <TableCell align="right">{course.gradeLevel || '—'}</TableCell>
+                  <TableCell align="right" sx={{ color: theme.palette.text.primary }}>{course.gradeLevel || '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

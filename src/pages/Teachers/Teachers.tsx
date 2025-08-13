@@ -14,13 +14,13 @@ import {
   TableContainer,
   Paper,
 } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
+import { useThemeMode } from "../../context/ThemeContext";
+import ThemeToggle from "../../components/ThemeToggle/ThemeToggle";
 import TopaminIcon from "../../assets/images/Icon-logo.png";
 import dashboardIcon from "../../assets/images/dashboardIcon.png";
 import grayCoursesIcon from "../../assets/images/graycoursesIcon.png";
 import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
 import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
-import theme from "../../../theme";
 import { getDocs, collection } from "firebase/firestore";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -31,7 +31,7 @@ export default function TeachersPage() {
   const [selectedItem, setSelectedItem] = React.useState("Teachers");
   const [teachers, setTeachers] = React.useState([]);
   const [statusFilter, setStatusFilter] = React.useState(null);
-
+  const { isDarkMode } = useThemeMode();
 
   const navigate = useNavigate();
 
@@ -78,7 +78,6 @@ export default function TeachersPage() {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
       <Stack
         sx={{ display: "flex", flexDirection: "row", fontFamily: "Tajawal" }}
       >
@@ -237,16 +236,16 @@ export default function TeachersPage() {
         <Box
           sx={{
             flexGrow: 1,
-            backgroundColor: "#eeeeee",
+            // backgroundColor: "#eeeeee",
             minHeight: "100vh",
             borderRight: "1px solid rgba(157, 180, 206, 0.57)",
           }}
         >
           {/* AppBar*/}
-          <AppBar
+          {/* <AppBar
             position="static"
             sx={{
-              backgroundColor: "#FFFFFF",
+              // backgroundColor: "#FFFFFF",
               borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
               boxShadow: "none",
               padding: "0.5%",
@@ -265,12 +264,14 @@ export default function TeachersPage() {
                     fontSize: "20px",
                     color: "#111827",
                   },
+                  flexGrow: 1,
                 }}
               >
                 لوحه التحكم
               </Typography>
+              <ThemeToggle />
             </Toolbar>
-          </AppBar>
+          </AppBar> */}
 
           {/* Teachers*/}
           <TableContainer
@@ -451,6 +452,5 @@ export default function TeachersPage() {
           </TableContainer>
         </Box>
       </Stack>
-    </ThemeProvider>
   );
 }

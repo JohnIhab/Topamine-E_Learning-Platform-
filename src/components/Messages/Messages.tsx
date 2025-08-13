@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     AppBar,
@@ -18,15 +18,20 @@ import {
     Avatar,
     IconButton,
     Badge,
+    useTheme,
 } from "@mui/material";
+<<<<<<< HEAD
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../../../theme";
+=======
+>>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from "@mui/material/InputAdornment";
 import ChatIcon from "@mui/icons-material/Chat";
 import { collection, getDocs, query, where, onSnapshot, doc as firestoreDoc, getDoc } from "firebase/firestore";
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 
 interface ChatData {
     id: string;
@@ -40,6 +45,8 @@ interface ChatData {
 export default function Messages() {
     const { user } = useAuth() as any;
     const navigate = useNavigate();
+    const theme = useTheme();
+    const { isDarkMode } = useThemeMode();
     const [chats, setChats] = useState<ChatData[]>([]);
     const [searchValue, setSearchValue] = useState("");
     const [loading, setLoading] = useState(true);
@@ -194,18 +201,18 @@ export default function Messages() {
     };
 
     return (
-        <ThemeProvider theme={theme}>
-            <Box
-                sx={{
-                    flexGrow: 1,
-                    minHeight: "100vh",
-                }}
-            >
+        <Box
+            sx={{
+                flexGrow: 1,
+                minHeight: "100vh",
+                backgroundColor: theme.palette.background.default,
+            }}
+        >
                 <AppBar
                     position="static"
                     sx={{
-                        backgroundColor: "#FFFFFF",
-                        borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
+                        backgroundColor: theme.palette.background.paper,
+                        borderBottom: `1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.2)' : 'rgba(157, 180, 206, 0.57)'}`,
                         boxShadow: "none",
                     }}
                 >
@@ -215,7 +222,7 @@ export default function Messages() {
                             component="div"
                             sx={{
                                 flexGrow: 1,
-                                color: "#4F46E5",
+                                color: theme.palette.primary.main,
                                 fontWeight: "bold",
                             }}
                         >
@@ -242,7 +249,7 @@ export default function Messages() {
                                             ...params.InputProps,
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <SearchIcon sx={{ color: "gray" }} />
+                                                    <SearchIcon sx={{ color: theme.palette.text.secondary }} />
                                                 </InputAdornment>
                                             ),
                                             inputProps: {
@@ -254,15 +261,16 @@ export default function Messages() {
                                             "& .MuiInputBase-root": {
                                                 height: "50px",
                                                 borderRadius: "10px",
-                                                border: "1px solid rgba(134, 145, 160, 0.57)",
-                                                color: "#4F46E5",
+                                                border: `1px solid ${isDarkMode ? 'rgba(148, 163, 184, 0.3)' : 'rgba(134, 145, 160, 0.57)'}`,
+                                                color: theme.palette.primary.main,
                                                 paddingX: 1,
+                                                backgroundColor: theme.palette.background.paper,
                                             },
                                             "& .MuiInputBase-input": {
-                                                color: "gray",
+                                                color: theme.palette.text.primary,
                                             },
                                             "& .MuiInputLabel-root": {
-                                                color: "gray",
+                                                color: theme.palette.text.secondary,
                                             },
                                         }}
                                     />
@@ -271,23 +279,23 @@ export default function Messages() {
                         </Stack>
                     </Box>
 
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} sx={{ backgroundColor: theme.palette.background.paper }}>
                         <Table>
-                            <TableHead>
+                            <TableHead sx={{ backgroundColor: theme.palette.grey[isDarkMode ? 800 : 100] }}>
                                 <TableRow>
-                                    <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                                    <TableCell sx={{ width: "20%", textAlign: "center", color: theme.palette.text.primary }}>
                                         الطالب
                                     </TableCell>
-                                    <TableCell sx={{ width: "25%", textAlign: "center" }}>
+                                    <TableCell sx={{ width: "25%", textAlign: "center", color: theme.palette.text.primary }}>
                                         البريد الإلكتروني
                                     </TableCell>
-                                    <TableCell sx={{ width: "30%", textAlign: "center" }}>
+                                    <TableCell sx={{ width: "30%", textAlign: "center", color: theme.palette.text.primary }}>
                                         آخر رسالة
                                     </TableCell>
-                                    <TableCell sx={{ width: "15%", textAlign: "center" }}>
+                                    <TableCell sx={{ width: "15%", textAlign: "center", color: theme.palette.text.primary }}>
                                         الوقت
                                     </TableCell>
-                                    <TableCell sx={{ width: "10%", textAlign: "center" }}>
+                                    <TableCell sx={{ width: "10%", textAlign: "center", color: theme.palette.text.primary }}>
                                         الإجراءات
                                     </TableCell>
                                 </TableRow>
@@ -296,30 +304,37 @@ export default function Messages() {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} sx={{ textAlign: "center", py: 4 }}>
+                                        <TableCell colSpan={5} sx={{ textAlign: "center", py: 4, color: theme.palette.text.primary }}>
                                             جاري التحميل...
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredChats.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} sx={{ textAlign: "center", py: 4 }}>
+                                        <TableCell colSpan={5} sx={{ textAlign: "center", py: 4, color: theme.palette.text.primary }}>
                                             لا توجد رسائل حتى الآن
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     filteredChats.map((chat) => (
-                                        <TableRow key={chat.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                                            <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                                        <TableRow 
+                                            key={chat.id} 
+                                            sx={{ 
+                                                '&:hover': { 
+                                                    backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : '#f5f5f5' 
+                                                } 
+                                            }}
+                                        >
+                                            <TableCell sx={{ width: "20%", textAlign: "center", color: theme.palette.text.primary }}>
                                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, justifyContent: "center" }}>
                                                     <Avatar sx={{ width: 32, height: 32 }}>
                                                         {chat.studentName?.charAt(0) || 'ط'}
                                                     </Avatar>
-                                                    <Typography variant="body2">
+                                                    <Typography variant="body2" sx={{ color: theme.palette.text.primary }}>
                                                         {chat.studentName || 'طالب'}
                                                     </Typography>
                                                 </Box>
                                             </TableCell>
-                                            <TableCell sx={{ width: "25%", textAlign: "center" }}>
+                                            <TableCell sx={{ width: "25%", textAlign: "center", color: theme.palette.text.primary }}>
                                                 {chat.studentEmail || 'غير محدد'}
                                             </TableCell>
                                             <TableCell sx={{ width: "30%", textAlign: "center" }}>
@@ -330,6 +345,7 @@ export default function Messages() {
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap',
+                                                        color: theme.palette.text.secondary,
                                                         fontWeight: chat.unreadCount && chat.unreadCount > 0 ? 'bold' : 'normal'
                                                     }}
                                                 >
@@ -337,7 +353,7 @@ export default function Messages() {
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ width: "15%", textAlign: "center" }}>
-                                                <Typography variant="caption" color="text.secondary">
+                                                <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
                                                     {formatTime(chat.lastMessageTime)}
                                                 </Typography>
                                             </TableCell>
@@ -349,7 +365,7 @@ export default function Messages() {
                                                 >
                                                     <IconButton
                                                         onClick={() => navigate(`/chat/${chat.id}`)}
-                                                        sx={{ color: "#4F46E5" }}
+                                                        sx={{ color: theme.palette.primary.main }}
                                                         title="فتح المحادثة"
                                                     >
                                                         <ChatIcon />
@@ -364,6 +380,5 @@ export default function Messages() {
                     </TableContainer>
                 </Box>
             </Box>
-        </ThemeProvider>
     );
 }

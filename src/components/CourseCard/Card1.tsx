@@ -239,7 +239,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                 sx={{
                   fontWeight: '500',
                   fontSize: '0.85rem',
-                  color: '#374151',
+                  color: '#7e62e6ff',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
@@ -257,6 +257,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                     fontSize: '1rem',
                     maxWidth: '160px',
                     overflow: 'hidden',
+                    
                     display: '-webkit-box',
                     WebkitBoxOrient: 'vertical',
                     WebkitLineClamp: 2,
@@ -275,13 +276,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <Typography
               variant="subtitle2"
               sx={{
-                color: '#4B5563',
+                color: '#7e62e6ff',
                 overflow: 'hidden',
                 display: '-webkit-box',
                 WebkitBoxOrient: 'vertical',
                 WebkitLineClamp: 2,
                 fontSize: '0.85rem',
                 height: '40px',
+                marginBottom: '8px',
               }}
             >
               {subTitle}
@@ -289,13 +291,13 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
             <Stack direction="row" spacing={3} sx={{ mb: 1 }}>
               <Box sx={{ mt: 1 }}>
-                <Typography color="#4B5563" sx={{ fontSize: '14px', fontWeight: 400, lineHeight: '20px' }}>
+                <Typography  sx={{ fontSize: '14px',color: '#7e62e6ff', fontWeight: 400, lineHeight: '20px' }}>
                   <ImportContactsIcon sx={{ color: 'gray', fontSize: 16 }} /> {gradeLevel}
                 </Typography>
               </Box>
 
               <Box sx={{ mt: 1 }}>
-                <Typography color="#4B5563" sx={{ fontSize: '14px', fontWeight: 400, lineHeight: '20px' }}>
+                <Typography  sx={{ fontSize: '14px',color: '#7e62e6ff', fontWeight: 400, lineHeight: '20px' }}>
                   <CalendarTodayIcon sx={{ color: 'gray', fontSize: 16 }} /> {term}
                 </Typography>
               </Box>
@@ -304,14 +306,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <Stack spacing={0.5} sx={{ mt: 1 }}>
               <Stack direction="row" spacing={1}>
                 <CalendarTodayIcon sx={{ color: 'gray', fontSize: 16 }} />
-                <Typography sx={{ color: '#4B5563', fontSize: '14px' }}>
+                <Typography sx={{ color: '#7e62e6ff', fontSize: '14px' }}>
                   {startDate?.toDate().toDateString() ?? 'No Start Date'}
                 </Typography>
               </Stack>
 
               <Stack direction="row" spacing={1}>
                 <CalendarTodayIcon sx={{ color: 'gray', fontSize: 16 }} />
-                <Typography sx={{ color: '#4B5563', fontSize: '14px' }}>
+                <Typography sx={{ color: '#7e62e6ff',fontSize: '14px' }}>
                   {endDate?.toDate().toDateString() ?? 'No End Date'}
                 </Typography>
               </Stack>

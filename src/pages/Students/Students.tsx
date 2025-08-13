@@ -9,17 +9,18 @@ import {
   Stack,
   TextField,
   Autocomplete,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
+
 } from "@mui/material";
 
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "../../../theme";
+import { useThemeMode } from "../../context/ThemeContext";
+import ThemeToggle from "../../components/ThemeToggle/ThemeToggle";
 
 //icon
+<<<<<<< HEAD
 import SearchIcon from '@mui/icons-material/Search';
+=======
+import SearchIcon from "@mui/icons-material/Search";
+>>>>>>> 4303c1f18f133ae95a4ed2b199869c39858e9f32
 import InputAdornment from "@mui/material/InputAdornment";
 //images
 import dashboardIcon from "../../assets/images/dashboardIcon.png";
@@ -27,7 +28,6 @@ import grayCoursesIcon from "../../assets/images/graycoursesIcon.png";
 import grayTeachersIcon from "../../assets/images/grayTeachersIcon.png";
 import grayStudentsIcon from "../../assets/images/graystudentsIcon.png";
 import TopaminIcon from "../../assets/images/Icon-logo.png";
-import blockIcon from "../../assets/images/blockIcon.png";
 
 import {
   Table,
@@ -44,12 +44,20 @@ import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 
+type Student = {
+  id: string;
+  name?: string;
+  email?: string;
+  blocked?: boolean;
+  role?: string;
+};
+
 export default function PrimarySearchAppBar() {
-  const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [selectedItem, setSelectedItem] = useState("dashboard");
   const [searchValue, setSearchValue] = useState("");
+  const { isDarkMode } = useThemeMode();
   const navigate = useNavigate();
-
 
   async function fetchStudents() {
     try {
@@ -57,7 +65,7 @@ export default function PrimarySearchAppBar() {
       const users = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as Student[];
 
       const filteredStudents = users.filter((user) => user.role === "student");
       setStudents(filteredStudents);
@@ -69,7 +77,7 @@ export default function PrimarySearchAppBar() {
     fetchStudents();
   }, []);
 
-  const handleToggleBlock = async (studentId, currentStatus) => {
+  const handleToggleBlock = async (studentId: string, currentStatus: boolean | undefined) => {
     try {
       const studentRef = doc(db, "users", studentId);
       await updateDoc(studentRef, {
@@ -86,7 +94,6 @@ export default function PrimarySearchAppBar() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
       <Stack sx={{ display: "flex", flexDirection: "row" }}>
         {/* right side */}
         <Box sx={{ width: "200px" }}>
@@ -243,13 +250,13 @@ export default function PrimarySearchAppBar() {
         <Box
           sx={{
             flexGrow: 1,
-            backgroundColor: "#eeeeee",
+            // backgroundColor: "#eeeeee",
             minHeight: "100vh",
             borderRight: "1px solid rgba(157, 180, 206, 0.57)",
           }}
         >
           {/* AppBar */}
-          <AppBar
+          {/* <AppBar
             position="static"
             sx={{
               backgroundColor: "#FFFFFF",
@@ -270,12 +277,14 @@ export default function PrimarySearchAppBar() {
                     fontSize: "20px",
                     color: "#111827",
                   },
+                  flexGrow: 1,
                 }}
               >
                 لوحه التحكم
               </Typography>
+              <ThemeToggle />
             </Toolbar>
-          </AppBar>
+          </AppBar> */}
 
           {/* Student Manegement */}
 
@@ -398,6 +407,5 @@ export default function PrimarySearchAppBar() {
 
         </Box>
       </Stack>
-    </ThemeProvider>
   );
 }

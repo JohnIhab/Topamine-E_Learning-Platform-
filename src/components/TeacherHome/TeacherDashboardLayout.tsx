@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, useTheme } from '@mui/material';
 import Header from '../Header/Header';
 import ResponsiveDrawer from '../Aside/ResponsiveDrawer';
 import { Outlet } from 'react-router-dom';
@@ -7,8 +7,15 @@ import { Outlet } from 'react-router-dom';
 const drawerWidth = 280;
 
 const TeacherDashboardLayout: React.FC = () => {
+  const theme = useTheme();
+  
   return (
-    <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
+    <Box sx={{ 
+      backgroundColor: theme.palette.background.default, 
+      minHeight: '100vh', 
+      width: '100%', 
+      overflowX: 'hidden' 
+    }}>
       <Stack direction="row" sx={{ width: '100%' }}>
         {/* Sidebar */}
         <Box sx={{ 

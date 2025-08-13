@@ -208,9 +208,9 @@ const ProfileStudent = () => {
       try {
         setLoadingCourses(true);
         const paymentsQuery = query(
-          collection(db, 'payments'),
+          collection(db, 'enrollments'),
           where('uid', '==', user.uid),
-          where('paid', '==', true)
+          where('paid', '==', "enrolled")
         );
 
         const paymentDocs = await getDocs(paymentsQuery);

@@ -8,6 +8,7 @@ import {
   Skeleton,
   Grid,
   Pagination as MuiPagination,
+  useTheme,
 } from '@mui/material';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -18,6 +19,7 @@ import createCache from '@emotion/cache';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 
 const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });
 
@@ -43,6 +45,8 @@ const CourseManagment: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth() || {};
+  const theme = useTheme();
+  const { isDarkMode } = useThemeMode();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -93,8 +97,20 @@ const CourseManagment: React.FC = () => {
   return (
     <>
       <CacheProvider value={cacheRtl}>
-          <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
-            <Box sx={{ width: '100%', backgroundColor: 'white', borderRadius: 5, p: 4, mt: 4, overflowX: 'hidden' }}>
+          <Box sx={{ 
+            backgroundColor: theme.palette.background.default, 
+            minHeight: '100vh', 
+            width: '100%', 
+            overflowX: 'hidden' 
+          }}>
+            <Box sx={{ 
+              width: '100%', 
+              backgroundColor: theme.palette.background.paper, 
+              borderRadius: 5, 
+              p: 4, 
+              mt: 4, 
+              overflowX: 'hidden' 
+            }}>
               {location.pathname.endsWith('/add') ? (
                 <Outlet />
               ) : (
@@ -108,7 +124,12 @@ const CourseManagment: React.FC = () => {
                     }}
                   >
                     {loading?
-                    <Skeleton variant='rectangular' sx={{width:120,height:30, boxShadow: 1 }}/>: <Typography  sx={{fontWeight:700,fontSize:'30px',lineHeight:"36px",color:'#111827'}}>
+                    <Skeleton variant='rectangular' sx={{width:120,height:30, boxShadow: 1 }}/>: <Typography  sx={{
+                      fontWeight:700,
+                      fontSize:'30px',
+                      lineHeight:"36px",
+                      color: theme.palette.text.primary
+                    }}>
                       إدارة الكورسات
                     </Typography>
                     }
