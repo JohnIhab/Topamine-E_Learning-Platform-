@@ -1,5 +1,6 @@
+// 
 /** @jsxImportSource @emotion/react */
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Container,
     Grid,
@@ -10,13 +11,149 @@ import {
     Paper,
     IconButton,
     useTheme,
+    Alert,
+    Snackbar,
+    CircularProgress,
 } from '@mui/material';
 import { LocationOn, Email, Phone, AccessTime } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, LinkedIn, Instagram } from '@mui/icons-material';
+import emailjs from '@emailjs/browser';
 
 const ContactUs = () => {
     const theme = useTheme();
+    
+
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+    });
+    
+
+    const [loading, setLoading] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success' as 'success' | 'error'
+    });
+    
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+    
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+
+        if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+            setSnackbar({
+                open: true,
+                message: 'يرجى ملء جميع الحقول المطلوبة',
+                severity: 'error'
+            });
+            return;
+        }
+        
+        setLoading(true);
+        
+        try {
+            let contactEmailSent = false;
+            let thankYouEmailSent = false;
+
+            
+            try {
+                const contactUsParams = {
+                    name: formData.name,
+                    email: formData.email,
+                    message: formData.message
+                };
+                
+                console.log('Sending contact us email to owner...');
+                await emailjs.send(
+                    'service_exm4k1v', 
+                    'template_uf9o6a6', 
+                    contactUsParams,
+                    '1vl0eb8WdRFGYJirb' 
+                );
+                console.log('Contact us email sent successfully');
+                contactEmailSent = true;
+            } catch (error) {
+                console.error('Failed to send contact us email:', error);
+            }
+
+           
+            try {
+                const thankYouParams = {
+                    name: formData.name,
+                    email: formData.email,
+                    to_email: formData.email, 
+                    user_email: formData.email, 
+                    reply_to: 'dinaabdulazizali@gmail.com'
+                };
+                
+                console.log('Sending thank you email to user:', formData.email);
+                await emailjs.send(
+                    'service_exm4k1v', 
+                    'template_y3n0ini', 
+                    thankYouParams,
+                    '1vl0eb8WdRFGYJirb' 
+                );
+                console.log('Thank you email sent successfully to:', formData.email);
+                thankYouEmailSent = true;
+            } catch (error) {
+                console.error('Failed to send thank you email:', error);
+            }
+
+
+            if (contactEmailSent || thankYouEmailSent) {
+                let successMessage = 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.';
+                if (contactEmailSent && !thankYouEmailSent) {
+                    successMessage = 'تم إرسال رسالتك بنجاح! (ملاحظة: لم يتم إرسال رسالة التأكيد)';
+                } else if (!contactEmailSent && thankYouEmailSent) {
+                    successMessage = 'تم إرسال رسالة التأكيد! (ملاحظة: قد تكون هناك مشكلة في إرسال الرسالة الأساسية)';
+                }
+                
+                setSnackbar({
+                    open: true,
+                    message: successMessage,
+                    severity: 'success'
+                });
+                
+              
+                setFormData({
+                    name: '',
+                    email: '',
+                    subject: '',
+                    message: ''
+                });
+            } else {
+                throw new Error('Both emails failed to send');
+            }
+            
+        } catch (error) {
+            console.error('Error sending email:', error);
+            setSnackbar({
+                open: true,
+                message: 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.',
+                severity: 'error'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+
+    const handleSnackbarClose = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
+    };
 
     return (
         <Container maxWidth="lg" sx={{ py: 8, direction: 'rtl' }}>
@@ -43,20 +180,67 @@ const ContactUs = () => {
                     >
                         <Paper elevation={4} sx={{ p: 4, borderRadius: 3 }}>
                             <Typography fontWeight="bold" textAlign="center" variant="h6" gutterBottom>أرسل لنا رسالة</Typography>
-                            <TextField fullWidth label="الاسم الكامل" margin="normal" variant="outlined" />
-                            <TextField fullWidth label="البريد الإلكتروني" margin="normal" variant="outlined" />
-                            <TextField fullWidth label="الموضوع" margin="normal" variant="outlined" />
-                            <TextField
-                                fullWidth
-                                label="الرسالة"
-                                margin="normal"
-                                multiline
-                                rows={4}
-                                variant="outlined"
-                            />
-                            <Button variant="contained" color="primary" size="large" fullWidth sx={{ mt: 3 }}>
-                                إرسال الرسالة
-                            </Button>
+                            <form onSubmit={handleSubmit}>
+                                <TextField 
+                                    fullWidth 
+                                    label="الاسم الكامل" 
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    margin="normal" 
+                                    variant="outlined" 
+                                    required
+                                    disabled={loading}
+                                />
+                                <TextField 
+                                    fullWidth 
+                                    label="البريد الإلكتروني" 
+                                    name="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    margin="normal" 
+                                    variant="outlined" 
+                                    required
+                                    disabled={loading}
+                                />
+                                <TextField 
+                                    fullWidth 
+                                    label="الموضوع" 
+                                    name="subject"
+                                    value={formData.subject}
+                                    onChange={handleInputChange}
+                                    margin="normal" 
+                                    variant="outlined" 
+                                    required
+                                    disabled={loading}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="الرسالة"
+                                    name="message"
+                                    value={formData.message}
+                                    onChange={handleInputChange}
+                                    margin="normal"
+                                    multiline
+                                    rows={4}
+                                    variant="outlined"
+                                    required
+                                    disabled={loading}
+                                />
+                                <Button 
+                                    type="submit"
+                                    variant="contained" 
+                                    color="primary" 
+                                    size="large" 
+                                    fullWidth 
+                                    sx={{ mt: 3 }}
+                                    disabled={loading}
+                                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                                >
+                                    {loading ? 'جاري الإرسال...' : 'إرسال الرسالة'}
+                                </Button>
+                            </form>
                         </Paper>
                     </motion.div>
                 </Grid>
@@ -68,7 +252,7 @@ const ContactUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: '#5e99f0ff ' }}>
+                        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: '#f5f9ff ' }}>
                             <Typography variant="h6" gutterBottom>معلومات الاتصال</Typography>
                             
                             <Box display="flex" alignItems="center" mb={2}>
@@ -121,6 +305,22 @@ const ContactUs = () => {
                     </Box>
                 </Box>
             </motion.div>
+            
+            
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleSnackbarClose} 
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };
