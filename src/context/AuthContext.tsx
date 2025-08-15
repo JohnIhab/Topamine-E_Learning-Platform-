@@ -1,4 +1,3 @@
-// context/AuthContext.tsx
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";

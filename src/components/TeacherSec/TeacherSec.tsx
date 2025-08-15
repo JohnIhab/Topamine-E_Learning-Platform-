@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import mainImg from "../../assets/images/Icon-logo.png";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { collection, doc, getDocs } from "firebase/firestore";
@@ -139,21 +138,7 @@ export default function TeacherSec() {
                         onChange={(e) => setNameFilter(e.target.value)}
                         fullWidth
                     />
-                    {/* <TextField
-                        label="فلترة بالمادة"
-                        select
-                        value={subjectFilter}
-                        onChange={(e) => setSubjectFilter(e.target.value)}
-                        fullWidth
-                    >
-                        <MenuItem value="">الكل</MenuItem>
-                        <MenuItem value="فيزياء">فيزياء</MenuItem>
-                        {uniqueSubjects.map((subject, i) => (
-                            <MenuItem key={i} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </TextField> */}
+
                 </Box>
             </Box>
 

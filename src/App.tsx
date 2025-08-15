@@ -9,7 +9,7 @@ import ProfileTeacher from "./pages/ProfileTeacher/ProfileTeacher";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 import Footer from "./components/Footer/Footer";
 import About from "./pages/About/About";
-import Payment from "./pages/Payment/Payment";
+// import Payment from "./pages/Payment/Payment";
 import AdminDashboard1 from "./pages/AdminDashboard1/AdminDashboard1";
 import Courses from "./pages/Courses/Courses";
 import Teachers from "./pages/Teachers/Teachers";
@@ -31,6 +31,7 @@ import AddNewCourse from './components/AddNewCourse/NewCourse';
 import Messages from './components/Messages/Messages';
 import { useThemeMode } from './context/ThemeContext';
 import { useEffect } from 'react';
+import { initializeCourseScheduler } from './utils/courseScheduler';
 import ThemeTestPage from './pages/ThemeTest/ThemeTestPage';
 import Chatbot from "./pages/ChatBot/ChatBot";
 
@@ -52,6 +53,15 @@ function App() {
   useEffect(() => {
     document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  useEffect(() => {
+    console.log('Initializing course expiration scheduler...');
+    const scheduler = initializeCourseScheduler();
+    
+    return () => {
+      scheduler.stop();
+    };
+  }, []);
 
   return (
     <>
@@ -98,14 +108,7 @@ function App() {
             />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
-            <Route
-              path="/profileTeacher/courseDetails/payment"
-              element={
-                <ProtectedRoute allowedRoles={["student"]}>
-                  <Payment />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="/admin"
               element={

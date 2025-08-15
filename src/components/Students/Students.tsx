@@ -157,7 +157,6 @@ export default function PrimarySearchAppBar() {
     );
   });
 
-  // Calculate unique students count
   const uniqueStudentsCount = new Set(
     filteredenrollments
       .map(payment => payment.student?.id)
@@ -203,36 +202,7 @@ const handleDelete = async (id: string) => {
           backgroundColor: theme.palette.background.default,
         }}
       >
-        {/* <AppBar
-          position="static"
-          sx={{
-            backgroundColor: "#FFFFFF",
-            borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
-            boxShadow: "none",
-            padding: "0.5%",
-            width:'75vw',
-            mx:"auto",
-            borderRadius: "20px"
-          }}
-        >
-          <Toolbar>
-            <Typography
-              noWrap
-              component="div"
-              sx={{
-                display: {
-                  xs: "none",
-                  sm: "block",
-                  fontWeight: "600",
-                  fontSize: "20px",
-                  color: "#111827",
-                },
-              }}
-            >
-              إدارة طلابي الذين دفعوا
-            </Typography>
-          </Toolbar>
-        </AppBar> */}
+        
 
         <TableContainer
           component={Paper}
@@ -476,9 +446,7 @@ const handleDelete = async (id: string) => {
                       <Typography variant="body2" fontWeight="bold" sx={{ color: theme.palette.text.primary }}>
                         {payment.course?.title || 'غير محدد'}
                       </Typography>
-                      {/* <Typography variant="caption" color="text.secondary">
-                        {payment.course?.subTitle || ''}
-                      </Typography> */}
+
                     </TableCell>
                     <TableCell sx={{ 
                       width: "12%", 

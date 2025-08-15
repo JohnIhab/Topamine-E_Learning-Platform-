@@ -13,6 +13,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { toast } from 'react-toastify';
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
@@ -71,13 +72,13 @@ const Login = () => {
                             setShowWaitingPopup(true);
                         }
                     } else {
-                        alert('نوع الحساب غير معروف');
+                        toast.error("نوع الحساب غير معروف");
                     }
                 }
 
             } catch (error) {
                 console.error("خطأ في تسجيل الدخول:", error.message);
-                alert('فشل تسجيل الدخول: تأكد من البيانات');
+                toast.error('فشل تسجيل الدخول: تأكد من البيانات');
             } finally {
                 setLoading(false);
             }
@@ -116,12 +117,12 @@ const Login = () => {
             } else if (role === 'teacher') {
                 navigate('/profileTeacher');
             } else {
-                alert('نوع الحساب غير معروف');
+                toast.error('نوع الحساب غير معروف');
             }
 
         } catch (error) {
             console.error("خطأ في تسجيل الدخول باستخدام Google:", error.message);
-            alert("حدث خطأ أثناء تسجيل الدخول باستخدام Google");
+            toast.error("حدث خطأ أثناء تسجيل الدخول باستخدام Google");
         }
     };
 

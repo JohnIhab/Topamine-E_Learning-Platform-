@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { getPaymentIframe } from "../paymob";
 import { useLocation, useNavigate } from "react-router-dom";
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
+import { doc, setDoc, collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserContext } from "../context/UserContext";
 import { useAuth } from "../context/AuthContext";
@@ -12,6 +12,8 @@ const CheckoutPage = () => {
     const location = useLocation();
     const userContext = useContext(UserContext);
     const authContext = useAuth(); 
+    const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
+    const [checkingEnrollment, setCheckingEnrollment] = useState(true); 
     
     if (!userContext) {
         console.error("UserContext is not available. Make sure UserProvider is wrapping your app.");
@@ -28,6 +30,38 @@ const CheckoutPage = () => {
     const price = location.state?.price; 
     const courseId = location.state?.courseId;
 
+    const checkEnrollmentStatus = async () => {
+        if (!user || !courseId) {
+            setCheckingEnrollment(false);
+            return;
+        }
+
+        try {
+            const userId = user.id || user.uid;
+            const enrollmentsQuery = query(
+                collection(db, 'enrollments'),
+                where('uid', '==', userId),
+                where('courseId', '==', courseId),
+                where('paid', '==', "enrolled")
+            );
+
+            const enrollmentDocs = await getDocs(enrollmentsQuery);
+            const isEnrolled = enrollmentDocs.size > 0;
+            
+            setIsAlreadyEnrolled(isEnrolled);
+            
+            if (isEnrolled) {
+                console.log("User is already enrolled in this course, redirecting to video page");
+                navigate("/video", { state: { courseId } });
+                return;
+            }
+        } catch (error) {
+            console.error('Error checking enrollment status:', error);
+        } finally {
+            setCheckingEnrollment(false);
+        }
+    };
+
     useEffect(() => {
         console.log("=== CheckoutPage Debug Info ===");
         console.log("Location state:", location.state);
@@ -36,6 +70,10 @@ const CheckoutPage = () => {
         console.log("User:", user);
         console.log("=============================");
     }, [location.state, price, courseId, user]);
+
+    useEffect(() => {
+        checkEnrollmentStatus();
+    }, [user, courseId]);
 
     useEffect(() => {
         if (!user) {
@@ -53,8 +91,14 @@ const CheckoutPage = () => {
 
     useEffect(() => {
         const fetchIframe = async () => {
-            if (!price || !courseId || !user) {
-                console.error("Missing required data for payment:", { price, courseId, user: !!user });
+            if (!price || !courseId || !user || isAlreadyEnrolled || checkingEnrollment) {
+                console.error("Missing required data for payment or user already enrolled:", { 
+                    price, 
+                    courseId, 
+                    user: !!user, 
+                    isAlreadyEnrolled,
+                    checkingEnrollment 
+                });
                 return;
             }
 
@@ -74,7 +118,7 @@ const CheckoutPage = () => {
         };
 
         fetchIframe();
-    }, [price, courseId, user]);
+    }, [price, courseId, user, isAlreadyEnrolled, checkingEnrollment]);
 
     useEffect(() => {
         const listener = async (event) => {
@@ -125,8 +169,21 @@ const CheckoutPage = () => {
                         const paymentsRef = collection(db, "payments");
                         const docRef = await addDoc(paymentsRef, paymentData);
                         
+                        const enrollmentData = {
+                            uid: userId,
+                            courseId: validCourseId,
+                            paid: "enrolled",
+                            enrollmentDate: new Date(),
+                            amount: validPrice
+                        };
+                        
+                        const enrollmentsRef = collection(db, "enrollments");
+                        await addDoc(enrollmentsRef, enrollmentData);
+                        
                         console.log("Payment saved successfully with ID:", docRef.id);
+                        console.log("Enrollment created successfully");
                         console.log("Final payment data:", paymentData);
+                        console.log("Final enrollment data:", enrollmentData);
 
                         navigate("/video", { state: { courseId: validCourseId } });
                         
@@ -146,6 +203,16 @@ const CheckoutPage = () => {
         <div style={{ padding: '20px', fontFamily: 'Tajawal' }}>
             {!user ? (
                 <div>جاري التحقق من بيانات المستخدم...</div>
+            ) : checkingEnrollment ? (
+                <div style={{ textAlign: 'center', marginTop: '50px' }}>
+                    <h3>جاري التحقق من حالة التسجيل...</h3>
+                    <p>يرجى الانتظار بينما نتحقق من بياناتك</p>
+                </div>
+            ) : isAlreadyEnrolled ? (
+                <div style={{ textAlign: 'center', marginTop: '50px' }}>
+                    <h3 style={{ color: 'green' }}>أنت مشترك بالفعل في هذا الكورس!</h3>
+                    <p>سيتم توجيهك إلى صفحة المحاضرات...</p>
+                </div>
             ) : !price || !courseId ? (
                 <div style={{ textAlign: 'center', marginTop: '50px' }}>
                     <h3 style={{ color: 'red' }}>خطأ في بيانات الدفع</h3>
@@ -162,9 +229,7 @@ const CheckoutPage = () => {
             ) : (
                 <>
                     <h2>ادفع {price} جنيه لمشاهدة الكورس</h2>
-                    {/* <p>الطالب: {user.name || user.displayName || user.email}</p> */}
-                    {/* <p>معرف الكورس: {courseId}</p> */}
-                    {/* <p>السعر: {price} (نوع البيانات: {typeof price})</p> */}
+
                     {iframeUrl ? (
                         <iframe
                             src={iframeUrl}

@@ -16,7 +16,7 @@ import {
   Button,
   Divider,
 } from "@mui/material";
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -77,8 +77,6 @@ const VideoShow: React.FC = () => {
 
   useEffect(() => {
     const checkAccess = async () => {
-
-      
       if (!courseId) {
         console.log("No courseId provided");
         setHasAccess(false);
@@ -96,10 +94,29 @@ const VideoShow: React.FC = () => {
         return;
       }
 
-      console.log("✅ Temporarily allowing all authenticated users");
-      setHasAccess(true);
-      return;
+      try {
+        const enrollmentsQuery = query(
+          collection(db, 'enrollments'),
+          where('uid', '==', user.uid),
+          where('courseId', '==', courseId),
+          where('paid', '==', "enrolled")
+        );
 
+        const enrollmentDocs = await getDocs(enrollmentsQuery);
+        
+        if (enrollmentDocs.empty) {
+          console.log("No enrollment found for this course");
+          setHasAccess(false);
+          return;
+        }
+
+        console.log("✅ User has paid enrollment for this course, granting access");
+        setHasAccess(true);
+        
+      } catch (error) {
+        console.error("Error checking course access:", error);
+        setHasAccess(false);
+      }
     };
 
     checkAccess();
@@ -202,6 +219,28 @@ const VideoShow: React.FC = () => {
         >
           {courseData?.title || "مشغل الفيديو"}
         </Typography>
+        
+        {courseData?.status === 'non-active' && (
+          <Box sx={{ 
+            textAlign: "center", 
+            mb: 2,
+            p: 2,
+            borderRadius: 2,
+            backgroundColor: '#fff3e0',
+            border: '1px solid #ffcc02'
+          }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#e65100',
+                fontWeight: 'bold',
+              }}
+            >
+              📢 تنبيه: هذا الكورس غير نشط حالياً، لكن يمكنك الوصول إليه لأنك دفعت ثمنه
+            </Typography>
+          </Box>
+        )}
+        
         <Typography
           variant="subtitle1"
           sx={{
@@ -396,7 +435,7 @@ const VideoShow: React.FC = () => {
               <Box
                 sx={{
                   position: "relative",
-                  paddingTop: "56.25%", // 16:9 aspect ratio
+                  paddingTop: "56.25%", 
                   bgcolor: "#000",
                 }}
               >

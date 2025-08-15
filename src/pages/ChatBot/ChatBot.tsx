@@ -71,7 +71,6 @@ const Chatbot: React.FC = () => {
 
     return (
         <>
-            {/* Floating Chat Button */}
             <Fab
                 color="primary"
                 onClick={handleOpen}
@@ -86,7 +85,6 @@ const Chatbot: React.FC = () => {
                 <ChatIcon />
             </Fab>
 
-            {/* Chat Dialog */}
             <Dialog
                 open={open}
                 onClose={handleClose}
@@ -102,7 +100,6 @@ const Chatbot: React.FC = () => {
                     },
                 }}
             >
-                {/* Header */}
                 <Box
                     display="flex"
                     alignItems="center"
@@ -116,7 +113,6 @@ const Chatbot: React.FC = () => {
                     </IconButton>
                 </Box>
 
-                {/* Messages */}
                 <DialogContent sx={{ flex: 1, overflowY: 'auto', py: 2 }}>
                     {messages.map((msg, i) => (
                         <Box
@@ -164,7 +160,6 @@ const Chatbot: React.FC = () => {
                     <div ref={endRef} />
                 </DialogContent>
 
-                {/* Input Area */}
                 <Box p={2} display="flex" gap={1} borderTop="1px solid #2d3748" bgcolor="#1a1a2e">
                     <TextField
                         fullWidth

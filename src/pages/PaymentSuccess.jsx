@@ -6,6 +6,7 @@ import { db } from '../firebase';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const PaymentResult = () => {
     const navigate = useNavigate();
@@ -73,13 +74,13 @@ const PaymentResult = () => {
                             }
                         }, 1000);
                     } catch (error) {
-                        alert('حدث خطأ في حفظ بيانات الدفع. سيتم توجيهك للصفحة الرئيسية.');
+                        toast.error('حدث خطأ في حفظ بيانات الدفع. سيتم توجيهك للصفحة الرئيسية.');
                         navigate('/');
                     }
                 };
                 savePayment();
             } else {
-                alert('فشل في عملية الدفع أو تم إلغاؤها. سيتم توجيهك للصفحة الرئيسية.');
+                toast.error('فشل في عملية الدفع أو تم إلغاؤها. سيتم توجيهك للصفحة الرئيسية.');
                 navigate('/');
             }
         }

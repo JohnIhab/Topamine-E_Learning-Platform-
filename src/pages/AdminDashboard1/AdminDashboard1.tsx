@@ -264,35 +264,7 @@ export default function PrimarySearchAppBar() {
             borderRight: `1px solid ${theme.palette.divider}`,
           }}
         >
-          {/* <AppBar
-            position="static"
-            sx={{
-              backgroundColor: theme.palette.background.paper,
-              borderBottom: `1px solid ${theme.palette.divider}`,
-              boxShadow: "none",
-              padding: "0.5%",
-            }}
-          >
-            <Toolbar>
-              <Typography
-                noWrap
-                component="div"
-                sx={{
-                  display: {
-                    xs: "none",
-                    sm: "block",
-                    fontWeight: "600",
-                    fontSize: "20px",
-                    color: theme.palette.text.primary,
-                  },
-                  flexGrow: 1,
-                }}
-              >
-                لوحه التحكم
-              </Typography>
-              <ThemeToggle />
-            </Toolbar>
-          </AppBar> */}
+          
 
           <Stack
             sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
