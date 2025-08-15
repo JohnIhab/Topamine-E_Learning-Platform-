@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 // @ts-ignore
 import { db } from '../../firebase';
-// @ts-ignore  
 import { useAuth } from '../../context/AuthContext';
 import { useThemeMode } from '../../context/ThemeContext';
 
@@ -23,7 +22,6 @@ const Header: React.FC = () => {
   const [courseCount, setCourseCount] = useState<number>(0);
   const [totalPayments, setTotalPayments] = useState<number>(0);
   const [studentCount, setStudentCount] = useState<number>(0);
-  // @ts-ignore
   const { user } = useAuth();
   const theme = useTheme();
   const { isDarkMode } = useThemeMode();
@@ -171,26 +169,6 @@ const Header: React.FC = () => {
             </Stack>
           </Box>
           
-          {/* <Box
-            sx={{
-              width: { xs: '100%', sm: '260px' },
-              height: "140px",
-              borderRadius: 2,
-              backgroundColor: '#F3F4FF',
-              boxShadow: 1,
-              fontFamily: 'Tajawal'
-            }}
-          >
-            <Stack direction={'column'} spacing={1} sx={{ mt: 3, ml: 3 }}>
-              <PeopleIcon sx={{ fontSize: 32, color: '#4F46E5' }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '30px', lineHeight: "36px", color: '#111827' }}>
-                ٢٤٨
-              </Typography>
-              <Typography sx={{ fontWeight: 500, fontSize: '16px', lineHeight: "24px", color: '#6B7280' }}>
-                مجموع الطلاب
-              </Typography>
-            </Stack>
-          </Box> */}
         </Stack>
       </Box>
 

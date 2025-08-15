@@ -10,6 +10,7 @@ import {
   Alert,
   CircularProgress,
   Tooltip,
+  Chip,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
@@ -17,10 +18,11 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentsIcon from '@mui/icons-material/Payments';
-import { doc, deleteDoc, Timestamp, getDoc } from 'firebase/firestore';
+import { doc, deleteDoc, Timestamp, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import EditPopover from '../EditPage/EditPopover';
+import { toast } from 'react-toastify';
 
 interface CourseCardProps {
   id: string;
@@ -35,6 +37,7 @@ interface CourseCardProps {
   teacherName?: string;
   teacherId?: string;
   price: number;
+  status?: string;
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({
@@ -50,6 +53,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   teacherName: propTeacherName,
   teacherId,
   price,
+  status = 'active',
 }) => {
   const navigate = useNavigate();
   const { user, role }: any = useAuth();
@@ -60,6 +64,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const [editAnchorEl, setEditAnchorEl] = useState<HTMLElement | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [teacherName, setTeacherName] = useState<string>(propTeacherName || '');
+  const [currentStatus, setCurrentStatus] = useState<string>(status);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   useEffect(() => {
     const fetchTeacherName = async () => {
@@ -100,6 +106,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
     fetchTeacherName();
   }, [user, role, propTeacherName, teacherId]);
 
+  useEffect(() => {
+    setCurrentStatus(status);
+  }, [status]);
+
   const handleEditIconClick = (event: React.MouseEvent<SVGSVGElement>) => {
     setEditAnchorEl(event.currentTarget as any);
     setEditOpen(true);
@@ -119,6 +129,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleCourseUpdated = () => {
     window.location.reload();
   };
+
+
 
   const handleDelete = async () => {
     try {
@@ -184,8 +196,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
+          opacity: currentStatus === 'non-active' ? 0.7 : 1,
+          border: currentStatus === 'non-active' ? '2px solid #ff9800' : 'none',
         }}
       >
+        {currentStatus === 'non-active' && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 45,
+              right: 8,
+              backgroundColor: 'rgba(255, 152, 0, 0.9)',
+              color: 'white',
+              px: 1,
+              py: 0.3,
+              borderRadius: 1,
+              fontSize: '0.65rem',
+              fontWeight: 'bold',
+              zIndex: 1,
+            }}
+          >
+            منتهي الصلاحية
+          </Box>
+        )}
+
         <Box sx={{ position: 'relative', height: 140 }}>
           {imageLoading && (
             <Box
@@ -211,6 +245,43 @@ const CourseCard: React.FC<CourseCardProps> = ({
               </Typography>
             </Box>
           )}
+          
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 3,
+            }}
+          >
+            <Button
+              variant="contained"
+              size="small"
+              disabled={statusLoading}
+              sx={{
+                backgroundColor: currentStatus === 'active' ? '#4caf50' : '#ff9800',
+                color: 'white',
+                fontSize: '0.7rem',
+                minWidth: '80px',
+                height: '28px',
+                borderRadius: '14px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                '&:hover': {
+                  backgroundColor: currentStatus === 'active' ? '#45a049' : '#e68900',
+                },
+                '&:disabled': {
+                  backgroundColor: '#cccccc',
+                }
+              }}
+            >
+              {statusLoading ? (
+                <CircularProgress size={14} color="inherit" />
+              ) : (
+                currentStatus === 'active' ? 'نشط' : 'غير نشط'
+              )}
+            </Button>
+          </Box>
+          
           <CardMedia
             component="img"
             height="140"
@@ -250,22 +321,39 @@ const CourseCard: React.FC<CourseCardProps> = ({
             </Tooltip>
 
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1, mt: 1 }}>
-              <Tooltip title={title}>
-                <Typography
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    maxWidth: '160px',
-                    overflow: 'hidden',
-                    
-                    display: '-webkit-box',
-                    WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: 2,
-                  }}
-                >
-                  {title}
-                </Typography>
-              </Tooltip>
+              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <Tooltip title={title}>
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      maxWidth: '160px',
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: 2,
+                    }}
+                  >
+                    {title}
+                  </Typography>
+                </Tooltip>
+                
+                {currentStatus === 'non-active' && (
+                  <Box sx={{ mt: 0.5 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#ff9800',
+                        fontWeight: 'bold',
+                        fontSize: '0.7rem',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      ● منتهي الصلاحية
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
 
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <EditIcon sx={{ color: '#2563EB', cursor: 'pointer', fontSize: '1.2rem' }} onClick={handleEditIconClick} />
@@ -324,9 +412,28 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <Typography color="black" sx={{ fontSize: '18px', fontWeight: 700 }}>
               <PaymentsIcon sx={{ fontSize: 20, verticalAlign: 'middle' }} /> {price} ج
             </Typography>
-            <Button variant="outlined" size="small" onClick={() => navigate(`/profileTeacher/courseDetails/${id}`)}>
-              عرض التفاصيل
-            </Button>
+            {currentStatus === 'active' ? (
+              <Button variant="outlined" size="small" onClick={() => navigate(`/profileTeacher/courseDetails/${id}`)}>
+                عرض التفاصيل
+              </Button>
+            ) : (
+              <Button 
+                variant="outlined" 
+                size="small" 
+                disabled
+                sx={{ 
+                  color: '#ff9800',
+                  borderColor: '#ff9800',
+                  '&.Mui-disabled': {
+                    color: '#ff9800',
+                    borderColor: '#ff9800',
+                    opacity: 0.7
+                  }
+                }}
+              >
+                منتهي الصلاحية
+              </Button>
+            )}
           </Stack>
         </CardContent>
       </Card>

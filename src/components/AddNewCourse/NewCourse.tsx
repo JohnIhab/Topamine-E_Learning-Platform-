@@ -262,6 +262,7 @@ const NewCourse: React.FC = () => {
         imageUrl,
         createdAt: new Date(),
         subject: effectiveSubject,
+        status: 'active',
         lectures: lectures.map((lecture) => ({
           title: lecture.title || '',
           videoUrl: lecture.videoUrl || '',
@@ -329,7 +330,6 @@ const NewCourse: React.FC = () => {
                 setTeacherName(user.displayName);
               }
             }
-            // Set teacher subject if available
             if (data.subject) {
               console.log("Setting teacher subject:", data.subject);
               setSubject(data.subject);
@@ -504,7 +504,10 @@ const NewCourse: React.FC = () => {
                       onChange={(e) => setStartDate(e.target.value)}
                       sx={{ width: '100%' }}
                       InputLabelProps={{ shrink: true }}
-                      disabled
+                      inputProps={{
+                        min: new Date().toISOString().split('T')[0],
+                      }}
+                      helperText="لا يمكن اختيار تاريخ سابق لليوم"
                     />
                   </Box>
                 </ThemeProvider>
@@ -519,6 +522,10 @@ const NewCourse: React.FC = () => {
                       onChange={(e) => setEndDate(e.target.value)}
                       sx={{ width: '100%' }}
                       InputLabelProps={{ shrink: true }}
+                      inputProps={{
+                        min: startDate,
+                      }}
+                      helperText="لا يمكن اختيار تاريخ سابق لتاريخ البداية"
                     />
                   </Box>
                 </ThemeProvider>

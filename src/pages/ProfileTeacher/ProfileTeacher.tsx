@@ -663,7 +663,9 @@ const TeacherProfile = () => {
                         }}
                       />
                       <Box p={2}>
-                        <Typography fontWeight="bold">
+                        <Typography fontWeight="bold" sx={{display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: 2}}>
                           {course.title}
                         </Typography>
                         <Typography

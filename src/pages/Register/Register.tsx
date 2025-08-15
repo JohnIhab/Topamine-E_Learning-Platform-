@@ -170,7 +170,7 @@ const Register: React.FC = () => {
                     role: values.isTeacher ? 'teacher' : 'student',
                     subject: values.isTeacher ? values.subject : null,
                     status: values.isTeacher ? 'قيد المراجعة' : 'تم القبول',
-                    blocked: values.isStudent ? false : true,
+                    blocked: values.isStudent || values.isTeacher ? false : true,
                     createdAt: new Date(),
                 });
 

@@ -246,43 +246,11 @@ export default function PrimarySearchAppBar() {
         <Box
           sx={{
             flexGrow: 1,
-            // backgroundColor: "#eeeeee",
             minHeight: "100vh",
             borderRight: "1px solid rgba(157, 180, 206, 0.57)",
           }}
         >
-          {/* AppBar */}
-          {/* <AppBar
-            position="static"
-            sx={{
-              backgroundColor: "#FFFFFF",
-              borderBottom: "1px solid rgba(157, 180, 206, 0.57)",
-              boxShadow: "none",
-              padding: "0.5%",
-            }}
-          >
-            <Toolbar>
-              <Typography
-                noWrap
-                component="div"
-                sx={{
-                  display: {
-                    xs: "none",
-                    sm: "block",
-                    fontWeight: "600",
-                    fontSize: "20px",
-                    color: "#111827",
-                  },
-                  flexGrow: 1,
-                }}
-              >
-                لوحه التحكم
-              </Typography>
-              <ThemeToggle />
-            </Toolbar>
-          </AppBar> */}
-
-          {/* Student Manegement */}
+          
 
           <TableContainer
             component={Paper}

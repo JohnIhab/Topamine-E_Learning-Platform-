@@ -27,7 +27,7 @@ import { prefixer } from 'stylis';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { UserContext } from '../../context/UserContext';
 import { useAuth } from '../../context/AuthContext';
@@ -86,6 +86,8 @@ const CourseDetails = () => {
   const [openLectures, setOpenLectures] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [checkingEnrollment, setCheckingEnrollment] = useState(false);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -135,10 +137,41 @@ const CourseDetails = () => {
     fetchCourseData();
   }, [courseId]);
 
+  useEffect(() => {
+    const currentUser = user || authUser;
+    if (currentUser && courseId) {
+      checkEnrollmentStatus();
+    }
+  }, [user, authUser, courseId]);
+
   const toggleLecture = (index: number) => {
     setOpenLectures(prev =>
       prev.map((open, i) => (i === index ? !open : open))
     );
+  };
+
+  const checkEnrollmentStatus = async () => {
+    const currentUser = user || authUser;
+    if (!currentUser || !courseId) return;
+
+    setCheckingEnrollment(true);
+    try {
+      const userId = currentUser.id || currentUser.uid;
+      const enrollmentsQuery = query(
+        collection(db, 'enrollments'),
+        where('uid', '==', userId),
+        where('courseId', '==', courseId),
+        where('paid', '==', "enrolled")
+      );
+
+      const enrollmentDocs = await getDocs(enrollmentsQuery);
+      setIsEnrolled(enrollmentDocs.size > 0);
+    } catch (error) {
+      console.error('Error checking enrollment status:', error);
+      setIsEnrolled(false);
+    } finally {
+      setCheckingEnrollment(false);
+    }
   };
 
   return (
@@ -641,6 +674,38 @@ const CourseDetails = () => {
                   {courseData.price} ج.م
                 </Typography>
               </Box>
+
+              {/* Enrollment Status Indicator */}
+              {!checkingEnrollment && isEnrolled && (
+                <Box sx={{
+                  p: 3,
+                  backgroundColor: '#e8f5e8',
+                  borderRadius: 2,
+                  border: '2px solid #28a745',
+                  textAlign: 'center'
+                }}>
+                  <Typography
+                    sx={{
+                      fontSize: { xs: 16, md: 18 },
+                      fontWeight: 'bold',
+                      color: '#28a745',
+                      fontFamily: 'Tajawal',
+                      mb: 1
+                    }}
+                  >
+                    ✅ أنت مشترك في هذا الكورس
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: { xs: 14, md: 16 },
+                      color: '#155724',
+                      fontFamily: 'Tajawal'
+                    }}
+                  >
+                    يمكنك الآن الوصول إلى جميع المحاضرات والمواد التعليمية
+                  </Typography>
+                </Box>
+              )}
             </Stack>
           ) : (
             <Box sx={{ p: 3 }}>
@@ -926,39 +991,55 @@ const CourseDetails = () => {
             {role !== 'teacher' && (
               <Button
                 onClick={() => {
-                  console.log("=== CourseDel Navigation Debug ===");
-                  console.log("courseData:", courseData);
-                  console.log("courseData.price:", courseData?.price);
-                  console.log("courseId:", courseId);
-                  console.log("Price type:", typeof courseData?.price);
-                  console.log("CourseId type:", typeof courseId);
-                  console.log("User role:", role);
-                  console.log("Auth user:", authUser);
-                  console.log("=====================================");
-                  
-                  navigate("/Checkout", {
-                    state: { 
-                      price: courseData?.price, 
-                      courseId: courseId 
-                    },
-                  });
+                  if (isEnrolled) {
+                    navigate('/video', { state: { courseId } });
+                  } else {
+                    console.log("=== CourseDel Navigation Debug ===");
+                    console.log("courseData:", courseData);
+                    console.log("courseData.price:", courseData?.price);
+                    console.log("courseId:", courseId);
+                    console.log("Price type:", typeof courseData?.price);
+                    console.log("CourseId type:", typeof courseId);
+                    console.log("User role:", role);
+                    console.log("Auth user:", authUser);
+                    console.log("=====================================");
+                    
+                    navigate("/Checkout", {
+                      state: { 
+                        price: courseData?.price, 
+                        courseId: courseId 
+                      },
+                    });
+                  }
                 }}
                 variant="contained"
+                disabled={checkingEnrollment}
                 sx={{
                   minWidth: { xs: 140, md: 160 },
                   height: { xs: 48, md: 52 },
                   fontFamily: "Tajawal",
                   fontWeight: "bold",
                   fontSize: { xs: 14, md: 16 },
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background: isEnrolled 
+                    ? "linear-gradient(135deg, #28a745 0%, #20c997 100%)" 
+                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                    background: isEnrolled 
+                      ? "linear-gradient(135deg, #218838 0%, #1ea384 100%)"
+                      : "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
                   },
                   borderRadius: 2,
-                  boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                  boxShadow: isEnrolled 
+                    ? "0 4px 12px rgba(40, 167, 69, 0.4)"
+                    : "0 4px 12px rgba(102, 126, 234, 0.4)",
                 }}
               >
-                حجز الكورس
+                {checkingEnrollment 
+                  ? 'جاري التحقق...' 
+                  : isEnrolled 
+                    ? 'متابعة الدروس' 
+                    : 'حجز الكورس'
+                }
               </Button>
             )}
 

@@ -11,7 +11,6 @@ import {
     Toolbar,
     Divider,
     List,
-    ListItem,
     CircularProgress,
     useTheme,
 } from '@mui/material';
@@ -281,12 +280,10 @@ const Chat: React.FC = () => {
                 </List>
             </Box>
 
-            {/* Divider */}
             <Divider sx={{ 
                 borderColor: isDarkMode ? 'rgba(148, 163, 184, 0.2)' : '#E0E0E0' 
             }} />
 
-            {/* Message Input */}
             <Box sx={{ 
                 p: 2, 
                 backgroundColor: theme.palette.background.paper, 

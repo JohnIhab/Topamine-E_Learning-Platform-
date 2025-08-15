@@ -252,7 +252,7 @@ const ContactUs = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: '#f5f9ff ' }}>
+                        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: '#4d88cfff ' }}>
                             <Typography variant="h6" gutterBottom>معلومات الاتصال</Typography>
                             
                             <Box display="flex" alignItems="center" mb={2}>

@@ -57,6 +57,7 @@ type Course = {
   start: string;
   end: string;
   progress: number;
+  status?: string; // Add status field to track active/non-active
 };
 
 const ProfileStudent = () => {
@@ -92,7 +93,12 @@ const ProfileStudent = () => {
   const handleClose = () => setOpen(false);
 
   const handleCourseClick = (courseId: string) => {
-    navigate('/video', { state: { courseId } });
+    const course = enrolledCourses.find(course => course.id === courseId);
+    if (course && course.status === 'non-active') {
+      navigate('/notFound');
+    } else {
+      navigate('/video', { state: { courseId } });
+    }
   };
 
   const handleSave = async () => {
@@ -230,6 +236,7 @@ const ProfileStudent = () => {
                   start: courseData.startDate ? new Date(courseData.startDate.seconds * 1000).toLocaleDateString('ar-EG') : 'غير محدد',
                   end: courseData.endDate ? new Date(courseData.endDate.seconds * 1000).toLocaleDateString('ar-EG') : 'غير محدد',
                   progress: 0,
+                  status: courseData.status || 'active', 
                 };
               }
               return null;
@@ -499,14 +506,7 @@ const ProfileStudent = () => {
                   value={editGrade}
                   onChange={(e) => setEditGrade(e.target.value)}
                 />
-                {/* <TextField
-                  margin="dense"
-                  placeholder="تغيير سنين الخبره"
-                  type="string"
-                  fullWidth
-                  value={editExperiance}
-                  onChange={(e) => setEditExperiance(e.target.value)}
-                /> */}
+                
                 <TextField
                   margin="dense"
                   label="تغيير المعلومات عن الطالب"
@@ -595,7 +595,29 @@ const ProfileStudent = () => {
                       style={{ width: "100%", height: 200, objectFit: "fill" }}
                     />
                     <Box p={2}>
-                      <Typography sx={{ marginBottom: "15px" }} fontWeight="bold" textAlign={"center"}>{course.title}</Typography>
+                      <Typography sx={{ marginBottom: "15px",display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: 1, overflow: "hidden" }} fontWeight="bold" textAlign={"center"}>{course.title}</Typography>
+
+                      {course.status === 'non-active' && (
+                        <Box sx={{ mb: 1, textAlign: 'center' }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: '#ff9800',
+                              fontWeight: 'bold',
+                              fontSize: '0.75rem',
+                              backgroundColor: '#fff3e0',
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              display: 'inline-block',
+                            }}
+                          >
+                            ● الكورس غير نشط حالياً
+                          </Typography>
+                        </Box>
+                      )}
+                      
                       <Typography
                         sx={{
                           mb: 3,
@@ -604,7 +626,6 @@ const ProfileStudent = () => {
                           WebkitBoxOrient: "vertical",
                           overflow: "hidden"
                         }}
-                        // textAlign={"center"}
                         variant="body2"
                         color="text.secondary"
                         gutterBottom
@@ -627,15 +648,23 @@ const ProfileStudent = () => {
                       </Box>
                       <Button
                         variant="contained"
-                        color="primary"
+                        color={course.status === 'non-active' ? 'warning' : 'primary'}
                         fullWidth
-                        sx={{ textTransform: 'none' }}
+                        sx={{ 
+                          textTransform: 'none',
+                          ...(course.status === 'non-active' && {
+                            backgroundColor: '#ff9800',
+                            '&:hover': {
+                              backgroundColor: '#e68900',
+                            }
+                          })
+                        }}
                         onClick={(e) => {
                           e.stopPropagation(); 
                           handleCourseClick(course.id!);
                         }}
                       >
-                        متابعة الدروس
+                        {course.status === 'non-active' ? 'الكورس غير متاح حالياً' : 'متابعة الدروس'}
                       </Button>
                     </Box>
                   </Box>

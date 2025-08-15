@@ -147,7 +147,6 @@ const ChatList: React.FC = () => {
             direction: 'rtl',
             backgroundColor: theme.palette.background.default
         }}>
-            {/* Header */}
             <AppBar position="static" sx={{ 
                 backgroundColor: theme.palette.primary.main,
                 boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
@@ -159,7 +158,6 @@ const ChatList: React.FC = () => {
                 </Toolbar>
             </AppBar>
 
-            {/* Search */}
             <Box sx={{ 
                 p: 2,
                 backgroundColor: theme.palette.background.paper,
@@ -200,7 +198,6 @@ const ChatList: React.FC = () => {
                 />
             </Box>
 
-            {/* Chat List */}
             <Box sx={{ 
                 flex: 1, 
                 overflow: 'auto',
