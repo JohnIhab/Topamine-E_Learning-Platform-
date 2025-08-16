@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
-import { collection, doc, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigate } from "react-router";
 
@@ -10,21 +10,30 @@ import {
     CardContent,
     Typography,
     CardMedia,
-    Grid,
     Button,
     TextField,
     MenuItem,
     Box,
 } from "@mui/material";
-import { Navigate } from "react-router";
+
+interface Teacher {
+    id: string;
+    name: string;
+    subject: string;
+    role: string;
+    avatar?: string;
+    [key: string]: any;
+}
 
 export default function TeacherSec() {
-    const [teacherCards, setTeacherCards] = useState([]);
+    const [teacherCards, setTeacherCards] = useState<Teacher[]>([]);
     const [visibleCount, setVisibleCount] = useState(4);
     const [nameFilter, setNameFilter] = useState("");
     const [subjectFilter, setSubjectFilter] = useState("");
 
-    const uniqueSubjects = [...new Set(teacherCards.map((card) => card.title))];
+    const uniqueSubjects = [...new Set(teacherCards
+        .filter(card => card.role === "teacher" && card.subject)
+        .map(card => card.subject))];
 
     useEffect(() => {
         const fetchTeachers = async () => {
@@ -33,7 +42,7 @@ export default function TeacherSec() {
                 const data = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
-                }));
+                })) as Teacher[];
                 console.log(data);
                 setTeacherCards(data);
             } catch (error) {
@@ -44,11 +53,12 @@ export default function TeacherSec() {
     }, []);
 
     const filteredCards = teacherCards.filter((card) => {
-        if (card.role == "teacher") {
-            const nameMatch = card.name.includes(nameFilter);
-            const subjectMatch = subjectFilter ? card.title === subjectFilter : true;
+        if (card.role === "teacher") {
+            const nameMatch = card.name?.toLowerCase().includes(nameFilter.toLowerCase());
+            const subjectMatch = subjectFilter ? card.subject === subjectFilter : true;
             return nameMatch && subjectMatch;
         }
+        return false;
     });
 
     const handleSeeMore = () => {
@@ -138,13 +148,43 @@ export default function TeacherSec() {
                         onChange={(e) => setNameFilter(e.target.value)}
                         fullWidth
                     />
+                    <TextField
+                        label="فلترة بالمادة"
+                        variant="outlined"
+                        value={subjectFilter}
+                        onChange={(e) => setSubjectFilter(e.target.value)}
+                        fullWidth
+                        select
+                    >
+                        <MenuItem value="">
+                            جميع المواد
+                        </MenuItem>
+                        {uniqueSubjects.map((subject) => (
+                            <MenuItem key={subject} value={subject}>
+                                {subject}
+                            </MenuItem>
+                        ))}
+                    </TextField>
 
                 </Box>
             </Box>
 
-            <Grid container spacing={2} justifyContent="center">
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    justifyContent: 'center', 
+                    gap: 2 
+                }}
+            >
                 {filteredCards.slice(0, visibleCount).map((card, index) => (
-                    <Grid item xs={12} sm={6} md={3} key={index}>
+                    <Box 
+                        key={index}
+                        sx={{
+                            width: { xs: '100%', sm: '48%', md: '23%' },
+                            minWidth: 300
+                        }}
+                    >
                         <Card
                             sx={{
                                 minWidth: 300,
@@ -170,9 +210,9 @@ export default function TeacherSec() {
                                 </Typography>
                             </CardContent>
                         </Card>
-                    </Grid>
+                    </Box>
                 ))}
-            </Grid>
+            </Box>
 
             {filteredCards.length === 0 && (
                 <Box textAlign="center" mt={4}>

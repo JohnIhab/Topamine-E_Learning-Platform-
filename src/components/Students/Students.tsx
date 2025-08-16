@@ -32,6 +32,7 @@ import { collection, getDocs,deleteDoc,doc } from "firebase/firestore";
 import { db } from '../../firebase';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
+import Loading from "../Loading/Loading";
 
 interface Student {
   id: string;
@@ -384,7 +385,7 @@ const handleDelete = async (id: string) => {
                     py: 4,
                     color: theme.palette.text.primary
                   }}>
-                    جاري التحميل...
+                    <Loading />
                   </TableCell>
                 </TableRow>
               ) : !user || role !== 'teacher' ? (
@@ -443,7 +444,12 @@ const handleDelete = async (id: string) => {
                       textAlign: "center",
                       color: theme.palette.text.primary
                     }}>
-                      <Typography variant="body2" fontWeight="bold" sx={{ color: theme.palette.text.primary }}>
+                      <Typography variant="body2" fontWeight="bold" sx={{ color: theme.palette.text.primary, display: '-webkit-box',
+                          WebkitBoxOrient: 'vertical',
+                          WebkitLineClamp: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          }}>
                         {payment.course?.title || 'غير محدد'}
                       </Typography>
 

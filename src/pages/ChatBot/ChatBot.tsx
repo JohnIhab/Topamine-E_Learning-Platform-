@@ -34,6 +34,13 @@ const Chatbot: React.FC = () => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    if (loading) {
+            return (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                    <CircularProgress />
+                </Box>
+            );
+        }
     useEffect(scrollToBottom, [messages]);
 
     const sendMessage = async () => {

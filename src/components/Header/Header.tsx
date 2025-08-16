@@ -5,7 +5,6 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import SchoolIcon from '@mui/icons-material/School';
-import PeopleIcon from '@mui/icons-material/People';
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 // @ts-ignore
@@ -20,8 +19,7 @@ const cacheRtl = createCache({
 
 const Header: React.FC = () => {
   const [courseCount, setCourseCount] = useState<number>(0);
-  const [totalPayments, setTotalPayments] = useState<number>(0);
-  const [studentCount, setStudentCount] = useState<number>(0);
+  const [totalEnrollments, setTotalEnrollments] = useState<number>(0);
   const { user } = useAuth();
   const theme = useTheme();
   const { isDarkMode } = useThemeMode();
@@ -44,41 +42,41 @@ const Header: React.FC = () => {
       
       if (courseIds.length > 0) {
         if (courseIds.length <= 10) {
-          const paymentsQuery = query(
-            collection(db, 'payments'),
+          const enrollmentsQuery = query(
+            collection(db, 'enrollments'),
             where('courseId', 'in', courseIds)
           );
 
-          const paymentsUnsub = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
-            const total = paymentsSnapshot.docs.reduce((sum, doc) => {
-              const paymentData = doc.data();
-              return sum + (paymentData.amount || 0);
+          const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
+            const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
+              const enrollmentData = doc.data();
+              return sum + (enrollmentData.amount || 0);
             }, 0);
-            setTotalPayments(total);
+            setTotalEnrollments(total);
           });
 
           return () => {
-            paymentsUnsub();
+            enrollmentsUnsub();
           };
         } else {
-          const paymentsQuery = collection(db, 'payments');
-          const paymentsUnsub = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
-            const total = paymentsSnapshot.docs.reduce((sum, doc) => {
-              const paymentData = doc.data();
-              if (courseIds.includes(paymentData.courseId)) {
-                return sum + (paymentData.amount || 0);
+          const enrollmentsQuery = collection(db, 'enrollments');
+          const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
+            const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
+              const enrollmentData = doc.data();
+              if (courseIds.includes(enrollmentData.courseId)) {
+                return sum + (enrollmentData.amount || 0);
               }
               return sum;
             }, 0);
-            setTotalPayments(total);
+            setTotalEnrollments(total);
           });
 
           return () => {
-            paymentsUnsub();
+            enrollmentsUnsub();
           };
         }
       } else {
-        setTotalPayments(0);
+        setTotalEnrollments(0);
       }
     });
 
@@ -126,7 +124,7 @@ const Header: React.FC = () => {
                 lineHeight: "36px", 
                 color: theme.palette.text.primary 
               }}>
-                {totalPayments}
+                {totalEnrollments}
               </Typography>
               <Typography sx={{ 
                 fontWeight: 500, 

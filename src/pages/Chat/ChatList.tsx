@@ -50,6 +50,13 @@ const ChatList: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [searchValue, setSearchValue] = useState('');
 
+    if (loading) {
+            return (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                    <CircularProgress />
+                </Box>
+            );
+        }
     useEffect(() => {
         if (!user?.uid) return;
 

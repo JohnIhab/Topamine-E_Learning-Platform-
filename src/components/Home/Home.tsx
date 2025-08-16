@@ -90,7 +90,7 @@ const Home: React.FC = () => {
         <Box sx={{ backgroundColor: 'white', width: "40vw", height: 300, p: 2, borderRadius: 2, boxShadow: 2,display: 'flex', justifyContent: 'center', flexWrap: 'wrap',mr:108,mt:4 }}>
         <Doughnut data={data} options={options} />
       </Box>
-       <Box sx={{ p: 3 ,width:'80vw',mr:35}}>
+      <Box sx={{ p: 3 ,width:'80vw',mr:35}}>
         <TableContainer component={Paper}>
           <Table dir="rtl">
             <TableHead>

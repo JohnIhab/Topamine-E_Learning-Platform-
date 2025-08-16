@@ -3,7 +3,6 @@ import { Box, Grid, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import FeatureSection from '../../components/FeatureSection/FeatureSection';
 import TeacherSec from '../../components/TeacherSec/TeacherSec';
-import Footer from '../../components/Footer/Footer';
 
 export default function Home() {
   return (

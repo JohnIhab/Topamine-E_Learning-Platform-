@@ -47,6 +47,7 @@ import {
   Grade,
   Notifications as NotificationsIcon,
 } from "@mui/icons-material";
+import Loading from "../../components/Loading/Loading";
 
 
 type Course = {
@@ -57,7 +58,7 @@ type Course = {
   start: string;
   end: string;
   progress: number;
-  status?: string; // Add status field to track active/non-active
+  status?: string;
 };
 
 const ProfileStudent = () => {
@@ -67,6 +68,8 @@ const ProfileStudent = () => {
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [nonActiveCourseDialog, setNonActiveCourseDialog] = useState(false);
+  const [selectedNonActiveCourse, setSelectedNonActiveCourse] = useState<Course | null>(null);
   const navigate = useNavigate();
 
   //Editing
@@ -95,7 +98,9 @@ const ProfileStudent = () => {
   const handleCourseClick = (courseId: string) => {
     const course = enrolledCourses.find(course => course.id === courseId);
     if (course && course.status === 'non-active') {
-      navigate('/notFound');
+      // Show a dialog to take some action for non-active courses
+      setSelectedNonActiveCourse(course);
+      setNonActiveCourseDialog(true);
     } else {
       navigate('/video', { state: { courseId } });
     }
@@ -291,7 +296,9 @@ const ProfileStudent = () => {
     return (
 
 
-      <Typography sx={{ color: "blue" }}> جاري التحميل...........</Typography>
+      <Typography sx={{ color: "blue" }}> 
+        <Loading />
+      </Typography>
     );
   return (
     <Box
@@ -529,6 +536,37 @@ const ProfileStudent = () => {
                 </Button>
               </DialogActions>
             </Dialog>
+
+            {/* Non-Active Course Dialog */}
+            <Dialog 
+              open={nonActiveCourseDialog} 
+              onClose={() => setNonActiveCourseDialog(false)}
+              maxWidth="sm"
+              fullWidth
+            >
+              <DialogTitle sx={{ textAlign: 'center', color: '#ff1e00ff', fontWeight: 'bold' }}>
+                الكورس غير نشط
+              </DialogTitle>
+              <DialogContent>
+                <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {selectedNonActiveCourse?.title}
+                  </Typography>
+                  
+                  
+                </Box>
+              </DialogContent>
+              <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
+                <Button 
+                  onClick={() => setNonActiveCourseDialog(false)}
+                  color="secondary"
+                  variant="outlined"
+                >
+                  إلغاء
+                </Button>
+                
+              </DialogActions>
+            </Dialog>
           </Grid>
         </Grid>
         <Divider sx={{ my: 4 }} />
@@ -546,7 +584,7 @@ const ProfileStudent = () => {
           </Link>
         </Box>
         <Typography variant="body2" color="text.secondary" mb={2}>
-          {loadingCourses ? 'جارٍ التحميل...' : `${enrolledCourses.length} كورسات`}
+          {loadingCourses ? <Loading /> : `${enrolledCourses.length} كورسات`}
         </Typography>
 
         {loadingCourses ? (
@@ -604,7 +642,7 @@ const ProfileStudent = () => {
                           <Typography
                             variant="caption"
                             sx={{
-                              color: '#ff9800',
+                              color: '#ff1e00ff',
                               fontWeight: 'bold',
                               fontSize: '0.75rem',
                               backgroundColor: '#fff3e0',
@@ -653,9 +691,9 @@ const ProfileStudent = () => {
                         sx={{ 
                           textTransform: 'none',
                           ...(course.status === 'non-active' && {
-                            backgroundColor: '#ff9800',
+                            backgroundColor: '#ff0000ff',
                             '&:hover': {
-                              backgroundColor: '#e68900',
+                              backgroundColor: '#e60000ff',
                             }
                           })
                         }}
