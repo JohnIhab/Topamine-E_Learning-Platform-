@@ -16,18 +16,7 @@ const CheckoutPage = () => {
     const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
     const [checkingEnrollment, setCheckingEnrollment] = useState(true); 
     
-    if (!userContext) {
-        console.error("UserContext is not available. Make sure UserProvider is wrapping your app.");
-        return (
-            <div style={{ padding: '20px', fontFamily: 'Tajawal', textAlign: 'center' }}>
-                <h2>خطأ في النظام</h2>
-                <p>لم يتم العثور على بيانات المستخدم. يرجى إعادة تحميل الصفحة أو تسجيل الدخول مرة أخرى.</p>
-                <button onClick={() => navigate("/login")}>تسجيل الدخول</button>
-            </div>
-        );
-    }
-    
-    const user = userContext.user || authContext?.user;
+    const user = userContext?.user || authContext?.user;
     const price = location.state?.price; 
     const courseId = location.state?.courseId;
 
@@ -199,6 +188,17 @@ const CheckoutPage = () => {
         window.addEventListener("message", listener);
         return () => window.removeEventListener("message", listener);
     }, [navigate, price, courseId, user]);
+
+    if (!userContext) {
+        console.error("UserContext is not available. Make sure UserProvider is wrapping your app.");
+        return (
+            <div style={{ padding: '20px', fontFamily: 'Tajawal', textAlign: 'center' }}>
+                <h2>خطأ في النظام</h2>
+                <p>لم يتم العثور على بيانات المستخدم. يرجى إعادة تحميل الصفحة أو تسجيل الدخول مرة أخرى.</p>
+                <button onClick={() => navigate("/login")}>تسجيل الدخول</button>
+            </div>
+        );
+    }
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Tajawal' }}>
