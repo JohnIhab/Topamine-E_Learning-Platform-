@@ -45,7 +45,7 @@ export default function Messages() {
     const [chats, setChats] = useState<ChatData[]>([]);
     const [searchValue, setSearchValue] = useState("");
     const [loading, setLoading] = useState(true);
-
+    
     useEffect(() => {
         const fetchChats = async () => {
             if (!user?.uid) {

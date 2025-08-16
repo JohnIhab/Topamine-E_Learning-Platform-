@@ -7,6 +7,7 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import Loading from '../components/Loading/Loading';
 
 const PaymentResult = () => {
     const navigate = useNavigate();
@@ -91,7 +92,7 @@ const PaymentResult = () => {
             <Box sx={{ textAlign: 'center' }}>
                 <CircularProgress sx={{ mb: 2 }} />
                 <Typography variant="h5" sx={{ fontFamily: 'Tajawal' }}>
-                    {isLoading ? 'جارٍ تحميل بيانات المستخدم...' : 'جارٍ التحقق من حالة الدفع...'}
+                    {isLoading ? <Loading /> : 'جارٍ التحقق من حالة الدفع...'}
                 </Typography>
             </Box>
         </Box>

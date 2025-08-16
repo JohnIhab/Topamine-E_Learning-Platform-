@@ -19,6 +19,7 @@ import { LocationOn, Email, Phone, AccessTime } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, LinkedIn, Instagram } from '@mui/icons-material';
 import emailjs from '@emailjs/browser';
+import Loading from '../../components/Loading/Loading';
 
 const ContactUs = () => {
     const theme = useTheme();
@@ -39,7 +40,13 @@ const ContactUs = () => {
         severity: 'success' as 'success' | 'error'
     });
     
-
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -238,7 +245,7 @@ const ContactUs = () => {
                                     disabled={loading}
                                     startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                                 >
-                                    {loading ? 'جاري الإرسال...' : 'إرسال الرسالة'}
+                                    {loading ? <Loading /> : 'إرسال الرسالة'}
                                 </Button>
                             </form>
                         </Paper>

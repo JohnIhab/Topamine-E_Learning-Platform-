@@ -45,14 +45,17 @@ import {
   Info,
   CalendarMonth,
   ViewModule,
-  Dashboard,
+  
 } from "@mui/icons-material";
+import DashboardIcon from '@mui/icons-material/Dashboard';
+
+import Loading from "../../components/Loading/Loading";
 
 const TeacherProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isDarkMode } = useThemeMode();
-  
+
   const [open, setOpen] = useState(false);
   const [teacherData, setTeacherData] = useState<any>(null);
   const [courseData, setcourseData] = useState<any[]>([]);
@@ -69,7 +72,6 @@ const TeacherProfile = () => {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
-  // Check if this is the current user's profile
   const isOwnProfile = !id || id === auth.currentUser?.uid;
 
   const handleOpen = () => {
@@ -117,7 +119,7 @@ const TeacherProfile = () => {
     console.log('handleCreateChat called');
     console.log('student:', student);
     console.log('id:', id);
-    
+
     if (!student || !id) {
       console.log('Missing student or id, returning');
       return;
@@ -125,26 +127,26 @@ const TeacherProfile = () => {
 
     try {
       console.log('Creating/finding chat...');
-      
+
       const chatId = `${student.id}_${id}`;
       console.log('Chat ID will be:', chatId);
-      
+
       const chatsRef = collection(db, 'chats');
       const chatDocRef = doc(chatsRef, chatId);
-      
+
       const chatSnap = await getDoc(chatDocRef);
-      
+
       if (chatSnap.exists()) {
         console.log('Found existing chat:', chatId);
         navigate(`/chat/${chatId}`);
       } else {
         console.log('Creating new chat with ID:', chatId);
-        
+
         await setDoc(chatDocRef, {
 
           lastMessage: '',
           lastMessageTime: serverTimestamp(),
-          
+
         });
 
         console.log('New chat created with ID:', chatId);
@@ -163,7 +165,7 @@ const TeacherProfile = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    
+
     const uploadPreset = "images";
     formData.append("upload_preset", uploadPreset);
     formData.append("folder", uploadPreset);
@@ -172,13 +174,13 @@ const TeacherProfile = () => {
     try {
       const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
       const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-      
+
       const res = await axios.post(url, formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
       });
-      
+
       return res.data.secure_url;
     } catch (error) {
       console.error("Image upload error:", error);
@@ -193,16 +195,14 @@ const TeacherProfile = () => {
       if (uploadedUrl) {
         setUploadedImgUrl(uploadedUrl);
         setImageUrl(uploadedUrl);
-        
-        // Update the teacher's avatar in the database
+
         const user = auth.currentUser;
         if (user) {
           const docRef = doc(db, "users", user.uid);
           await updateDoc(docRef, {
             avatar: uploadedUrl,
           });
-          
-          // Update local state
+
           setTeacherData((prev: any) => ({
             ...prev,
             avatar: uploadedUrl,
@@ -292,12 +292,12 @@ const TeacherProfile = () => {
 
   if (!teacherData)
     return (
-      <Typography sx={{ 
-        color: isDarkMode ? "#90caf9" : "blue", 
-        textAlign: "center", 
-        mt: 5 
+      <Typography sx={{
+        color: isDarkMode ? "#90caf9" : "blue",
+        textAlign: "center",
+        mt: 5
       }}>
-        جاري التحميل...
+        <Loading />
       </Typography>
     );
 
@@ -313,9 +313,9 @@ const TeacherProfile = () => {
         p: 2,
       }}
     >
-      <Box sx={{ 
-        width: "100%", 
-        maxWidth: 1500, 
+      <Box sx={{
+        width: "100%",
+        maxWidth: 1500,
         p: 4,
         backgroundColor: isDarkMode ? "#1e1e1e" : "transparent",
         borderRadius: 2,
@@ -404,15 +404,24 @@ const TeacherProfile = () => {
                 console.log("Should show button:", currentUserRole !== "student" && currentUserRole !== null);
                 return currentUserRole !== "student" && currentUserRole !== null;
               })() && (
-                <Link
-                  to="/teacherdashboard"
-                  style={{ textDecoration: "none", width: "100%" }}
-                >
-                  <Button variant="contained" startIcon={<Dashboard />} fullWidth>
-                    الذهاب إلى اللوحة
-                  </Button>
-                </Link>
-              )}
+                  <Link
+                    to="/teacherdashboard"
+                    style={{ textDecoration: "none", width: "100%" }}
+                  >
+                    <Button
+                      variant="contained"
+                      startIcon={<DashboardIcon />}
+                      fullWidth
+                      sx={{
+                        '& .MuiButton-startIcon': {
+                          marginLeft: 1,
+                        },
+                      }}
+                    >
+                      الذهاب إلى اللوحة
+                    </Button>
+                  </Link>
+                )}
             </Box>
           </Grid>
 
@@ -425,7 +434,7 @@ const TeacherProfile = () => {
               {student && (
                 <>
                   {isFollowing ? (
-                    <> 
+                    <>
                       <Button
                         variant="outlined"
                         size="small"
@@ -444,9 +453,9 @@ const TeacherProfile = () => {
                       >
                         إلغاء المتابعة
                       </Button>
-                      <Button 
-                        variant="contained" 
-                        size="small" 
+                      <Button
+                        variant="contained"
+                        size="small"
                         sx={{ ml: 1 }}
                         onClick={handleCreateChat}
                       >
@@ -528,13 +537,13 @@ const TeacherProfile = () => {
                 }}
                 onClick={handleOpen}
               >
-                <Edit sx={{ 
-                  ml: 1, 
-                  color: isDarkMode ? "#90caf9" : "#1976d2" 
+                <Edit sx={{
+                  ml: 1,
+                  color: isDarkMode ? "#90caf9" : "#1976d2"
                 }} />
-                <Typography sx={{ 
+                <Typography sx={{
                   color: isDarkMode ? "#90caf9" : "#1976d2",
-                  fontWeight: 500 
+                  fontWeight: 500
                 }}>
                   تعديل الملف الشخصي
                 </Typography>
@@ -663,19 +672,25 @@ const TeacherProfile = () => {
                         }}
                       />
                       <Box p={2}>
-                        <Typography fontWeight="bold" sx={{display: '-webkit-box',
-                      WebkitBoxOrient: 'vertical',
-                      WebkitLineClamp: 2}}>
+                        <Typography fontWeight="bold" sx={{
+                          display: '-webkit-box',
+                          WebkitBoxOrient: 'vertical',
+                          WebkitLineClamp: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '100%'
+                        }}>
                           {course.title}
                         </Typography>
                         <Typography
-                        sx={{
-                          mb: 3,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2, 
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden"
-                        }}
+                          sx={{
+                            mb: 3,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden"
+                          }}
                           variant="body2"
                           color="text.secondary"
                           gutterBottom
@@ -694,7 +709,7 @@ const TeacherProfile = () => {
                             {course?.endDate?.toDate().toLocaleDateString()}
                           </Typography>
                         </Box>
-                        <CardActions sx={{ px: 2}}>
+                        <CardActions sx={{ px: 2 }}>
                           <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
                             <Button
                               onClick={() =>

@@ -103,7 +103,7 @@ const VideoShow: React.FC = () => {
         );
 
         const enrollmentDocs = await getDocs(enrollmentsQuery);
-        
+
         if (enrollmentDocs.empty) {
           console.log("No enrollment found for this course");
           setHasAccess(false);
@@ -112,7 +112,7 @@ const VideoShow: React.FC = () => {
 
         console.log("✅ User has paid enrollment for this course, granting access");
         setHasAccess(true);
-        
+
       } catch (error) {
         console.error("Error checking course access:", error);
         setHasAccess(false);
@@ -219,10 +219,10 @@ const VideoShow: React.FC = () => {
         >
           {courseData?.title || "مشغل الفيديو"}
         </Typography>
-        
+
         {courseData?.status === 'non-active' && (
-          <Box sx={{ 
-            textAlign: "center", 
+          <Box sx={{
+            textAlign: "center",
             mb: 2,
             p: 2,
             borderRadius: 2,
@@ -236,11 +236,11 @@ const VideoShow: React.FC = () => {
                 fontWeight: 'bold',
               }}
             >
-              📢 تنبيه: هذا الكورس غير نشط حالياً، لكن يمكنك الوصول إليه لأنك دفعت ثمنه
+              تنبيه: هذا الكورس غير نشط حالياً، لكن يمكنك الوصول إليه لأنك دفعت ثمنه
             </Typography>
           </Box>
         )}
-        
+
         <Typography
           variant="subtitle1"
           sx={{
@@ -361,14 +361,15 @@ const VideoShow: React.FC = () => {
                             )}
                             {(video.docUrl || video.txtUrl) && (
                               <Chip
-                                icon={<DownloadIcon sx={{ fontSize: "12px !important" }} />}
                                 label="ملفات"
+                                
                                 size="small"
                                 sx={{
                                   bgcolor: "#3498db",
                                   color: "white",
                                   fontSize: "0.7rem",
-                                  height: 20
+                                  height: 20,
+                                  width: "fit-content !important",
                                 }}
                               />
                             )}
@@ -435,7 +436,7 @@ const VideoShow: React.FC = () => {
               <Box
                 sx={{
                   position: "relative",
-                  paddingTop: "56.25%", 
+                  paddingTop: "56.25%",
                   bgcolor: "#000",
                 }}
               >
@@ -529,6 +530,11 @@ const VideoShow: React.FC = () => {
                           borderRadius: 2,
                           px: 3,
                           py: 1.5,
+
+                          '& .MuiButton-startIcon': {
+                            marginLeft: 1.5,
+                          },
+
                           background: "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
                           "&:hover": {
                             background: "linear-gradient(135deg, #c0392b 0%, #a93226 100%)",
@@ -549,6 +555,9 @@ const VideoShow: React.FC = () => {
                           borderRadius: 2,
                           px: 3,
                           py: 1.5,
+                          '& .MuiButton-startIcon': {
+                            marginLeft: 1.5,
+                          },
                           background: "linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)",
                           "&:hover": {
                             background: "linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%)",

@@ -5,6 +5,7 @@ import { doc, setDoc, collection, addDoc, query, where, getDocs } from "firebase
 import { db } from "../firebase";
 import { UserContext } from "../context/UserContext";
 import { useAuth } from "../context/AuthContext";
+import Loading from "../components/Loading/Loading";
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
@@ -237,7 +238,9 @@ const CheckoutPage = () => {
                             title="Paymob Payment"
                         />
                     ) : (
-                        <p>جاري تحميل بوابة الدفع...</p>
+                        <p>جاري تحميل بوابة الدفع
+                            <Loading />
+                        </p>
                     )}
                 </>
             )}

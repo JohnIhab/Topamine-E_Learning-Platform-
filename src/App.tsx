@@ -9,7 +9,6 @@ import ProfileTeacher from "./pages/ProfileTeacher/ProfileTeacher";
 import ForgetPassword from "./pages/ForgetPassword/ForgetPassword";
 import Footer from "./components/Footer/Footer";
 import About from "./pages/About/About";
-// import Payment from "./pages/Payment/Payment";
 import AdminDashboard1 from "./pages/AdminDashboard1/AdminDashboard1";
 import Courses from "./pages/Courses/Courses";
 import Teachers from "./pages/Teachers/Teachers";
@@ -34,6 +33,7 @@ import { useEffect } from 'react';
 import { initializeCourseScheduler } from './utils/courseScheduler';
 import ThemeTestPage from './pages/ThemeTest/ThemeTestPage';
 import Chatbot from "./pages/ChatBot/ChatBot";
+import Loading from "./components/Loading/Loading";
 
 function App() {
   const location = useLocation();
@@ -167,6 +167,7 @@ function App() {
                 <PaymentResult />
               </ProtectedRoute>
             } />
+            <Route path="/loading" element={<Loading />} />
           </Routes>
       </SnackbarProvider>
       {!hideNavAndFooter && <Footer />}
