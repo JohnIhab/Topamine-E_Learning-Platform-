@@ -53,13 +53,6 @@ const Chat: React.FC = () => {
     const [otherParticipant, setOtherParticipant] = useState<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress />
-            </Box>
-        );
-    }
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };

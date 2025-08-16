@@ -22,13 +22,6 @@ const Login = () => {
     const [showRejectedPopup, setShowRejectedPopup] = useState(false);
     const togglePasswordVisibility = () => setShowPassword(prev => !prev);
 
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress />
-            </Box>
-        );
-    }
     function validationSchema() {
         return Yup.object({
             email: Yup.string()
@@ -137,6 +130,14 @@ const Login = () => {
         setShowWaitingPopup(false);
         setShowRejectedPopup(false);
     };
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{

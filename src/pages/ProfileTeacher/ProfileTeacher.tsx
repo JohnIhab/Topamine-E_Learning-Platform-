@@ -290,7 +290,7 @@ const TeacherProfile = () => {
     });
   }, [id]);
 
-  if (!teacherData)
+  if (!teacherData) {
     return (
       <Typography sx={{
         color: isDarkMode ? "#90caf9" : "blue",
@@ -300,6 +300,7 @@ const TeacherProfile = () => {
         <Loading />
       </Typography>
     );
+  }
 
   return (
     <Box
@@ -528,12 +529,12 @@ const TeacherProfile = () => {
                   p: 1.5,
                   borderRadius: 1,
                   cursor: "pointer",
-                  backgroundColor: isDarkMode ? "rgba(144, 202, 249, 0.1)" : "rgba(25, 118, 210, 0.1)",
-                  border: isDarkMode ? "1px solid rgba(144, 202, 249, 0.3)" : "1px solid rgba(25, 118, 210, 0.3)",
+                  // backgroundColor: isDarkMode ? "rgba(144, 202, 249, 0.1)" : "rgba(25, 118, 210, 0.1)",
+                  // border: isDarkMode ? "1px solid rgba(144, 202, 249, 0.3)" : "1px solid rgba(25, 118, 210, 0.3)",
                   transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: isDarkMode ? "rgba(144, 202, 249, 0.2)" : "rgba(25, 118, 210, 0.2)",
-                  },
+                  // "&:hover": {
+                  //   backgroundColor: isDarkMode ? "rgba(144, 202, 249, 0.2)" : "rgba(25, 118, 210, 0.2)",
+                  // },
                 }}
                 onClick={handleOpen}
               >

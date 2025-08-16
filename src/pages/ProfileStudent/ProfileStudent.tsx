@@ -292,14 +292,14 @@ const ProfileStudent = () => {
     }
   };
 
-  if (!studentData)
+  if (!studentData) {
     return (
-
-
       <Typography sx={{ color: "blue" }}> 
         <Loading />
       </Typography>
     );
+  }
+
   return (
     <Box
       sx={{
