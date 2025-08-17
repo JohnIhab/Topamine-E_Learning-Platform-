@@ -15,7 +15,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "../../../src/firebase";
+import { db, auth } from "../../firebase";
 import axios from "axios";
 import { useThemeMode } from "../../context/ThemeContext";
 

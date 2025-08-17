@@ -14,7 +14,7 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import { db, auth } from "../../../src/firebase";
+import { db, auth } from "../../firebase";
 import axios from "axios";
 import {
   Avatar,

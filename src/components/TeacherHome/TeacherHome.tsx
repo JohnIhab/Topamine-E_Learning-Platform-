@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { collection, onSnapshot, Timestamp, query, orderBy, limit, where } from 'firebase/firestore';
 // @ts-ignore
-import { db } from '../../firebase';
+import { db } from '../../firebase.ts';
 // @ts-ignore  
 import { useAuth } from '../../context/AuthContext';
 import { useThemeMode } from '../../context/ThemeContext';
