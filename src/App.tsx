@@ -16,9 +16,7 @@ import Students from "./pages/Students/Students";
 import CourseDetalis from "./pages/CourseDetails/CourseDetails";
 import { SnackbarProvider } from "notistack";
 import NotFound from "./pages/NotFound/NotFound";
-import Checkout from "./pages/CheckoutPage";
 import Video from "./pages/VideoShow/VideoShow";
-import PaymentResult from "./pages/PaymentSuccess";
 import Chat from "./pages/Chat/Chat";
 import ChatList from "./pages/Chat/ChatList";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -34,6 +32,8 @@ import { initializeCourseScheduler } from './utils/courseScheduler';
 import ThemeTestPage from './pages/ThemeTest/ThemeTestPage';
 import Chatbot from "./pages/ChatBot/ChatBot";
 import Loading from "./components/Loading/Loading";
+import CheckoutPage from "./components/CheckoutPage/CheckoutPage";
+import PaymentResult from "./components/PaymentSuccess/PaymentSuccess";
 
 function App() {
   const location = useLocation();
@@ -154,7 +154,7 @@ function App() {
             path="/Checkout" 
             element={
               <ProtectedRoute allowedRoles={["student"]}>
-                <Checkout />
+                <CheckoutPage />
               </ProtectedRoute>
           } 
             />
