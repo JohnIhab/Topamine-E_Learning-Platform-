@@ -28,11 +28,11 @@ import { useNavigate } from "react-router-dom";
 
 
 export default function TeachersPage() {
+
   const [selectedItem, setSelectedItem] = React.useState("Teachers");
   const [teachers, setTeachers] = React.useState([]);
   const [statusFilter, setStatusFilter] = React.useState(null);
   const { isDarkMode } = useThemeMode();
-
   const navigate = useNavigate();
 
   async function fetchTeachers() {
@@ -42,6 +42,7 @@ export default function TeachersPage() {
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate?.() || new Date(0),
+        blocked: doc.data().blocked || false,
       }));
 
       const teacherUsers = allUsers
@@ -72,6 +73,14 @@ export default function TeachersPage() {
     }
   }
 
+  async function blockTeacher(id, blocked) {
+    try {
+      await updateDoc(doc(db, "users", id), { blocked });
+      fetchTeachers();
+    } catch (error) {
+      console.error("Error blocking/unblocking teacher:", error);
+    }
+  }
 
   React.useEffect(() => {
     fetchTeachers();
@@ -333,17 +342,20 @@ export default function TeachersPage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                  <TableCell sx={{ width: "16%", textAlign: "center" }}>
                     اسم المعلم
                   </TableCell>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                  <TableCell sx={{ width: "16%", textAlign: "center" }}>
                     المادة
                   </TableCell>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                  <TableCell sx={{ width: "16%", textAlign: "center" }}>
                     الايميل
                   </TableCell>
-                  <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                  <TableCell sx={{ width: "16%", textAlign: "center" }}>
                     الحالة
+                  </TableCell>
+                  <TableCell sx={{ width: "16%", textAlign: "center" }}>
+                    الحظر
                   </TableCell>
                   <TableCell sx={{ width: "20%", textAlign: "center" }}>
                     الإجراءات
@@ -357,19 +369,42 @@ export default function TeachersPage() {
                     return (teacher.status || "قيد المراجعة") === statusFilter;
                   })
                   .map((teacher, index) => (
-
                     <TableRow key={index}>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                      <TableCell sx={{ width: "16%", textAlign: "center" }}>
                         {teacher.name}
                       </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                      <TableCell sx={{ width: "16%", textAlign: "center" }}>
                         {teacher.subject}
                       </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                      <TableCell sx={{ width: "16%", textAlign: "center" }}>
                         {teacher.email}
                       </TableCell>
-                      <TableCell sx={{ width: "20%", textAlign: "center" }}>
+                      <TableCell sx={{ width: "16%", textAlign: "center" }}>
                         {teacher.status || "قيد المراجعة"}
+                      </TableCell>
+                      <TableCell sx={{ width: "16%", textAlign: "center" }}>
+                        {teacher.blocked ? (
+                          <Typography color="error">محظور</Typography>
+                        ) : (
+                          <Typography color="success.main">غير محظور</Typography>
+                        )}
+                        <Button
+                          sx={{
+                            fontWeight: "400",
+                            fontSize: "12px",
+                            height: "24px",
+                            background: teacher.blocked ? "#10B981" : "#EF4444",
+                            color: "white",
+                            mt: 1,
+                            "&:hover": {
+                              background: teacher.blocked ? "#10B981" : "#EF4444",
+                              color: "white",
+                            },
+                          }}
+                          onClick={() => blockTeacher(teacher.id, !teacher.blocked)}
+                        >
+                          {teacher.blocked ? "إلغاء الحظر" : "حظر"}
+                        </Button>
                       </TableCell>
                       <TableCell sx={{ width: "20%", textAlign: "center" }}>
                         <Box sx={{ display: "flex", gap: "12px" }}>
@@ -387,7 +422,6 @@ export default function TeachersPage() {
                             }}
                             onClick={() => acceptTeacher(teacher.id)}
                             disabled={teacher.status === "تم القبول"}
-
                           >
                             قبول
                           </Button>
@@ -410,7 +444,6 @@ export default function TeachersPage() {
                           </Button>
                         </Box>
                       </TableCell>
-
                     </TableRow>
                   ))}
               </TableBody>

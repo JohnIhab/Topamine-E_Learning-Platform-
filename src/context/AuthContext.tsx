@@ -23,18 +23,22 @@ export const AuthProvider = ({ children }) => {
                 if (userSnap.exists()) {
                     const data = userSnap.data();
                     fetchedRole = data.role;
-
+                    isBlocked = data.blocked === true;
                     if (fetchedRole === "teacher") {
-                        status = data.status; 
-                    } else if (fetchedRole === "student") {
-                        isBlocked = data.blocked === true; 
+                        status = data.status;
                     }
                 }
 
-                if (fetchedRole === "student" && isBlocked) {
+                if (isBlocked) {
                     setUser(null);
                     setRole(null);
+                    setLoading(false);
                     alert("Your account is blocked. Please contact support.");
+                    // Sign out the user if blocked
+                    import("firebase/auth").then(({ signOut }) => {
+                        signOut(auth);
+                    });
+                    return;
                 } else {
                     setUser({ ...firebaseUser, status, isBlocked });
                     setRole(fetchedRole);

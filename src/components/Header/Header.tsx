@@ -1,99 +1,392 @@
-import { Box, Stack, Typography, useTheme } from '@mui/material';
+// import { Box, Stack, Typography, useTheme } from '@mui/material';
+// import { CacheProvider } from '@emotion/react';
+// import createCache from '@emotion/cache';
+// import rtlPlugin from 'stylis-plugin-rtl';
+// import { prefixer } from 'stylis';
+// import PaymentsIcon from '@mui/icons-material/Payments';
+// import SchoolIcon from '@mui/icons-material/School';
+// import { useEffect, useState } from 'react';
+// import { collection, onSnapshot, query, where } from 'firebase/firestore';
+// // @ts-ignore
+// import { db } from '../../firebase';
+// import { useAuth } from '../../context/AuthContext';
+// import { useThemeMode } from '../../context/ThemeContext';
+
+// const cacheRtl = createCache({
+//   key: 'muirtl',
+//   stylisPlugins: [prefixer, rtlPlugin],
+// });
+
+// const Header: React.FC = () => {
+//   const [courseCount, setCourseCount] = useState<number>(0);
+//   const [totalEnrollments, setTotalEnrollments] = useState<number>(0);
+//   const { user } = useAuth();
+//   const theme = useTheme();
+//   const { isDarkMode } = useThemeMode();
+
+//   useEffect(() => {
+//     if (!user?.uid) {
+//       return;
+//     }
+
+//     const coursesQuery = query(
+//       collection(db, 'courses'),
+//       where('teacherId', '==', user.uid)
+//     );
+
+//     const unsub = onSnapshot(coursesQuery, async (snapshot) => {
+//       setCourseCount(snapshot.docs.length);
+      
+      
+//       const courseIds = snapshot.docs.map(doc => doc.id);
+      
+//       if (courseIds.length > 0) {
+//         if (courseIds.length <= 10) {
+//           const enrollmentsQuery = query(
+//             collection(db, 'enrollments'),
+//             where('courseId', 'in', courseIds)
+//           );
+
+//           const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
+//             const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
+//               const enrollmentData = doc.data();
+//               return sum + (enrollmentData.amount || 0);
+//             }, 0);
+//             setTotalEnrollments(total);
+//           });
+
+//           return () => {
+//             enrollmentsUnsub();
+//           };
+//         } else {
+//           const enrollmentsQuery = collection(db, 'enrollments');
+//           const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
+//             const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
+//               const enrollmentData = doc.data();
+//               if (courseIds.includes(enrollmentData.courseId)) {
+//                 return sum + (enrollmentData.amount || 0);
+//               }
+//               return sum;
+//             }, 0);
+//             setTotalEnrollments(total);
+//           });
+
+//           return () => {
+//             enrollmentsUnsub();
+//           };
+//         }
+//       } else {
+//         setTotalEnrollments(0);
+//       }
+//     });
+
+//     return () => unsub();
+//   }, [user?.uid]);
+
+//   return (
+
+//     <CacheProvider value={cacheRtl}>
+//       <Box sx={{ 
+//         backgroundColor: theme.palette.background.paper, 
+//         pb: 2, 
+//         pt: 5, 
+//         width: '100%', 
+//         position: 'relative',
+//         borderBottom: isDarkMode ? '1px solid rgba(148, 163, 184, 0.2)' : '1px solid rgba(229, 231, 235, 0.8)'
+//       }}>
+
+//         <Stack
+//           direction="row"
+//           spacing={4}
+//           sx={{
+//             width: '100%',
+//             px: 3,
+//             flexWrap: { xs: 'wrap', md: 'nowrap' },
+//             justifyContent: { xs: 'center', md: 'flex-start' }
+//           }}
+//         >
+//           <Box
+//             sx={{
+//               width: { xs: '100%', sm: '260px' },
+//               height: "140px",
+//               borderRadius: 2,
+//               backgroundColor: isDarkMode ? 'rgba(139, 92, 246, 0.15)' : '#F5F3FF',
+//               boxShadow: 1,
+//               fontFamily: 'Tajawal'
+
+//             }}
+//           >
+//             <Stack direction={'column'} spacing={1} sx={{ mt: 3, ml: 3 }}>
+//               <PaymentsIcon sx={{ fontSize: 32, color: '#7C3AED' }} />
+//               <Typography sx={{ 
+//                 fontWeight: 700, 
+//                 fontSize: '30px', 
+//                 lineHeight: "36px", 
+//                 color: theme.palette.text.primary 
+//               }}>
+//                 {totalEnrollments}
+//               </Typography>
+//               <Typography sx={{ 
+//                 fontWeight: 500, 
+//                 fontSize: '16px', 
+//                 lineHeight: "24px", 
+//                 color: theme.palette.text.secondary 
+//               }}>
+//                 مجموع المدفوعات
+//               </Typography>
+//             </Stack>
+//           </Box>
+//           <Box
+//             sx={{
+//               width: { xs: '100%', sm: '260px' },
+//               height: "140px",
+//               borderRadius: 2,
+//               backgroundColor: isDarkMode ? 'rgba(251, 146, 60, 0.15)' : '#FFF7ED',
+//               boxShadow: 1,
+//               fontFamily: 'Tajawal',
+//             }}
+//           >
+//             <Stack direction={'column'} spacing={1} sx={{ mt: 3, ml: 3 }}>
+//               <SchoolIcon sx={{ fontSize: 32, color: '#EA580C' }} />
+//               <Typography sx={{ 
+//                 fontWeight: 700, 
+//                 fontSize: '30px', 
+//                 lineHeight: "36px", 
+//                 color: theme.palette.text.primary 
+//               }}>
+//                 {courseCount}
+//               </Typography>
+//               <Typography sx={{ 
+//                 fontWeight: 500, 
+//                 fontSize: '16px', 
+//                 lineHeight: "24px", 
+//                 color: theme.palette.text.secondary 
+//               }}>
+//                 مجموع الكورسات
+//               </Typography>
+//             </Stack>
+//           </Box>
+          
+//         </Stack>
+//       </Box>
+
+
+//     </CacheProvider>
+
+//   );
+// }
+
+// export default Header; 
+
+
+import { Box, Stack, Typography } from '@mui/material';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { prefixer } from 'stylis';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import SchoolIcon from '@mui/icons-material/School';
+import PeopleIcon from '@mui/icons-material/People';
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 // @ts-ignore
 import { db } from '../../firebase';
+// @ts-ignore  
 import { useAuth } from '../../context/AuthContext';
-import { useThemeMode } from '../../context/ThemeContext';
 
 const cacheRtl = createCache({
   key: 'muirtl',
   stylisPlugins: [prefixer, rtlPlugin],
 });
 
+
 const Header: React.FC = () => {
   const [courseCount, setCourseCount] = useState<number>(0);
-  const [totalEnrollments, setTotalEnrollments] = useState<number>(0);
+  const [totalPayments, setTotalPayments] = useState<number>(0);
+  const [studentCount, setStudentCount] = useState<number>(0);
+  // @ts-ignore
   const { user } = useAuth();
-  const theme = useTheme();
-  const { isDarkMode } = useThemeMode();
 
-  useEffect(() => {
-    if (!user?.uid) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!user?.uid) {
+  //     return;
+  //   }
 
-    const coursesQuery = query(
-      collection(db, 'courses'),
-      where('teacherId', '==', user.uid)
-    );
+  //   const coursesQuery = query(
+  //     collection(db, 'courses'),
+  //     where('teacherId', '==', user.uid)
+  //   );
 
-    const unsub = onSnapshot(coursesQuery, async (snapshot) => {
-      setCourseCount(snapshot.docs.length);
+  //   const unsub = onSnapshot(coursesQuery, async (snapshot) => {
+  //     setCourseCount(snapshot.docs.length);
       
+  //     const courseIds = snapshot.docs.map(doc => doc.id);
       
-      const courseIds = snapshot.docs.map(doc => doc.id);
+  //     if (courseIds.length > 0) {
+  //       if (courseIds.length <= 10) {
+  //         const paymentsQuery = query(
+  //           collection(db, 'payments'),
+  //           where('courseId', 'in', courseIds)
+  //         );
+
+  //         const paymentsUnsub = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
+  //           const total = paymentsSnapshot.docs.reduce((sum, doc) => {
+  //             const paymentData = doc.data();
+  //             return sum + (paymentData.amount || 0);
+  //           }, 0);
+  //           setTotalPayments(total);
+  //         });
+
+  //         return () => {
+  //           paymentsUnsub();
+  //         };
+  //       } else {
+  //         const paymentsQuery = collection(db, 'payments');
+  //         const paymentsUnsub = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
+  //           const total = paymentsSnapshot.docs.reduce((sum, doc) => {
+  //             const paymentData = doc.data();
+  //             if (courseIds.includes(paymentData.courseId)) {
+  //               return sum + (paymentData.amount || 0);
+  //             }
+  //             return sum;
+  //           }, 0);
+  //           setTotalPayments(total);
+  //         });
+
+  //         return () => {
+  //           paymentsUnsub();
+  //         };
+  //       }
+  //     } else {
+  //       setTotalPayments(0);
+  //     }
+  //   });
+
+  //   return () => unsub();
+  // }, [user?.uid]);
+
+
+//   useEffect(() => {
+//   if (!user?.uid) {
+//     return;
+//   }
+
+//   const coursesQuery = query(
+//     collection(db, 'courses'),
+//     where('teacherId', '==', user.uid)
+//   );
+
+//   const unsub = onSnapshot(coursesQuery, async (snapshot) => {
+//     setCourseCount(snapshot.docs.length);
+
+//     const courseIds = snapshot.docs.map(doc => doc.id);
+
+//     if (courseIds.length > 0) {
+     
+//       let paymentsQuery;
+//       if (courseIds.length <= 10) {
+//         paymentsQuery = query(
+//           collection(db, 'payments'),
+//           where('courseId', 'in', courseIds)
+//         );
+//       } else {
+//         paymentsQuery = collection(db, 'payments');
+//       }
+
+//       const paymentsUnsub = onSnapshot(paymentsQuery, (paymentsSnapshot) => {
       
-      if (courseIds.length > 0) {
-        if (courseIds.length <= 10) {
-          const enrollmentsQuery = query(
-            collection(db, 'enrollments'),
-            where('courseId', 'in', courseIds)
-          );
+//         const total = paymentsSnapshot.docs.reduce((sum, doc) => {
+//           const paymentData = doc.data();
+//           if (courseIds.includes(paymentData.courseId)) {
+//             return sum + (paymentData.amount || 0);
+//           }
+//           return sum;
+//         }, 0);
+//         setTotalPayments(total);
 
-          const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
-            const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
-              const enrollmentData = doc.data();
-              return sum + (enrollmentData.amount || 0);
-            }, 0);
-            setTotalEnrollments(total);
-          });
+      
+//         const studentIdsSet = new Set<string>();
+//         paymentsSnapshot.docs.forEach(doc => {
+//           const paymentData = doc.data();
+//           if (courseIds.includes(paymentData.courseId) && paymentData.uid) {
+//             studentIdsSet.add(paymentData.uid);
+//           }
+//         });
+//         setStudentCount(studentIdsSet.size);
+//       });
 
-          return () => {
-            enrollmentsUnsub();
-          };
-        } else {
-          const enrollmentsQuery = collection(db, 'enrollments');
-          const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
-            const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
-              const enrollmentData = doc.data();
-              if (courseIds.includes(enrollmentData.courseId)) {
-                return sum + (enrollmentData.amount || 0);
-              }
-              return sum;
-            }, 0);
-            setTotalEnrollments(total);
-          });
+//       return () => {
+//         paymentsUnsub();
+//       };
+//     } else {
+//       setTotalPayments(0);
+//       setStudentCount(0);
+//     }
+//   });
 
-          return () => {
-            enrollmentsUnsub();
-          };
-        }
+//   return () => unsub();
+// }, [user?.uid]);
+
+
+
+useEffect(() => {
+  if (!user?.uid) {
+    return;
+  }
+
+  const coursesQuery = query(
+    collection(db, 'courses'),
+    where('teacherId', '==', user.uid)
+  );
+
+  const unsub = onSnapshot(coursesQuery, (snapshot) => {
+    setCourseCount(snapshot.docs.length);
+
+    const courseIds = snapshot.docs.map(doc => doc.id);
+
+    if (courseIds.length > 0) {
+      let enrollmentsQuery;
+      if (courseIds.length <= 10) {
+        enrollmentsQuery = query(
+          collection(db, 'enrollments'),
+          where('courseId', 'in', courseIds)
+        );
       } else {
-        setTotalEnrollments(0);
+        enrollmentsQuery = collection(db, 'enrollments');
       }
-    });
 
-    return () => unsub();
-  }, [user?.uid]);
+      const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
 
+        const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
+          const enrollmentData = doc.data();
+          if (courseIds.includes(enrollmentData.courseId)) {
+            return sum + (enrollmentData.amount || 0);
+          }
+          return sum;
+        }, 0);
+        setTotalPayments(total);
+
+
+        const enrollmentsCount = enrollmentsSnapshot.docs.filter(doc => {
+          const enrollmentData = doc.data();
+          return courseIds.includes(enrollmentData.courseId);
+        }).length;
+        setStudentCount(enrollmentsCount);
+      });
+
+      return () => enrollmentsUnsub();
+    } else {
+      setTotalPayments(0);
+      setStudentCount(0);
+    }
+  });
+
+  return () => unsub();
+}, [user?.uid]);
   return (
 
     <CacheProvider value={cacheRtl}>
-      <Box sx={{ 
-        backgroundColor: theme.palette.background.paper, 
-        pb: 2, 
-        pt: 5, 
-        width: '100%', 
-        position: 'relative',
-        borderBottom: isDarkMode ? '1px solid rgba(148, 163, 184, 0.2)' : '1px solid rgba(229, 231, 235, 0.8)'
-      }}>
+      <Box sx={{ backgroundColor: 'white', pb: 2, pt: 5, width: '100%', position: 'relative' }}>
 
         <Stack
           direction="row"
@@ -110,7 +403,7 @@ const Header: React.FC = () => {
               width: { xs: '100%', sm: '260px' },
               height: "140px",
               borderRadius: 2,
-              backgroundColor: isDarkMode ? 'rgba(139, 92, 246, 0.15)' : '#F5F3FF',
+              backgroundColor: '#F5F3FF',
               boxShadow: 1,
               fontFamily: 'Tajawal'
 
@@ -118,20 +411,10 @@ const Header: React.FC = () => {
           >
             <Stack direction={'column'} spacing={1} sx={{ mt: 3, ml: 3 }}>
               <PaymentsIcon sx={{ fontSize: 32, color: '#7C3AED' }} />
-              <Typography sx={{ 
-                fontWeight: 700, 
-                fontSize: '30px', 
-                lineHeight: "36px", 
-                color: theme.palette.text.primary 
-              }}>
-                {totalEnrollments}
+              <Typography sx={{ fontWeight: 700, fontSize: '30px', lineHeight: "36px", color: '#111827' }}>
+                {totalPayments}
               </Typography>
-              <Typography sx={{ 
-                fontWeight: 500, 
-                fontSize: '16px', 
-                lineHeight: "24px", 
-                color: theme.palette.text.secondary 
-              }}>
+              <Typography sx={{ fontWeight: 500, fontSize: '16px', lineHeight: "24px", color: '#6B7280' }}>
                 مجموع المدفوعات
               </Typography>
             </Stack>
@@ -141,32 +424,44 @@ const Header: React.FC = () => {
               width: { xs: '100%', sm: '260px' },
               height: "140px",
               borderRadius: 2,
-              backgroundColor: isDarkMode ? 'rgba(251, 146, 60, 0.15)' : '#FFF7ED',
+
+              backgroundColor: '#FFF7ED',
+
               boxShadow: 1,
               fontFamily: 'Tajawal',
             }}
           >
             <Stack direction={'column'} spacing={1} sx={{ mt: 3, ml: 3 }}>
               <SchoolIcon sx={{ fontSize: 32, color: '#EA580C' }} />
-              <Typography sx={{ 
-                fontWeight: 700, 
-                fontSize: '30px', 
-                lineHeight: "36px", 
-                color: theme.palette.text.primary 
-              }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '30px', lineHeight: "36px", color: '#111827' }}>
                 {courseCount}
               </Typography>
-              <Typography sx={{ 
-                fontWeight: 500, 
-                fontSize: '16px', 
-                lineHeight: "24px", 
-                color: theme.palette.text.secondary 
-              }}>
+              <Typography sx={{ fontWeight: 500, fontSize: '16px', lineHeight: "24px", color: '#6B7280' }}>
                 مجموع الكورسات
               </Typography>
             </Stack>
           </Box>
-          
+        
+          <Box
+  sx={{
+    width: { xs: '100%', sm: '260px' },
+    height: "140px",
+    borderRadius: 2,
+    backgroundColor: '#F3F4FF',
+    boxShadow: 1,
+    fontFamily: 'Tajawal'
+  }}
+>
+  <Stack direction={'column'} spacing={1} sx={{ mt: 3, ml: 3 }}>
+    <PeopleIcon sx={{ fontSize: 32, color: '#4F46E5' }} />
+    <Typography sx={{ fontWeight: 700, fontSize: '30px', lineHeight: "36px", color: '#111827' }}>
+      {studentCount}
+    </Typography>
+    <Typography sx={{ fontWeight: 500, fontSize: '16px', lineHeight: "24px", color: '#6B7280' }}>
+      مجموع الطلاب
+    </Typography>
+  </Stack>
+</Box>
         </Stack>
       </Box>
 

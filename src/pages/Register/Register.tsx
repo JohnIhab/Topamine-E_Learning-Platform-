@@ -2294,7 +2294,6 @@ const GoogleButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-// Styled component for the submit button with a pulse effect
 const SubmitButton = styled(Button)(({ theme }) => ({
     transition: 'all 0.3s ease-in-out',
     '&:hover': {
@@ -2757,7 +2756,7 @@ const Register: React.FC = () => {
                         </Typography>
                     </Fade>
                 </Grid>
-                
+
             </Grid>
         </Box>
     );

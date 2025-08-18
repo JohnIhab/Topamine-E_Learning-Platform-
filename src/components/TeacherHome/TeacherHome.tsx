@@ -12,20 +12,27 @@ import {
   useTheme,
 } from '@mui/material';
 import { collection, onSnapshot, Timestamp, query, orderBy, limit, where } from 'firebase/firestore';
-// @ts-ignore
-import { db } from '../../firebase.ts';
-// @ts-ignore  
+
+import { db } from '../../firebase';
+
 import { useAuth } from '../../context/AuthContext';
 import { useThemeMode } from '../../context/ThemeContext';
-import { Doughnut } from 'react-chartjs-2';
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  Legend
-} from 'chart.js';
+  Legend,
+} from "chart.js";
+
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import DashboardHighlight from '../DashboardHighlight/DashboardHighlight.tsx';
+
+
 
 interface Course {
   id: string;
@@ -41,58 +48,105 @@ interface Course {
   teacherId: string;
 }
 
-ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
+
 const TeacherHome: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
-  // @ts-ignore
+  const [courseCount, setCourseCount] = useState<number>(0);
+  const [totalPayments, setTotalPayments] = useState<number>(0);
+  const [studentCount, setStudentCount] = useState<number>(0);
+
   const { user } = useAuth();
   const theme = useTheme();
   const { isDarkMode } = useThemeMode();
 
   useEffect(() => {
-    if (!user?.uid) {
-      return;
-    }
+    if (!user?.uid) return;
 
     const coursesQuery = query(
-      collection(db, 'courses'),
-      where('teacherId', '==', user.uid),
-      orderBy('createdAt', 'desc'),
-      limit(5)
+      collection(db, "courses"),
+      where("teacherId", "==", user.uid)
     );
 
     const unsub = onSnapshot(coursesQuery, (snapshot) => {
-      const courseList = snapshot.docs.map(doc => ({
+      setCourseCount(snapshot.docs.length);
+
+      const coursesData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
-      })) as Course[]
-      
-      setCourses(courseList);
+        ...doc.data(),
+      })) as Course[];
+
+      setCourses(coursesData);
+      const courseIds = snapshot.docs.map((doc) => doc.id);
+
+      if (courseIds.length > 0) {
+        let enrollmentsQuery;
+        if (courseIds.length <= 10) {
+          enrollmentsQuery = query(
+            collection(db, "enrollments"),
+            where("courseId", "in", courseIds)
+          );
+        } else {
+          enrollmentsQuery = collection(db, "enrollments");
+        }
+
+        const enrollmentsUnsub = onSnapshot(enrollmentsQuery, (enrollmentsSnapshot) => {
+          const total = enrollmentsSnapshot.docs.reduce((sum, doc) => {
+            const enrollmentData = doc.data();
+            if (courseIds.includes(enrollmentData.courseId)) {
+              return sum + (enrollmentData.amount || 0);
+            }
+            return sum;
+          }, 0);
+          setTotalPayments(total);
+
+          const enrollmentsCount = enrollmentsSnapshot.docs.filter((doc) => {
+            const enrollmentData = doc.data();
+            return courseIds.includes(enrollmentData.courseId);
+          }).length;
+          setStudentCount(enrollmentsCount);
+        });
+
+        return () => enrollmentsUnsub();
+      } else {
+        setTotalPayments(0);
+        setStudentCount(0);
+      }
     });
 
     return () => unsub();
   }, [user?.uid]);
-  console.log(courses)
 
   const data = {
-    labels: ['الكورسات', 'المدفوعات', 'الطلاب'],
+    labels: ["المدفوعات", "الكورسات", "الطلاب"],
     datasets: [
       {
-        label: 'الإحصائيات',
-        data: [courses.length, 59.700, 248],
-        backgroundColor: isDarkMode 
-          ? ['rgba(139, 92, 246, 0.3)', 'rgba(34, 197, 94, 0.3)', 'rgba(251, 146, 60, 0.3)']
-          : ['#fff3e0', '#f1f8e9', '#ffe0b2'],
-        borderColor: isDarkMode 
-          ? ['rgba(139, 92, 246, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(251, 146, 60, 0.8)']
-          : ['#f57c00', '#689f38', '#ff9800'],
+        label: "الإحصائيات",
+        data: [totalPayments, courseCount, studentCount],
+        backgroundColor: isDarkMode
+          ? [
+            "rgba(139, 92, 246, 0.3)",
+            "rgba(34, 197, 94, 0.3)",
+            "rgba(251, 146, 60, 0.3)",
+          ]
+          : ["#fff3e0", "#f1f8e9", "#ffe0b2"],
+        borderColor: isDarkMode
+          ? [
+            "rgba(139, 92, 246, 0.8)",
+            "rgba(34, 197, 94, 0.8)",
+            "rgba(251, 146, 60, 0.8)",
+          ]
+          : ["#f57c00", "#689f38", "#ff9800"],
         borderWidth: 1,
       },
     ],
   };
 
+
+
   const options = {
     responsive: true,
+    indexAxis: "x" as const,
+    scales: { x: { beginAtZero: true } },
     plugins: {
       legend: {
         position: 'bottom' as const,
@@ -101,40 +155,45 @@ const TeacherHome: React.FC = () => {
         },
       },
       datalabels: {
-        formatter: (value: number, context: any) => {
-          const total = context.chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
-          const percentage = ((value / total) * 100).toFixed(1) + '%';
-          return percentage;
-        },
+        anchor: "end" as const,
+        align: "right" as const,
+        // formatter: (value: number, context: any) => {
+        //   const total = context.chart.data.datasets[0].data.reduce(
+        //     (a: number, b: number) => a + b,
+        //     0
+        //   );
+        // const percentage = ((value / total) * 100).toFixed(1) + '%';
+        // return percentage;
+        // },
         color: theme.palette.text.primary,
-        font: {
-          weight: 'bold' as const,
-          size: 14,
-        },
+        font: { weight: 'bold' as const, size: 14 },
       },
     },
   };
 
+
+
+
+
   return (
     <>
-      <Stack direction={'row'} sx={{ flexWrap: 'wrap', gap: 2,justifyContent:"space-around" }}>
-        <Box sx={{ 
-          backgroundColor: theme.palette.background.paper, 
-          width: { xs: '100%', md: '40%' }, 
-          height: 300, 
-          p: 2, 
-          borderRadius: 2, 
-          boxShadow: 2, 
-          display: 'flex', 
-          justifyContent: 'center', 
-          flexWrap: 'wrap', 
-          mt: 4, 
+      <Stack direction={'row'} sx={{ flexWrap: 'wrap', gap: 2, justifyContent: "space-around" }}>
+        <Box sx={{
+          backgroundColor: theme.palette.background.paper,
+          width: { xs: '100%', md: '40%', lg: '90%' },
+          height: 300,
+          p: 2,
+          borderRadius: 2,
+          boxShadow: 2,
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          mt: 4,
         }}>
-          <Doughnut data={data} options={options} />
+
+          <Bar data={data} options={options} />
         </Box>
-        <Box sx={{ mt: { xs: 2, md: 10 }, width: { xs: '100%', md: 'auto' } }}>
-          <DashboardHighlight />
-        </Box>
+
       </Stack>
       <Box sx={{ p: 3, width: '100%', overflowX: 'auto' }}>
         <TableContainer component={Paper} sx={{ backgroundColor: theme.palette.background.paper }}>
@@ -178,4 +237,4 @@ const TeacherHome: React.FC = () => {
   );
 }
 
-export default TeacherHome; 
+export default TeacherHome;
