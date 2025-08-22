@@ -74,5 +74,4 @@ Certificate generation on course completion
 
 This project is licensed under the MIT License.
 
-## 📂 Folder Structure
 
