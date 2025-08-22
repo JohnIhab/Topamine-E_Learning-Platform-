@@ -1,54 +1,78 @@
-# React + TypeScript + Vite
+🎓 Topamine - E-Learning Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Topamine is a modern educational platform that connects students with qualified teachers. It provides features such as secure registration, role-based dashboards, real-time messaging, and integrated payment for purchasing courses. Built using **React**, **Firebase**, **Cloudinary**, and **Paymob**.
 
-Currently, two official plugins are available:
+🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔐 **Role-Based Authentication**
+  - Students, teachers, and admins have dedicated dashboards with custom permissions.
+  - Teachers require admin approval before joining.
 
-## Expanding the ESLint configuration
+- 🎥 **Course Management**
+  - Teachers can create courses with multiple videos and files.
+  - Each video has a start and end date for controlled access.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 💳 **Payment Integration**
+  - Students can purchase courses via **Paymob payment gateway**.
+  - Teachers can view earnings and student purchase stats.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- 🧠 **AI Chatbot (Gemini)**
+  - Smart assistant to help users navigate the platform.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- 💬 **Social Interactions**
+  - Students can follow teachers and receive notifications for new courses.
+  - Real-time chat between followed students and teachers.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- 🛠️ **Admin Dashboard**
+  - View analytics: number of students, teachers, revenue, and more.
+  - Manage users: approve, reject, or ban teachers and students.
+  - Control course visibility and content.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+📦 Tech Stack
+- **Frontend**: React, Material UI, Formik, Yup
+- **Backend**: Firebase Firestore, Firebase Auth, Cloudinary (media), Paymob (payments)
+- **AI Integration**: Gemini chatbot.
+
+- 📂 Folder Structure
+  /src
+├── components # Reusable UI components
+├── pages # Route-based pages (Dashboard, Login, Courses, etc.)
+├── firebase # Firebase config and services
+├── utils # Helper functions (API, validation, etc.)
+└── assets # Images and static files
+
+
+## 🛠️ Getting Started
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/topamine.git
+
+2. Navigate to the project folder:
+   cd topamine
+   
+3. Install dependencies:
+   npm install
+
+4. Add your .env file:
+  REACT_APP_FIREBASE_API_KEY=...
+  REACT_APP_CLOUDINARY_PRESET=...
+  REACT_APP_PAYMOB_API_KEY=...
+
+5. Run the development server:
+   npm start
+
+🧪 Features In Progress
+
+Course rating and reviews
+
+Zoom/Google Meet integration for live sessions
+
+Certificate generation on course completion
+
+📄 License
+
+This project is licensed under the MIT License.
+
+## 📂 Folder Structure
+
